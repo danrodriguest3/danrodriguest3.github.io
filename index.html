@@ -1,21 +1,77 @@
 <html>
 <!-- import aframe and then ar.js with image tracking / location based features -->
 <script
-    src="https://cdn.jsdelivr.net/gh/aframevr/aframe@1c2407b26c61958baa93967b5412487cd94b290b/dist/aframe-master.min.js"></script>
-<script src="https://raw.githack.com/AR-js-org/AR.js/master/aframe/build/aframe-ar-nft.js"></script>
+    src="https://cdn.jsdelivr.net/gh/aframevr/aframe@1c2407b26c61958baa93967b5412487cd94b290b/dist/aframe-master.min.js">
+    </script>
+<script src="https://raw.githack.com/AR-js-org/AR.js/master/aframe/build/aframe-ar-nft.js">
+
+</script>
 
 <script>
-    const scene = AFRAME.scenes[0];
-    if (!scene) {
-        return;
-    }
-    const mouseCursor = document.createElement('a-entity');
-    mouseCursor.setAttribute('cursor', 'rayOrigin', 'mouse');
-    scene.appendChild(mouseCursor);
-    AFRAME.registerComponent('clickhandler', {
+    AFRAME.registerComponent("raycaster-listen", {
         init: function () {
-            this.el.addEventListener('click', () => {
-                window.open();
+            // Use events to figure out what raycaster is listening so we don't have to
+            // hardcode the raycaster.
+            let el = this.el;
+            let myRaycaster;
+
+            let canvas = this.el.sceneEl.canvas;
+            let clickPosUpdated = new THREE.Vector3();
+            let distanceMultiplierX = 0.6;
+            let distanceMultiplierY = 0.45;
+            let isMobile = this.el.sceneEl.isMobile;
+
+            this.el.addEventListener("raycaster-intersected", (evt) => {
+                this.raycaster = evt.detail.el;
+                myRaycaster = this.raycaster;
+            });
+            this.el.addEventListener("raycaster-intersected-cleared", (evt) => {
+                this.raycaster = null;
+                myRaycaster = null;
+            });
+
+            canvas.addEventListener("touchstart", function (evt) {
+                console.log(evt);
+                // GET MOUSE XY
+                var _canvasSize = canvas.getBoundingClientRect(),
+                    w = _canvasSize.width,
+                    h = _canvasSize.height,
+                    offsetW = _canvasSize.left,
+                    offsetH = _canvasSize.top;
+                var cx = void 0,
+                    cy = void 0;
+                if (isMobile) {
+                    var touches = evt.touches;
+                    if (!touches || touches.length !== 1) {
+                        return;
+                    }
+                    var touch = touches[0];
+                    cx = touch.clientX;
+                    cy = touch.clientY;
+                } else {
+                    cx = evt.clientX;
+                    cy = evt.clientY;
+                }
+                cx = cx - offsetW;
+                cy = cy - offsetH;
+                var mouseX = (cx / w) * 2 - 1;
+                var mouseY = -(cy / h) * 2 + 1;
+
+                // RAYCAST
+                let intersection = myRaycaster.components.raycaster.getIntersection(el);
+                if (!intersection) {
+                    return;
+                }
+                // console.log(intersection.point);
+
+                // CALCULATE UDPATED POS
+                clickPosUpdated.x = intersection.point.x + intersection.distance * distanceMultiplierX * mouseX;
+                clickPosUpdated.y = intersection.point.y + intersection.distance * distanceMultiplierY * mouseY;
+                clickPosUpdated.z = intersection.point.z;
+                console.log("clickPosUpdated", clickPosUpdated);
+
+                // SET DEBUG BOX
+                debugBox.setAttribute("position", clickPosUpdated);
             });
         },
     });
@@ -46,12 +102,13 @@
 <body style="margin : 0px; overflow: hidden;">
     <!-- minimal loader shown until image descriptors are loaded. Loading may take a while according to the device computational power -->
     <div class="arjs-loader">
-        <div>0001</div>
+        <div>0002</div>
     </div>
 
     <!-- a-frame scene -->
-    <a-scene vr-mode-ui="enabled: false;" renderer="logarithmicDepthBuffer: true;" embedded
-        arjs="trackingMethod: best; sourceType: webcam;debugUIEnabled: false;">
+    <a-scene embedded renderer=" colorManagement: true;  logarithmicDepthBuffer: true"
+        arjs="debugUIEnabled: false;  detectionMode: mono_and_matrix; patternRatio: 0.5" vr-mode-ui="enabled: false"
+        device-orientation-permission-ui="enabled: false">
         <!-- a-nft is the anchor that defines an Image Tracking entity -->
         <!-- on 'url' use the path to the Image Descriptors created before. -->
         <!-- the path should end with the name without the extension e.g. if file is 'pinball.fset' the path should end with 'pinball' -->
@@ -61,9 +118,22 @@
                 gltf-model="https://arjs-cors-proxy.herokuapp.com/https://raw.githack.com/AR-js-org/AR.js/master/aframe/examples/image-tracking/nft/trex/scene.gltf"
                 scale="7 7 7" position="0 0 0" navclick>
             </a-entity>
+            <a-plane raycaster-listen class="collidable" color="#CCC" height="20" width="20" rotation="-90 0 0"
+                material="opacity:0.001">
+            </a-plane>
         </a-nft>
         <!-- static camera that moves according to the device movemenents -->
-        <a-entity camera></a-entity>
+        <a-entity camera>
+            <a-entity id="ray-rot-x">
+                <a-entity raycaster="objects: .collidable; showLine: false; far: 30; useWorldCoordinates: true"
+                    id="ray-rot-y">
+                </a-entity>
+            </a-entity>
+            <a-entity cursor="fuse: false" position="0 0 -1"
+                geometry="primitive: ring; radiusInner: 0.02; radiusOuter: 0.03"
+                material="color: white; shader: flat; opacity:.05">
+            </a-entity>
+        </a-entity>
     </a-scene>
 </body>
 
