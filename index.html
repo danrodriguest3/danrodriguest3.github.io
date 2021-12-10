@@ -4,7 +4,9 @@
     src="https://cdn.jsdelivr.net/gh/aframevr/aframe@1c2407b26c61958baa93967b5412487cd94b290b/dist/aframe-master.min.js"></script>
 <script src="https://raw.githack.com/AR-js-org/AR.js/master/aframe/build/aframe-ar-nft.js"></script>
 
-<script src="https://raw.githack.com/fcor/arjs-gestures/master/dist/gestures.js"></script>
+<script src="gesture-detector.js"></script>
+
+<script src="gesture-handler.js"></script>
 
 <script>
     this.addEventListener("markerFound", (e) => {
@@ -58,15 +60,15 @@
         <div>0009</div>
     </div>
 
-    <a-scene arjs="trackingMethod: best; sourceType: webcam; debugUIEnabled: false;" embedded
-        renderer="logarithmicDepthBuffer: true;" vr-mode-ui="enabled: false" gesture-detector id="scene">
+    <a-scene arjs embedded renderer="logarithmicDepthBuffer: true;" vr-mode-ui="enabled: false" gesture-detector
+        id="scene">
 
         <a-nft type="nft" url="/marker" smooth="true" smoothCount="10" smoothTolerance=".01" smoothThreshold="5"
             raycaster="objects: .clickable" emitevents="true" cursor="fuse: false; rayOrigin: mouse;">
 
             <a-entity
                 gltf-model="https://arjs-cors-proxy.herokuapp.com/https://raw.githack.com/AR-js-org/AR.js/master/aframe/examples/image-tracking/nft/trex/scene.gltf"
-                scale="5 5 5" position="0 -10 0" class="clickable" gesture-handler="minScale: 0.25; maxScale: 10">
+                scale="5 5 5" position="0 10 0" class="clickable" gesture-handler="minScale: 0.25; maxScale: 10">
             </a-entity>
         </a-nft>
 
