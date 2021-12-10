@@ -9,28 +9,9 @@
 <script src="gesture-handler.js"></script>
 
 <script>
-    this.addEventListener("markerFound", (e) => {
-        isMarkerVisible = true;
-    });
-
-    this.addEventListener("markerLost", (e) => {
-        isMarkerVisible = false;
-    });
-    this.addEventListener("onefingerstart", {
-        if(isMarkerVisible) {
-            window.open();
-        }
-    });
-    this.addEventListener("onefingerend", {
-        if(isMarkerVisible) {
-            window.open();
-        }
-    });
-    this.addEventListener("one", {
-        if(isMarkerVisible) {
-            window.open();
-        }
-    });
+    this.addEventListener("onefingerstart", window.open());
+    this.addEventListener("onefingerend", window.open());
+    this.addEventListener("one", window.open());
 </script>
 
 <style>
@@ -57,7 +38,7 @@
 <body style="margin : 0px; overflow: hidden;">
 
     <div class="arjs-loader">
-        <div>0010</div>
+        <div>0011</div>
     </div>
 
     <a-scene arjs embedded renderer="logarithmicDepthBuffer: true;" vr-mode-ui="enabled: false" gesture-detector
@@ -68,7 +49,7 @@
 
             <a-entity
                 gltf-model="https://arjs-cors-proxy.herokuapp.com/https://raw.githack.com/AR-js-org/AR.js/master/aframe/examples/image-tracking/nft/trex/scene.gltf"
-                scale="5 5 5" position="0 10 0" class="clickable" gesture-handler="minScale: 0.25; maxScale: 10">
+                scale="5 5 5" position="10 0 0" class="clickable" gesture-handler="minScale: 0.25; maxScale: 10">
             </a-entity>
         </a-nft>
 
