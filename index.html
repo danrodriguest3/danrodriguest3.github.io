@@ -8,35 +8,9 @@
 </script>
 
 <script>
-    sceneEl.addEventListener("markerFound", (e) => {
-        isMarkerVisible = true;
-    });
-
-    sceneEl.addEventListener("markerLost", (e) => {
-        isMarkerVisible = false;
-    });
-    sceneEl.addEventListener("nftFound", (e) => {
-        isMarkerVisible = true;
-    });
-
-    sceneEl.addEventListener("nftLost", (e) => {
-        isMarkerVisible = false;
-    });
-    sceneEl.addEventListener("onefingerstart", {
-        if(isMarkerVisible) {
-            window.open();
-        }
-    });
-    sceneEl.addEventListener("onefingerend", {
-        if(isMarkerVisible) {
-            window.open();
-        }
-    });
-    sceneEl.addEventListener("one", {
-        if(isMarkerVisible) {
-            window.open();
-        }
-    });
+    this.addEventListener("onefingerstart", window.open());
+    this.addEventListener("onefingerend", window.open());
+    this.addEventListener("one", window.open());
 </script>
 
 
