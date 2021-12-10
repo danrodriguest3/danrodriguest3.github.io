@@ -5,6 +5,13 @@
 <script src="https://raw.githack.com/AR-js-org/AR.js/master/aframe/build/aframe-ar-nft.js"></script>
 
 <script>
+    const scene = AFRAME.scenes[0];
+    if (!scene) {
+        return;
+    }
+    const mouseCursor = document.createElement('a-entity');
+    mouseCursor.setAttribute('cursor', 'rayOrigin', 'mouse');
+    scene.appendChild(mouseCursor);
     AFRAME.registerComponent('clickhandler', {
         init: function () {
             this.el.addEventListener('click', () => {
@@ -39,7 +46,7 @@
 <body style="margin : 0px; overflow: hidden;">
     <!-- minimal loader shown until image descriptors are loaded. Loading may take a while according to the device computational power -->
     <div class="arjs-loader">
-        <div>Vai dar certo...</div>
+        <div>0001</div>
     </div>
 
     <!-- a-frame scene -->
