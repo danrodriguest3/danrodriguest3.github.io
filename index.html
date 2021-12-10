@@ -8,6 +8,20 @@
 </script>
 
 <script>
+    sceneEl.addEventListener("markerFound", (e) => {
+        isMarkerVisible = true;
+    });
+
+    sceneEl.addEventListener("markerLost", (e) => {
+        isMarkerVisible = false;
+    });
+    sceneEl.addEventListener("nftFound", (e) => {
+        isMarkerVisible = true;
+    });
+
+    sceneEl.addEventListener("nftLost", (e) => {
+        isMarkerVisible = false;
+    });
     sceneEl.addEventListener("onefingerstart", {
         if(isMarkerVisible) {
             window.open();
@@ -46,37 +60,12 @@
         font-size: 1.25em;
         color: white;
     }
-
-    .buttons {
-        position: absolute;
-        bottom: 0;
-        left: 0;
-        width: 100%;
-        height: 5em;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        z-index: 10;
-    }
-
-    .say-hi-button {
-        padding: 0.25em;
-        border-radius: 4px;
-        border: none;
-        background: white;
-        color: black;
-        width: 4em;
-        height: 2em;
-    }
 </style>
 
 <body style="margin : 0px; overflow: hidden;">
     <!-- minimal loader shown until image descriptors are loaded. Loading may take a while according to the device computational power -->
     <div class="arjs-loader">
-        <div>0004</div>
-    </div>
-    <div class="buttons">
-        <button class="say-hi-button"></button>
+        <div>0005</div>
     </div>
     <!-- a-frame scene -->
     <a-scene arjs embedded renderer="logarithmicDepthBuffer: true;" vr-mode-ui="enabled: false" gesture-detector
