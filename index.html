@@ -8,7 +8,17 @@
 </script>
 
 <script>
-    sceneEl.addEventListener("onefingermove", {
+    sceneEl.addEventListener("onefingerstart", {
+        if(isMarkerVisible) {
+            window.open();
+        }
+    });
+    sceneEl.addEventListener("onefingerend", {
+        if(isMarkerVisible) {
+            window.open();
+        }
+    });
+    sceneEl.addEventListener("one", {
         if(isMarkerVisible) {
             window.open();
         }
@@ -63,7 +73,7 @@
 <body style="margin : 0px; overflow: hidden;">
     <!-- minimal loader shown until image descriptors are loaded. Loading may take a while according to the device computational power -->
     <div class="arjs-loader">
-        <div>0003</div>
+        <div>0004</div>
     </div>
     <div class="buttons">
         <button class="say-hi-button"></button>
