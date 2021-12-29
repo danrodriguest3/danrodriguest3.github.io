@@ -16,8 +16,7 @@
     AFRAME.registerComponent('foo', {
   events: {
     click: function (evt) {
-      console.log('This entity was clicked!');
-      window.open();
+      window.open('https://tonic3.com/', 'Tonic3');
       this.el.setAttribute('material', 'color', 'red');
     }
   }
@@ -48,7 +47,7 @@
 <body style="margin : 0px; overflow: hidden;">
 
     <div class="arjs-loader">
-        <div>Loading Assets 001Xf</div>
+        <div>Loading Assets 001Xg</div>
     </div>
 
     <a-scene arjs embedded renderer="logarithmicDepthBuffer: true;" vr-mode-ui="enabled: false" gesture-detector
