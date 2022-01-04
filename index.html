@@ -47,14 +47,21 @@
 <body style="margin : 0px; overflow: hidden;">
 
     <div class="arjs-loader">
-        <div>Loading Assets 001Xr</div>
+        <div>Loading Assets 001Xs</div>
     </div>
 
     <div style="position: absolute; bottom: 0; width: 100%; height: 60; background-color: #FFF;">
 
     </div>
-    <a-scene arjs embedded renderer="logarithmicDepthBuffer: true; antialias: true; sortObjects: true;"
-        id="scene">
+    <a-scene arjs embedded 
+        renderer="
+            logarithmicDepthBuffer: true; 
+            antialias: true; 
+            sortObjects: true;
+            "
+        id="scene"
+        vr-mode-ui="enabled: false"
+        >
 
         <a-assets>
             <a-asset-item id="markerfset" src="./marker.fset">
@@ -73,9 +80,6 @@
                 scale="300 300 300" position="90 -400 -20" rotation="270 0 0" class="clickable" >
             </a-entity>
         </a-nft>
-
-        <a-entity camera>
-        </a-entity>
 
     </a-scene>
 </body>
