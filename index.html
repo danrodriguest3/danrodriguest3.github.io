@@ -47,14 +47,14 @@
 <body style="margin : 0px; overflow: hidden;">
 
     <div class="arjs-loader">
-        <div>Loading Assets 001Xo</div>
+        <div>Loading Assets 001Xp</div>
     </div>
 
     <div style="position: absolute; bottom: 0; width: 100%; height: 60; background-color: #FFF;">
 
     </div>
-    <a-scene arjs embedded renderer="logarithmicDepthBuffer: true;" vr-mode-ui="enabled: false" gesture-detector
-        id="scene" frustumCulled="false">
+    <a-scene arjs embedded renderer="logarithmicDepthBuffer: false;"
+        id="scene">
 
         <a-assets>
             <a-asset-item id="markerfset" src="./marker.fset">
@@ -69,7 +69,7 @@
             raycaster="objects: .clickable" emitevents="true" cursor="fuse: false; rayOrigin: mouse;">
 
             <a-entity
-                foo gltf-model="./scene.gltf"
+                foo gltf-model="./scene.gltf" animation__position="property: object3D.position.y; to: -800; dir: alternate; dur: 2000; loop: true"
                 scale="300 300 300" position="90 -400 -20" rotation="270 0 0" class="clickable" >
             </a-entity>
         </a-nft>
