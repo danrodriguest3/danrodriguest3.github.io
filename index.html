@@ -47,7 +47,7 @@
 <body style="margin : 0px; overflow: hidden;">
 
     <div class="arjs-loader">
-        <div>Loading Assets 001Xu</div>
+        <div>Loading Assets 001Xv</div>
     </div>
 
     <div style="position: absolute; bottom: 0; width: 100%; height: 60; background-color: #FFF;">
@@ -72,8 +72,17 @@
             </a-asset-item>
         </a-assets>
 
-        <a-nft type="nft" url="/marker" smooth="true" smoothCount="10" smoothTolerance=".01" smoothThreshold="5"
-            raycaster="objects: .clickable" emitevents="true" cursor="fuse: false; rayOrigin: mouse;">
+        <a-nft 
+            type="nft" 
+            url="/marker" 
+            smooth="true" 
+            smoothCount="60" 
+            smoothTolerance=".01" 
+            smoothThreshold="5"
+            raycaster="objects: .clickable" 
+            emitevents="true" 
+            cursor="fuse: false; rayOrigin: mouse;"
+        >
 
             <a-entity
                 foo gltf-model="./scene.gltf"
