@@ -48,13 +48,17 @@
 <body style="margin : 0px; overflow: hidden;">
 
     <div class="arjs-loader">
-        <div>Loading Assets 001Xw</div>
+        <div>Loading Assets 001Xx</div>
     </div>
 
     <div style="position: absolute; bottom: 0; width: 100%; height: 60; background-color: #FFF;">
 
     </div>
-    <a-scene arjs embedded 
+    <a-scene 
+        arjs 
+        embedded 
+        cursor="fuse: false; rayOrigin: mouse"
+        raycaster="objects: .clickable" 
         renderer="
             logarithmicDepthBuffer: true; 
             antialias: true;
@@ -79,9 +83,7 @@
             smoothCount="10" 
             smoothTolerance=".01" 
             smoothThreshold="5"
-            raycaster="objects: .clickable" 
-            emitevents="true" 
-            cursor="fuse: false; rayOrigin: mouse;"
+            emitevents="true"
         >
 
             <a-entity
