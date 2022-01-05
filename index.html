@@ -13,7 +13,7 @@
 <script src="gesture-handler.js"></script>
 
 <script>
-    AFRAME.registerComponent('foo', {
+    await AFRAME.registerComponent('foo', {
   events: {
     click: function (evt) {
       window.open('https://tonic3.com/', 'Tonic3');
@@ -21,6 +21,7 @@
     }
   }
 });
+    foo.play();
 </script>
 
 <style>
@@ -47,7 +48,7 @@
 <body style="margin : 0px; overflow: hidden;">
 
     <div class="arjs-loader">
-        <div>Loading Assets 001Xvp</div>
+        <div>Loading Assets 001Xw</div>
     </div>
 
     <div style="position: absolute; bottom: 0; width: 100%; height: 60; background-color: #FFF;">
@@ -84,12 +85,12 @@
         >
 
             <a-entity
-                foo play="true" loop="true" gltf-model="./scene.gltf"
+                foo gltf-model="./scene.gltf"
                 scale="1 1 1" position="90 -400 -20" rotation="270 0 0" class="clickable" >
             </a-entity>
         </a-nft>
 
-        <a-entity camera far="1000" near="0.0001">
+        <a-entity camera>
         </a-entity>
 
     </a-scene>
