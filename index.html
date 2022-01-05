@@ -48,7 +48,7 @@
 <body style="margin : 0px; overflow: hidden;">
 
     <div class="arjs-loader">
-        <div>Loading Assets 001Xz</div>
+        <div>Loading Assets 002Xa</div>
     </div>
 
     <div style="position: absolute; bottom: 0; width: 100%; height: 60; background-color: #FFF;">
@@ -57,15 +57,13 @@
     <a-scene 
         arjs 
         embedded 
-        cursor="fuse: false; rayOrigin: mouse"
-        raycaster="objects: .clickable" 
-        emitevents="true"
         renderer="
             logarithmicDepthBuffer: true; 
             antialias: true;
             "
         id="scene"
         vr-mode-ui="enabled: false"
+        gesture-detector
         >
 
         <a-assets>
@@ -86,12 +84,19 @@
             smoothCount="10" 
             smoothTolerance=".01" 
             smoothThreshold="5"
+            cursor="fuse: false; rayOrigin: mouse"
+            raycaster="objects: .clickable" 
             emitevents="true"
         >
 
             <a-entity
-                foo gltf-model="./model/scene.gltf"
-                scale=".25 .25 .25" position="90 -400 -20" rotation="270 0 0" class="clickable" emitevents="true" >
+                foo 
+                gltf-model="./model/scene.gltf"
+                scale=".25 .25 .25" 
+                position="90 -400 -20" 
+                rotation="270 0 0" 
+                class="clickable" 
+                gesture-handler="minScale: 0.25; maxScale: 10" >
             </a-entity>
         </a-nft>
 
