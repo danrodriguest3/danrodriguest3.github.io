@@ -14,12 +14,18 @@
 
 <script>
     await AFRAME.registerComponent('foo', {
-  events: {
-    click: function (evt) {
-      window.open('https://tonic3.com/', 'Tonic3');
-      this.el.setAttribute('material', 'color', 'red');
-    }
-  }
+        events: {
+            click: function (evt) {
+                window.open('https://tonic3.com/', 'Tonic3');
+                this.el.play();
+            },
+            init: function () {
+                this.el.play();
+            }
+        },
+        init: function () {
+            this.el.play();
+        }
 });
     foo.play();
 </script>
@@ -48,7 +54,7 @@
 <body style="margin : 0px; overflow: hidden;">
 
     <div class="arjs-loader">
-        <div>Loading Assets 002Xa</div>
+        <div>Loading Assets 002Xb</div>
     </div>
 
     <div style="position: absolute; bottom: 0; width: 100%; height: 60; background-color: #FFF;">
