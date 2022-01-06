@@ -20,9 +20,7 @@
     AFRAME.registerComponent('soundhandler', {
         init: function () {
             this.soundEl = document.querySelector('#babysound');
-            console.log('soundEl: ' + soundEl);
             this.marker = document.querySelector('a-nft');
-            console.log('marker: ' + marker);
             this.visible = false;
         },
         tick: function () {
@@ -71,7 +69,7 @@
 <body style="margin : 0px; overflow: hidden;">
 
     <div class="arjs-loader">
-        <div>Loading Assets 002Xw</div>
+        <div>Loading Assets 002Xt</div>
     </div>
     <a-scene 
         arjs 
@@ -85,12 +83,20 @@
         gesture-detector
         soundhandler>
         <a-assets>
-            <a-asset-item id="markerfset" src="./marker.fset"></a-asset-item>
-            <a-asset-item id="markerfset3" src="./marker.fset3"></a-asset-item>
-            <a-asset-item id="markeriset" src="./marker.iset"></a-asset-item>
-            <a-asset-item id="model" src="./model/scene.gltf"></a-asset-item>
-            <a-asset-item id="sound" src="audio.mp3"></a-asset-item>
-            <a-asset-item id="baby" src="baby.mp3"></a-asset-item>
+            <a-asset-item id="markerfset" src="./marker.fset">
+            </a-asset-item>
+            <a-asset-item id="markerfset3" src="./marker.fset3">
+            </a-asset-item>
+            <a-asset-item id="markeriset" src="./marker.iset">
+            </a-asset-item>
+            <a-asset-item id="model" src="./model/scene.gltf">
+            </a-asset-item>
+            <a-assets>
+                <audio id="sound" src="audio.mp3" preload="auto"></audio>
+            </a-assets>
+            <a-assets>
+                <audio id="baby" src="baby.mp3" preload="auto"></audio>
+            </a-assets>
         </a-assets>
         <a-nft 
             type="nft" 
