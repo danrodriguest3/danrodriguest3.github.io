@@ -22,12 +22,16 @@
                 markerFound: function (evt) {
                     var entity = document.querySelector('#babysound');
                     entity.components.sound.playSound();
-                    window.open('https://tonic3.com/', 'Tonic3');
+                    entity.components.playSound();
+                    entity.sound.playSound();
+                    entity.playSound();
                 },
                 markerLost: function (evt) {
                     var entity = document.querySelector('#babysound');
                     entity.components.sound.pauseSound();
-                    window.open('https://tonic3.com/', 'Tonic3');
+                    entity.components.pauseSound();
+                    entity.sound.pauseSound();
+                    entity.pauseSound();
                 }
             },
     });
@@ -57,7 +61,7 @@
 <body style="margin : 0px; overflow: hidden;">
 
     <div class="arjs-loader">
-        <div>Loading Assets 002Xr</div>
+        <div>Loading Assets 002Xs</div>
     </div>
     <a-scene 
         arjs 
