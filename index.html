@@ -16,14 +16,19 @@
                 window.open('https://tonic3.com/', 'Tonic3');
             },
         },
-});
-AFRAME.registerComponent('nftmarker', {
-        events: {
-            markerFound: function (evt) {
-                window.open('https://tonic3.com/', 'Tonic3');
+    });
+    AFRAME.registerComponent('nftmarker', {
+            events: {
+                markerFound: function (evt) {
+                    var entity = document.querySelector('[baby]');
+                    entity.components.sound.playSound();
+                },
+                markerLost: function (evt) {
+                    var entity = document.querySelector('[baby]');
+                    entity.components.sound.pauseSound();
+                }
             },
-        },
-});
+    });
 </script>
 
 <style>
@@ -50,7 +55,7 @@ AFRAME.registerComponent('nftmarker', {
 <body style="margin : 0px; overflow: hidden;">
 
     <div class="arjs-loader">
-        <div>Loading Assets 002Xm</div>
+        <div>Loading Assets 002Xn</div>
     </div>
     <a-scene 
         arjs 
@@ -98,9 +103,9 @@ AFRAME.registerComponent('nftmarker', {
                 rotation="270 0 0" 
                 class="clickable">
             </a-entity>
-            <a-entity sound="src: #sound; on: markerFound; loop: true;"></a-entity>
+            <a-entity sound="src: #baby; loop: true;"></a-entity>
         </a-nft>
-        <a-entity sound="src: #baby; autoplay: true; loop: true;"></a-entity>
+        <a-entity sound="src: #sound; autoplay: true; loop: true; volume: 0.4"></a-entity>
         <a-entity camera></a-entity>
     </a-scene>
 </body>
