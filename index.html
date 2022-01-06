@@ -17,6 +17,13 @@
             },
         },
 });
+AFRAME.registerComponent('nftmarker', {
+        events: {
+            markerFound: function (evt) {
+                window.open('https://tonic3.com/', 'Tonic3');
+            },
+        },
+});
 </script>
 
 <style>
@@ -43,7 +50,7 @@
 <body style="margin : 0px; overflow: hidden;">
 
     <div class="arjs-loader">
-        <div>Loading Assets 002Xl</div>
+        <div>Loading Assets 002Xm</div>
     </div>
     <a-scene 
         arjs 
@@ -72,6 +79,7 @@
             </a-assets>
         </a-assets>
         <a-nft 
+            nftmarker
             type="nft" 
             url="/marker" 
             smooth="true" 
@@ -90,7 +98,7 @@
                 rotation="270 0 0" 
                 class="clickable">
             </a-entity>
-            <a-entity sound="src: #sound; on: #markerFound; loop: true;"></a-entity>
+            <a-entity sound="src: #sound; on: markerFound; loop: true;"></a-entity>
         </a-nft>
         <a-entity sound="src: #baby; autoplay: true; loop: true;"></a-entity>
         <a-entity camera></a-entity>
