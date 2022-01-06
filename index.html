@@ -17,23 +17,30 @@
             },
         },
     });
-    AFRAME.registerComponent('nftmarker', {
-            events: {
-                markerFound: function (evt) {
-                    var entity = document.querySelector('#babysound');
-                    entity.components.sound.playSound();
-                    entity.components.playSound();
-                    entity.sound.playSound();
-                    entity.playSound();
-                },
-                markerLost: function (evt) {
-                    var entity = document.querySelector('#babysound');
-                    entity.components.sound.pauseSound();
-                    entity.components.pauseSound();
-                    entity.sound.pauseSound();
-                    entity.pauseSound();
-                }
+    AFRAME.registerComponent('soundhandler', {
+        init: function () {
+            this.soundEl = document.querySelector('#babysound');
+            this.marker = document.querySelector('a-nft');
+            this.visible = false;
+        },
+        tick: function () {
+            if (this.marker.object3D.visible && !this.visible) {
+                this.soundEl.components.sound.playSound();
+                this.visible = true;
+            } else if (!this.marker.object3D.visible) {
+                this.soundEl.components.sound.stopSound();
+                this.visible = false;
+            }
+        },
+        events: {
+            markerFound: function (evt) {
+                console.log('FOUND');
             },
+            markerLost: function (evt) {
+                console.log('LOST');
+                window.open('https://tonic3.com/', 'Tonic3');
+            }
+        },
     });
 </script>
 
@@ -61,7 +68,7 @@
 <body style="margin : 0px; overflow: hidden;">
 
     <div class="arjs-loader">
-        <div>Loading Assets 002Xs</div>
+        <div>Loading Assets 002Xt</div>
     </div>
     <a-scene 
         arjs 
@@ -72,7 +79,8 @@
             "
         id="scene"
         vr-mode-ui="enabled: false"
-        gesture-detector>
+        gesture-detector
+        soundhandler>
         <a-assets>
             <a-asset-item id="markerfset" src="./marker.fset">
             </a-asset-item>
@@ -90,7 +98,6 @@
             </a-assets>
         </a-assets>
         <a-nft 
-            nftmarker
             type="nft" 
             url="/marker" 
             smooth="true" 
