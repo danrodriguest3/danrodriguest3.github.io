@@ -20,7 +20,9 @@
     AFRAME.registerComponent('soundhandler', {
         init: function () {
             this.soundEl = document.querySelector('#babysound');
+            console.log('soundEl: ' + soundEl);
             this.marker = document.querySelector('a-nft');
+            console.log('marker: ' + marker);
             this.visible = false;
         },
         tick: function () {
@@ -35,10 +37,11 @@
         events: {
             markerFound: function (evt) {
                 console.log('FOUND');
+                this.soundEl.components.sound.playSound();
             },
             markerLost: function (evt) {
                 console.log('LOST');
-                window.open('https://tonic3.com/', 'Tonic3');
+                this.soundEl.components.sound.stopSound();
             }
         },
     });
@@ -68,7 +71,7 @@
 <body style="margin : 0px; overflow: hidden;">
 
     <div class="arjs-loader">
-        <div>Loading Assets 002Xt</div>
+        <div>Loading Assets 002Xu</div>
     </div>
     <a-scene 
         arjs 
@@ -90,12 +93,8 @@
             </a-asset-item>
             <a-asset-item id="model" src="./model/scene.gltf">
             </a-asset-item>
-            <a-assets>
-                <audio id="sound" src="audio.mp3" preload="auto"></audio>
-            </a-assets>
-            <a-assets>
-                <audio id="baby" src="baby.mp3" preload="auto"></audio>
-            </a-assets>
+            <audio id="sound" src="audio.mp3" preload="auto"></audio>
+            <audio id="baby" src="baby.mp3" preload="auto"></audio>
         </a-assets>
         <a-nft 
             type="nft" 
