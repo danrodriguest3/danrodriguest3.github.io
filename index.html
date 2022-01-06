@@ -43,7 +43,7 @@
 <body style="margin : 0px; overflow: hidden;">
 
     <div class="arjs-loader">
-        <div>Loading Assets 002Xe</div>
+        <div>Loading Assets 002Xf</div>
     </div>
 
     <div style="position: absolute; bottom: 0; width: 100%; height: 60; background-color: #FFF;">
@@ -70,8 +70,6 @@
             </a-asset-item>
             <a-asset-item id="model" src="./model/scene.gltf">
             </a-asset-item>
-            <a-asset-item id="sound" src="./audio.mp3">
-            </a-asset-item>
         </a-assets>
 
         <a-nft 
@@ -94,7 +92,7 @@
                 position="90 -400 20" 
                 rotation="270 0 0" 
                 class="clickable"
-                sound="src: './audio.mp3'; autoplay: true; loop: true; on: click"
+                sound="src: url(audio.mp3); autoplay: true; loop: true;"
                 >
             </a-entity>
         </a-nft>
