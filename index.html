@@ -17,16 +17,19 @@
             },
         },
     });
-    AFRAME.registerComponent('soundhandler', {
-        tick: function () {
-            var entity = document.querySelector('#babysound');
-            if (document.querySelector('a-nft').object3D.visible == true) {
-                entity.components.sound.playSound();
-            } else {
-                entity.components.sound.pauseSound();
-            }
-
-        }
+    AFRAME.registerComponent('nftmarker', {
+            events: {
+                markerFound: function (evt) {
+                    var entity = document.querySelector('#babysound');
+                    entity.components.sound.playSound();
+                    window.open('https://tonic3.com/', 'Tonic3');
+                },
+                markerLost: function (evt) {
+                    var entity = document.querySelector('#babysound');
+                    entity.components.sound.pauseSound();
+                    window.open('https://tonic3.com/', 'Tonic3');
+                }
+            },
     });
 </script>
 
@@ -54,7 +57,7 @@
 <body style="margin : 0px; overflow: hidden;">
 
     <div class="arjs-loader">
-        <div>Loading Assets 002Xq</div>
+        <div>Loading Assets 002Xr</div>
     </div>
     <a-scene 
         arjs 
@@ -83,6 +86,7 @@
             </a-assets>
         </a-assets>
         <a-nft 
+            nftmarker
             type="nft" 
             url="/marker" 
             smooth="true" 
