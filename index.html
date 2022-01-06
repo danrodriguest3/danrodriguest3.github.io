@@ -19,7 +19,7 @@
     });
     AFRAME.registerComponent('soundhandler', {
         tick: function () {
-            var entity = document.querySelector('babysound');
+            var entity = document.querySelector('#babysound');
             if (document.querySelector('a-nft').object3D.visible == true) {
                 entity.components.sound.playSound();
             } else {
@@ -54,7 +54,7 @@
 <body style="margin : 0px; overflow: hidden;">
 
     <div class="arjs-loader">
-        <div>Loading Assets 002Xp</div>
+        <div>Loading Assets 002Xq</div>
     </div>
     <a-scene 
         arjs 
