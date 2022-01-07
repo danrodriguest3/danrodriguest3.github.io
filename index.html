@@ -18,12 +18,6 @@
                 alert("clicked new");
             }); 
         },
-        events: {
-            click: function (evt) {
-                window.open('https://tonic3.com/', 'Tonic3');
-                alert("clicked old");
-            },
-        },
     });
     AFRAME.registerComponent('soundhandler', {
         init: function () {
@@ -68,7 +62,7 @@
 <body style="margin : 0px; overflow: hidden;">
 
     <div class="arjs-loader">
-        <div>Loading Assets 002Xv</div>
+        <div>Loading Assets 002Xw</div>
     </div>
     <a-scene 
         arjs 
@@ -104,7 +98,6 @@
             smoothCount="10" 
             smoothTolerance=".01" 
             smoothThreshold="5"
-            cursor="fuse: false; rayOrigin: mouse"
             raycaster="objects: .clickable" 
             emitevents="true">
             <a-entity
@@ -120,7 +113,7 @@
         </a-nft>
         <a-entity id="babysound" sound="src: #baby; loop: true;"></a-entity>
         <a-entity sound="src: #sound; autoplay: true; loop: true; volume: 0.4"></a-entity>
-        <a-entity camera></a-entity>
+        <a-entity camera><a-entity cursor="fuse: false; rayOrigin: mouse" position="0 0 -1" geometry="primitive: ring; radiusInner: 0.02; radiusOuter: 0.03" material="color: black; shader: flat"></a-entity></a-entity>
     </a-scene>
 </body>
 
