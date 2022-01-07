@@ -14,6 +14,7 @@
         events: {
             click: function (evt) {
                 window.open('https://tonic3.com/', 'Tonic3');
+                alert("clicked old");
             },
         },
     });
@@ -33,6 +34,35 @@
                 this.soundEl.components.sound.stopSound();
             }
         },
+    });
+    //register a new component to our scene
+    AFRAME.registerComponent('myscene', {
+        init: function () {
+          
+            //Let's write a message to the console
+            console.log('The Message');
+            
+            //Currently a working around for raycast on cursor
+            
+            // We can set variables to make queries easier
+            var sceneEl = document.querySelector('a-scene'); 
+            var object1 = sceneEl.querySelector('#main-object')
+            
+            // A function to add a listener when the box is found set a property
+            object1.addEventListener('foo', function () {
+                //object1.setAttribute('color', 'blue');  
+            });
+            
+            object1.emit('foo');
+            //alert("ok Change It");
+            
+            document.querySelector('#main-object').addEventListener('click', function () {
+                window.open('https://tonic3.com/', 'Tonic3');
+                console.log('I was clicked!');
+                alert("clicked new");
+            });  
+          
+        }
     });
 </script>
 
@@ -60,7 +90,7 @@
 <body style="margin : 0px; overflow: hidden;">
 
     <div class="arjs-loader">
-        <div>Loading Assets 002Xv</div>
+        <div>Loading Assets 002Xw</div>
     </div>
     <a-scene 
         arjs 
@@ -72,7 +102,8 @@
         id="scene"
         vr-mode-ui="enabled: false"
         gesture-detector
-        soundhandler>
+        soundhandler
+        myscene>
         <a-assets>
             <a-asset-item id="markerfset" src="./marker.fset">
             </a-asset-item>
@@ -100,6 +131,7 @@
             raycaster="objects: .clickable" 
             emitevents="true">
             <a-entity
+                id="main-object"
                 foo 
                 animation-mixer
                 gltf-model="#model"
