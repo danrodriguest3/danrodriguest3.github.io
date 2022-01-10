@@ -16,12 +16,11 @@
             var raycasterEl = AFRAME.scenes[0].querySelector('[raycaster]');
             raycasterEl.components.raycaster.refreshObjects();
             document.querySelector('.clickable').addEventListener('click', function (evt) {
+                alert("Info: " + evt.detail.intersection.object.el.id);
                 if (evt.detail.intersection.object.el.id == 'obj01'){
                     //window.open('https://tonic3.com/', 'Tonic3');
-                    alert("Info: " + evt.detail.intersection.object.el.id);
                 } else {
                     //window.open('https://tonic3.com/ar-vr', 'Tonic3');
-                    alert("Info: " + evt.detail.intersection.object.el.id);
                 }
             });
         },
@@ -69,7 +68,7 @@
 <body style="margin : 0px; overflow: hidden;">
 
     <div class="arjs-loader">
-        <div><h3>Loading Assets</h3><p>003Xf</p></div>
+        <div><h3>Loading Assets</h3><p>003Xff</p></div>
     </div>
     <a-scene 
         arjs 
@@ -120,7 +119,7 @@
                 animation-mixer
                 gltf-model="#model"
                 scale=".125 .125 .125" 
-                position="90 -500 20" 
+                position="90 -400 20" 
                 rotation="270 0 0" 
                 class="clickable">
             </a-entity>
@@ -138,7 +137,7 @@
                 animation-mixer
                 gltf-model="#model2"
                 scale="3 3 3" 
-                position="90 -300 20" 
+                position="90 -400 20" 
                 rotation="270 0 0" 
                 class="clickable">
             </a-entity>
