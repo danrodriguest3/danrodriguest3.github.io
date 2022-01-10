@@ -63,7 +63,7 @@
 <body style="margin : 0px; overflow: hidden;">
 
     <div class="arjs-loader">
-        <div><h3>Loading Assets</h3><p>003Xf</p></div>
+        <div><h3>Loading Assets</h3><p>003Xe</p></div>
     </div>
     <a-scene 
         arjs 
@@ -133,8 +133,7 @@
                 gltf-model="#model2"
                 scale="3 3 3" 
                 position="90 -400 20" 
-                rotation="270 0 0" 
-                class="clickable">
+                rotation="270 0 0">
             </a-entity>
         </a-nft>
         <a-entity id="babysound" sound="src: #baby; loop: true;"></a-entity>
@@ -142,7 +141,7 @@
         <a-entity camera>
             <a-entity 
             cursor="fuse: false;" 
-            raycaster="objects: .clickable"
+            raycaster="objects: #obj01 #obj02"
             position="0 0 -1"
             material="color: black; shader: flat">
             </a-entity>
