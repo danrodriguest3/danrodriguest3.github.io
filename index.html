@@ -15,7 +15,8 @@
         init: function() {
             var raycasterEl = AFRAME.scenes[0].querySelector('[raycaster]');
             raycasterEl.components.raycaster.refreshObjects();
-            document.querySelector('#obj01, #obj02').addEventListener('click', function (evt) {
+            
+            document.querySelector('#obj02').addEventListener('click', function (evt) {
                 var click = evt;
                 alert("Info: " + click.detail.intersection.object.el.id);
                 switch(click.detail.intersection.object.el.id) {
@@ -75,7 +76,7 @@
 <body style="margin : 0px; overflow: hidden;">
 
     <div class="arjs-loader">
-        <div><h3>Loading Assets</h3><p>003Xg</p></div>
+        <div><h3>Loading Assets</h3><p>003Xge</p></div>
     </div>
     <a-scene 
         arjs 
