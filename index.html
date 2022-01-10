@@ -11,12 +11,10 @@
 
 <script>
     AFRAME.registerComponent('foo', {
+        dependencies: ['raycaster'],
         init: function() {
-            document.querySelector('#obj01').addEventListener('click', function () {
+            document.querySelector('.clickable').addEventListener('click', function () {
                 window.open('https://tonic3.com/', 'Tonic3');
-            }); 
-            document.querySelector('#obj02').addEventListener('click', function () {
-                window.open('https://tonic3.com/ar-vr', 'AR & VR at Tonic3');
             });
         },
     });
@@ -133,7 +131,8 @@
                 gltf-model="#model2"
                 scale="3 3 3" 
                 position="90 -400 20" 
-                rotation="270 0 0">
+                rotation="270 0 0" 
+                class="clickable">
             </a-entity>
         </a-nft>
         <a-entity id="babysound" sound="src: #baby; loop: true;"></a-entity>
@@ -141,7 +140,7 @@
         <a-entity camera>
             <a-entity 
             cursor="fuse: false;" 
-            raycaster="objects: #obj01 #obj02"
+            raycaster="objects: .clickable"
             position="0 0 -1"
             material="color: black; shader: flat">
             </a-entity>
