@@ -15,8 +15,9 @@
         init: function() {
             var raycasterEl = AFRAME.scenes[0].querySelector('[raycaster]');
             raycasterEl.components.raycaster.refreshObjects();
-            document.querySelector('.clickable').addEventListener('click', function () {
-                window.open('https://tonic3.com/', 'Tonic3');
+            document.querySelector('.clickable').addEventListener('click', function (evt) {
+                alert("Info: " + evt);
+                //window.open('https://tonic3.com/', 'Tonic3');
             });
         },
     });
@@ -63,7 +64,7 @@
 <body style="margin : 0px; overflow: hidden;">
 
     <div class="arjs-loader">
-        <div><h3>Loading Assets</h3><p>003Xe</p></div>
+        <div><h3>Loading Assets</h3><p>003Xf</p></div>
     </div>
     <a-scene 
         arjs 
