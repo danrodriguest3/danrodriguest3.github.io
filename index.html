@@ -12,9 +12,12 @@
 <script>
     AFRAME.registerComponent('foo', {
         init: function() {
-            document.querySelector('.clickable').addEventListener('click', function () {
+            document.querySelector('#obj01').addEventListener('click', function () {
                 window.open('https://tonic3.com/', 'Tonic3');
             }); 
+            document.querySelector('#obj02').addEventListener('click', function () {
+                window.open('https://tonic3.com/ar-vr', 'AR & VR at Tonic3');
+            });
         },
     });
     AFRAME.registerComponent('soundhandler', {
@@ -60,7 +63,7 @@
 <body style="margin : 0px; overflow: hidden;">
 
     <div class="arjs-loader">
-        <div><h3>Loading Assets</h3><p>003Xd</p></div>
+        <div><h3>Loading Assets</h3><p>003Xe</p></div>
     </div>
     <a-scene 
         arjs 
@@ -106,7 +109,7 @@
             smoothThreshold="5" 
             emitevents="true">
             <a-entity
-                id="main-object"
+                id="obj01"
                 foo 
                 animation-mixer
                 gltf-model="#model"
@@ -125,11 +128,11 @@
             smoothThreshold="5" 
             emitevents="true">
             <a-entity
-                id="main-object"
+                id="obj02"
                 foo 
                 animation-mixer
                 gltf-model="#model2"
-                scale="2 2 2" 
+                scale="3 3 3" 
                 position="90 -400 20" 
                 rotation="270 0 0" 
                 class="clickable">
