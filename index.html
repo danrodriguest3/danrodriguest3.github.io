@@ -13,6 +13,8 @@
     AFRAME.registerComponent('foo', {
         dependencies: ['raycaster'],
         init: function() {
+            var raycasterEl = AFRAME.scenes[0].querySelector('[raycaster]');
+            raycasterEl.components.raycaster.refreshObjects();
             document.querySelector('.clickable').addEventListener('click', function () {
                 window.open('https://tonic3.com/', 'Tonic3');
             });
