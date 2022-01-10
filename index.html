@@ -63,7 +63,7 @@
 <body style="margin : 0px; overflow: hidden;">
 
     <div class="arjs-loader">
-        <div><h3>Loading Assets</h3><p>003Xe</p></div>
+        <div><h3>Loading Assets</h3><p>003Xf</p></div>
     </div>
     <a-scene 
         arjs 
@@ -75,7 +75,8 @@
         id="scene"
         vr-mode-ui="enabled: false"
         gesture-detector
-        soundhandler>
+        soundhandler
+        foo>
         <a-assets>
             <a-asset-item id="00amarkerfset" src="./marker/00a/marker.fset">
             </a-asset-item>
@@ -110,7 +111,6 @@
             emitevents="true">
             <a-entity
                 id="obj01"
-                foo 
                 animation-mixer
                 gltf-model="#model"
                 scale=".125 .125 .125" 
@@ -129,7 +129,6 @@
             emitevents="true">
             <a-entity
                 id="obj02"
-                foo 
                 animation-mixer
                 gltf-model="#model2"
                 scale="3 3 3" 
