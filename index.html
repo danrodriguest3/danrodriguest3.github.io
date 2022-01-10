@@ -17,7 +17,11 @@
             raycasterEl.components.raycaster.refreshObjects();
             document.querySelector('.clickable').addEventListener('click', function (evt) {
                 alert("Info: " + evt.detail);
-                //window.open('https://tonic3.com/', 'Tonic3');
+                if (evt.detail.intersection.object.el.id === 'obj01'){
+                    window.open('https://tonic3.com/', 'Tonic3');
+                } else {
+                    window.open('https://tonic3.com/ar-vr', 'Tonic3');
+                }
             });
         },
     });
@@ -64,7 +68,7 @@
 <body style="margin : 0px; overflow: hidden;">
 
     <div class="arjs-loader">
-        <div><h3>Loading Assets</h3><p>003Xe CLICK DEBUG</p></div>
+        <div><h3>Loading Assets</h3><p>003Xf CLICK DEBUG</p></div>
     </div>
     <a-scene 
         arjs 
