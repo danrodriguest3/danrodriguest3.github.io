@@ -60,7 +60,7 @@
 <body style="margin : 0px; overflow: hidden;">
 
     <div class="arjs-loader">
-        <div><h3>Loading Assets</h3><p>003Xa</p></div>
+        <div><h3>Loading Assets</h3><p>003Xb</p></div>
     </div>
     <a-scene 
         arjs 
@@ -74,11 +74,17 @@
         gesture-detector
         soundhandler>
         <a-assets>
-            <a-asset-item id="markerfset" src="./marker/00a/marker.fset">
+            <a-asset-item id="00amarkerfset" src="./marker/00a/marker.fset">
             </a-asset-item>
-            <a-asset-item id="markerfset3" src="./marker/00a/marker.fset3">
+            <a-asset-item id="00amarkerfset3" src="./marker/00a/marker.fset3">
             </a-asset-item>
-            <a-asset-item id="markeriset" src="./marker/00a/marker.iset">
+            <a-asset-item id="00amarkeriset" src="./marker/00a/marker.iset">
+            </a-asset-item>
+            <a-asset-item id="00bmarkerfset" src="./marker/00a/marker.fset">
+            </a-asset-item>
+            <a-asset-item id="00bmarkerfset3" src="./marker/00a/marker.fset3">
+            </a-asset-item>
+            <a-asset-item id="00bmarkeriset" src="./marker/00a/marker.iset">
             </a-asset-item>
             <a-asset-item id="model" src="./model/baby/scene.gltf">
             </a-asset-item>
@@ -93,7 +99,7 @@
         </a-assets>
         <a-nft 
             type="nft" 
-            url="/marker" 
+            url="/marker/00a/marker" 
             smooth="true" 
             smoothCount="10" 
             smoothTolerance=".01" 
