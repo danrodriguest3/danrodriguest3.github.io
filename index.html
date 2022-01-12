@@ -13,13 +13,8 @@
     AFRAME.registerComponent('foo', {
         dependencies: ['raycaster'],
         init: function() {
-            var raycasterEl = AFRAME.scenes[0].querySelector('[raycaster]');
-            raycasterEl.components.raycaster.refreshObjects();
-            document.querySelector('#obj01').addEventListener('click', function (evt) {
-                window.open('https://tonic3.com/', 'Tonic3');
-            });
-            document.querySelector('#obj02').addEventListener('click', function (evt) {
-                window.open('https://tonic3.com/ar-vr', 'Tonic3');
+            document.addEventListener('click', function (evt) {
+                alert(evt.detail.intersection.object.el.className);
             });
         },
     });
@@ -64,7 +59,7 @@
 <body style="margin : 0px; overflow: hidden;">
 
     <div class="arjs-loader">
-        <div><h3>Loading Assets</h3><p>003Xl DEBUG</p></div>
+        <div><h3>Loading Assets</h3><p>003Xla DEBUG</p></div>
     </div>
     <a-scene 
         arjs
@@ -72,7 +67,7 @@
         renderer="
             logarithmicDepthBuffer: true; 
             antialias: true;
-            precision: low;
+            precision: 'low';
             "
         id="scene"
         vr-mode-ui="enabled: false"
