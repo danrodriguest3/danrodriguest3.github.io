@@ -14,7 +14,7 @@
         dependencies: ['raycaster'],
         init: function() {
             document.addEventListener('click', function (evt) {
-                alert(evt.detail.intersection.object.el.className);
+                alert(evt.detail.intersection.object.el.className + ' - ' + evt.detail.intersection.object.el.id);
             });
         },
     });
@@ -59,7 +59,7 @@
 <body style="margin : 0px; overflow: hidden;">
 
     <div class="arjs-loader">
-        <div><h3>Loading Assets</h3><p>003Xlb DEBUG</p></div>
+        <div><h3>Loading Assets</h3><p>003Xlc DEBUG</p></div>
     </div>
     <a-scene 
         arjs
