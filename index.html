@@ -64,7 +64,7 @@
 <body style="margin : 0px; overflow: hidden;">
 
     <div class="arjs-loader">
-        <div><h3>Loading Assets</h3><p>003Xkl DEBUG</p></div>
+        <div><h3>Loading Assets</h3><p>003Xl DEBUG</p></div>
     </div>
     <a-scene 
         arjs
@@ -72,6 +72,7 @@
         renderer="
             logarithmicDepthBuffer: true; 
             antialias: true;
+            precision: low;
             "
         id="scene"
         vr-mode-ui="enabled: false"
@@ -106,9 +107,9 @@
             type="nft" 
             url="/marker/00a/marker" 
             smooth="true" 
-            smoothCount="20" 
+            smoothCount="10" 
             smoothTolerance=".01" 
-            smoothThreshold="10" 
+            smoothThreshold="5" 
             emitevents="true">
             <a-entity
                 id="obj01"
@@ -124,9 +125,9 @@
             type="nft" 
             url="/marker/00b/marker" 
             smooth="true" 
-            smoothCount="20" 
+            smoothCount="10" 
             smoothTolerance=".01" 
-            smoothThreshold="10" 
+            smoothThreshold="5" 
             emitevents="true">
             <a-entity
                 id="obj02"
