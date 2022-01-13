@@ -1,7 +1,7 @@
 <html>
 
 <script src="https://aframe.io/releases/1.2.0/aframe.min.js"></script>
-<script src="https://raw.githack.com/AR-js-org/AR.js/master/three.js/build/ar-nft.js"></script>
+<script src="https://raw.githack.com/AR-js-org/AR.js/master/aframe/build/aframe-ar-nft.js"></script>
 <script src="https://cdn.jsdelivr.net/gh/donmccurdy/aframe-extras@v6.1.1/dist/aframe-extras.min.js"></script>
 
 <script src="gesture-detector.js"></script>
@@ -65,7 +65,7 @@
 <body style="margin : 0px; overflow: hidden;">
 
     <div class="arjs-loader">
-        <div><h3>Loading Assets</h3><p>003Xpc DEBUG</p></div>
+        <div><h3>Loading Assets</h3><p>003Xpd DEBUG</p></div>
     </div>
     <a-scene
         arjs
@@ -96,14 +96,10 @@
             </a-asset-item>
             <a-asset-item id="model2" src="./model/fox/scene.gltf">
             </a-asset-item>
-            <a-asset-item>
-                <audio id="sound" src="audio.mp3" preload="auto">
-                </audio>
-            </a-asset-item>
-            <a-asset-item>
-                <audio id="baby" src="baby.mp3" preload="auto">
-                </audio>
-            </a-asset-item>
+            <audio id="sound" src="audio.mp3" preload="auto">
+            </audio>
+            <audio id="baby" src="baby.mp3" preload="auto">
+            </audio>
         </a-assets>
         <a-nft 
             type="nft" 
