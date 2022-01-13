@@ -67,7 +67,7 @@
 <body style="margin : 0px; overflow: hidden;">
 
     <div class="arjs-loader">
-        <div><h3>Loading Assets</h3><p>003Xne DEBUG</p></div>
+        <div><h3>Loading Assets</h3><p>003Xnf DEBUG</p></div>
     </div>
     <a-scene 
         arjs
@@ -119,7 +119,7 @@
                 animation-mixer
                 gltf-model="#model"
                 scale="80 80 80" 
-                position="0 -600 0" 
+                position="40 -600 0" 
                 rotation="270 0 0" 
                 class="clickable">
             </a-entity>
@@ -137,7 +137,7 @@
                 animation-mixer
                 gltf-model="#model2"
                 scale="2.5 2.5 2.5" 
-                position="250 -300 0" 
+                position="160 -300 0" 
                 rotation="270 0 0" 
                 class="clickable">
             </a-entity>
@@ -147,7 +147,7 @@
         <a-entity camera>
             <a-entity 
             cursor="fuse: false;" 
-            raycaster="objects: .clickable"
+            raycaster="objects: #obj01 #obj02"
             position="0 0 0">
             </a-entity>
         </a-entity>
