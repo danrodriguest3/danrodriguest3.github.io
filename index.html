@@ -1,7 +1,7 @@
 <html>
 
 <script src="https://aframe.io/releases/1.2.0/aframe.min.js"></script>
-<script src="https://raw.githack.com/AR-js-org/AR.js/master/aframe/build/aframe-ar-nft.js"></script>
+<script src="https://raw.githack.com/AR-js-org/AR.js/master/three.js/build/ar-nft.js"></script>
 <script src="https://cdn.jsdelivr.net/gh/donmccurdy/aframe-extras@v6.1.1/dist/aframe-extras.min.js"></script>
 
 <script src="gesture-detector.js"></script>
@@ -65,7 +65,7 @@
 <body style="margin : 0px; overflow: hidden;">
 
     <div class="arjs-loader">
-        <div><h3>Loading Assets</h3><p>003Xpa DEBUG</p></div>
+        <div><h3>Loading Assets</h3><p>003Xpb DEBUG</p></div>
     </div>
     <a-scene
         arjs
@@ -73,7 +73,6 @@
         renderer="
             logarithmicDepthBuffer: true; 
             antialias: true;
-            precision: low;
             "
         id="scene"
         vr-mode-ui="enabled: false"
@@ -114,8 +113,8 @@
                 id="obj01"
                 animation-mixer
                 gltf-model="#model"
-                scale="60 60 60" 
-                position="120 -600 0" 
+                scale="100 100 100" 
+                position="122 -600 2" 
                 rotation="270 0 0" 
                 class="clickable">
             </a-entity>
@@ -133,7 +132,7 @@
                 animation-mixer
                 gltf-model="#model2"
                 scale="3 3 3" 
-                position="120 -300 0" 
+                position="121 -300 1" 
                 rotation="270 0 0" 
                 class="clickable">
             </a-entity>
