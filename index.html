@@ -30,11 +30,11 @@
         },
         events: {
             markerFound: function (evt) {
-                console.log('FOUND');
+                alert('FOUND');
                 this.soundEl.components.sound.playSound();
             },
             markerLost: function (evt) {
-                console.log('LOST');
+                alert('LOST');
                 this.soundEl.components.sound.stopSound();
             }
         },
@@ -65,7 +65,7 @@
 <body style="margin : 0px; overflow: hidden;">
 
     <div class="arjs-loader">
-        <div><h3>Loading Assets</h3><p>003Xr DEBUG</p></div>
+        <div><h3>Loading Assets</h3><p>003Xs DEBUG</p></div>
     </div>
     <a-scene
         arjs
@@ -88,7 +88,7 @@
         </a-assets>
         <a-nft 
             type="nft" 
-            url="/marker/t3a/t3a" 
+            url="./marker/t3a/t3a" 
             smooth="true" 
             smoothCount="10" 
             smoothTolerance=".01" 
