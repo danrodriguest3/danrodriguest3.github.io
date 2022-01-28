@@ -65,12 +65,12 @@
 <body style="margin : 0px; overflow: hidden;">
 
     <div class="arjs-loader">
-        <div><h3>Loading Assets</h3><p>004Xa DEBUG</p></div>
+        <div><h3>Loading Assets</h3><p>004Xb DEBUG</p></div>
     </div>
     <a-scene
         arjs
         embedded 
-        renderer="logarithmicDepthBuffer: true; maxCanvasWidth: 1920; maxCanvasHeight: 1920;"
+        renderer="logarithmicDepthBuffer: false; maxCanvasWidth: 1920; maxCanvasHeight: 1920;"
         id="scene"
         vr-mode-ui="enabled: false"
         gesture-detector
@@ -86,6 +86,7 @@
             <audio id="baby" src="baby.mp3" preload="auto">
             </audio>
         </a-assets>
+        <a-box color="tomato" depth="2" height="4" width="0.5"></a-box>
         <a-nft 
             type="nft" 
             url="./marker/t3a/t3a" 
@@ -164,7 +165,6 @@
         </a-nft>
         <a-entity id="babysound" sound="src: #baby; loop: true;"></a-entity>
         <a-entity sound="src: #sound; autoplay: true; loop: true; volume: 0.4"></a-entity>
-        <a-plane color="#CCC" height="50" width="5" position="0 0 2"></a-plane>
         <a-entity camera="near: 0.000005">
             <a-entity 
             cursor="fuse: false;" 
@@ -172,6 +172,7 @@
             position="0 0 0">
             </a-entity>
         </a-entity>
+        <a-scene stats></a-scene>
     </a-scene>
 </body>
 
