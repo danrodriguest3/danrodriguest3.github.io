@@ -30,7 +30,7 @@
         },
         events: {
             markerFound: function (evt) {
-                alert('FOUND');
+                //alert('FOUND');
                 this.soundEl.components.sound.playSound();
             },
             markerLost: function (evt) {
@@ -65,7 +65,7 @@
 <body style="margin : 0px; overflow: hidden;">
 
     <div class="arjs-loader">
-        <div><h3>Loading Assets</h3><p>003Xz DEBUG</p></div>
+        <div><h3>Loading Assets</h3><p>004Xa DEBUG</p></div>
     </div>
     <a-scene
         arjs
@@ -164,13 +164,13 @@
         </a-nft>
         <a-entity id="babysound" sound="src: #baby; loop: true;"></a-entity>
         <a-entity sound="src: #sound; autoplay: true; loop: true; volume: 0.4"></a-entity>
-        <a-entity camera="near: 0.5">
+        <a-plane color="#CCC" height="50" width="5" position="0 0 2"></a-plane>
+        <a-entity camera="near: 0.000005">
             <a-entity 
             cursor="fuse: false;" 
             raycaster="objects: .clickable"
             position="0 0 0">
             </a-entity>
-            <a-plane color="#CCC" height="50" width="5" position="0 0 0"></a-plane>
         </a-entity>
     </a-scene>
 </body>
