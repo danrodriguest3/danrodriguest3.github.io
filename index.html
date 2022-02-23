@@ -70,7 +70,7 @@
 <body style="margin : 0px; overflow: hidden;">
 
     <div class="arjs-loader">
-        <div><h3>Loading Assets</h3><p>005Xp DEV</p></div>
+        <div><h3>Loading Assets</h3><p>005Xq DEV</p></div>
     </div>
     <a-scene
         arjs
@@ -80,15 +80,15 @@
         gesture-detector
         soundhandler
         clickdetection>
-        <a-assets>
+        <a-assets timeout="10000">
             <a-asset-item id="model" src="./model/baby/scene.gltf">
             </a-asset-item>
             <a-asset-item id="model2" src="./model/fox/scene.gltf">
             </a-asset-item>
-            <audio id="sound" src="audio.mp3" preload="auto">
-            </audio>
-            <audio id="baby" src="baby.mp3" preload="auto">
-            </audio>
+            <a-asset-item id="sound" src="audio.mp3" preload="auto">
+            </a-asset-item>
+            <a-asset-item id="baby" src="baby.mp3" preload="auto">
+            </a-asset-item>
         </a-assets>
         <a-nft 
             type="nft" 
