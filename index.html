@@ -13,20 +13,19 @@
         init: function() {
             document.addEventListener('click', function (evt) {
                 switch (evt.detail.intersection.object.el.id) {
-                    case 'zorro1':
+                    case 'zorro0':
                         window.open('https://tonic3.com/', 'Tonic3');
                         break;
-                    case 'zorro2':
+                    case 'zorro1':
                         window.open('https://tonic3.com/ar-vr', 'Tonic3');
                         break;
-                    case 'baby1':
+                    case 'baby0':
                         window.open('https://tonic3.com/', 'Tonic3');
                         break;
-                    case 'baby2':
+                    case 'baby1':
                         window.open('https://tonic3.com/ar-vr', 'Tonic3');
                         break;
                 }
-                //alert(evt.detail.intersection.object.el.className + ' - ' + evt.detail.intersection.object.el.id);
             });
         },
     });
@@ -71,7 +70,7 @@
 <body style="margin : 0px; overflow: hidden;">
 
     <div class="arjs-loader">
-        <div><h3>Loading Assets</h3><p>005Xv DEV</p></div>
+        <div><h3>Loading Assets</h3><p>005Xw DEV</p></div>
     </div>
     <a-scene
         arjs
@@ -91,7 +90,6 @@
             <a-asset-item id="baby" src="baby.mp3" preload="auto">
             </a-asset-item>
         </a-assets>
-        <!-- 
         <a-nft 
             type="nft" 
             url="./marker/t3a/t3a" 
@@ -111,7 +109,6 @@
                 gesture-handler>
             </a-entity>
         </a-nft>
-        -->
         <a-nft 
             type="nft" 
             url="./marker/t3b/t3b" 
@@ -121,27 +118,7 @@
             smoothThreshold="5" 
             emitevents="true">
             <a-entity
-                id="baby0"
-                animation-mixer
-                gltf-model="#model"
-                scale=".15 .15 .15"
-                rotation="270 0 0" 
-                class="clickable"
-                position="115 -200 0"
-                gesture-handler>
-            </a-entity>
-        </a-nft>
-        <a-nft 
-            type="nft" 
-            url="./marker/t3c/t3c" 
-            smooth="true" 
-            smoothCount="10" 
-            smoothTolerance=".01" 
-            smoothThreshold="5" 
-            emitevents="true">
-            <a-entity>
-                <a-entity
-                    id="baby1"
+                    id="baby0"
                     animation-mixer
                     gltf-model="#model"
                     scale=".15 .15 .15" 
@@ -161,7 +138,7 @@
                     gesture-handler>
                 </a-entity>
                 <a-entity
-                    id="baby2"
+                    id="baby1"
                     animation-mixer
                     gltf-model="#model"
                     scale=".1 .1 .1" 
@@ -170,36 +147,6 @@
                     position="300 -240 -20"
                     gesture-handler>
                 </a-entity>
-                <a-entity
-                    id="zorro2"
-                    animation-mixer
-                    gltf-model="#model2"
-                    scale="3 3 3"
-                    rotation="270 0 0"
-                    class="clickable"
-                    position="100 -240 20"
-                    gesture-handler>
-                </a-entity>
-            </a-entity>
-        </a-nft>
-        <a-nft 
-            type="nft" 
-            url="./marker/t3d/t3d" 
-            smooth="true" 
-            smoothCount="10" 
-            smoothTolerance=".01" 
-            smoothThreshold="5" 
-            emitevents="true">
-            <a-entity
-                id="zorro3"
-                animation-mixer
-                gltf-model="#model2"
-                scale="4 4 4" 
-                rotation="270 0 0" 
-                class="clickable"
-                position="60 -60 0"
-                gesture-handler>
-            </a-entity>
         </a-nft>
         <a-entity id="babysound" sound="src: #baby; loop: true;"></a-entity>
         <a-entity sound="src: #sound; autoplay: true; loop: true; volume: 0.4"></a-entity>
