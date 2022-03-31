@@ -5,6 +5,7 @@
 <script src="https://cdn.jsdelivr.net/gh/donmccurdy/aframe-extras@v6.1.1/dist/aframe-extras.min.js"></script>
 
 <script src="gesture-detector.js"></script>
+<script src="gesture-handler.js"></script>
 
 <script>
     AFRAME.registerComponent('clickdetection', {
@@ -90,6 +91,7 @@
             <a-asset-item id="baby" src="baby.mp3" preload="auto">
             </a-asset-item>
         </a-assets>
+        <!-- 
         <a-nft 
             type="nft" 
             url="./marker/t3a/t3a" 
@@ -105,9 +107,11 @@
                 scale="4 4 4"
                 rotation="270 0 0"
                 class="clickable"
-                position="60 -60 0">
+                position="60 -60 0"
+                gesture-handler>
             </a-entity>
         </a-nft>
+        -->
         <a-nft 
             type="nft" 
             url="./marker/t3b/t3b" 
@@ -123,7 +127,8 @@
                 scale=".15 .15 .15"
                 rotation="270 0 0" 
                 class="clickable"
-                position="115 -200 0">
+                position="115 -200 0"
+                gesture-handler>
             </a-entity>
         </a-nft>
         <a-nft 
@@ -142,7 +147,8 @@
                     scale=".15 .15 .15" 
                     rotation="270 0 0" 
                     class="clickable"
-                    position="0 -60 20">
+                    position="0 -60 20"
+                    gesture-handler>
                 </a-entity>
                 <a-entity
                     id="zorro1"
@@ -151,7 +157,8 @@
                     scale="2 2 2"
                     rotation="270 0 0"
                     class="clickable"
-                    position="100 -60 -20">
+                    position="100 -60 -20"
+                    gesture-handler>
                 </a-entity>
                 <a-entity
                     id="baby2"
@@ -160,7 +167,8 @@
                     scale=".1 .1 .1" 
                     rotation="270 0 0" 
                     class="clickable"
-                    position="300 -240 -20">
+                    position="300 -240 -20"
+                    gesture-handler>
                 </a-entity>
                 <a-entity
                     id="zorro2"
@@ -169,7 +177,8 @@
                     scale="3 3 3"
                     rotation="270 0 0"
                     class="clickable"
-                    position="100 -240 20">
+                    position="100 -240 20"
+                    gesture-handler>
                 </a-entity>
             </a-entity>
         </a-nft>
@@ -188,7 +197,8 @@
                 scale="4 4 4" 
                 rotation="270 0 0" 
                 class="clickable"
-                position="60 -60 0">
+                position="60 -60 0"
+                gesture-handler>
             </a-entity>
         </a-nft>
         <a-entity id="babysound" sound="src: #baby; loop: true;"></a-entity>
