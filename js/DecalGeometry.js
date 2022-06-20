@@ -33,11 +33,11 @@
       generate(); // build geometry
 
       this.setAttribute(
-        "position",
-        new THREE.Float32BufferAttribute(vertices, 3)
+        'position',
+        new THREE.Float32BufferAttribute(vertices, 3),
       );
-      this.setAttribute("normal", new THREE.Float32BufferAttribute(normals, 3));
-      this.setAttribute("uv", new THREE.Float32BufferAttribute(uvs, 2));
+      this.setAttribute('normal', new THREE.Float32BufferAttribute(normals, 3));
+      this.setAttribute('uv', new THREE.Float32BufferAttribute(uvs, 2));
 
       function generate() {
         let decalVertices = [];
@@ -46,7 +46,7 @@
 
         if (mesh.geometry.isGeometry === true) {
           console.error(
-            "THREE.DecalGeometry no longer supports THREE.Geometry. Use THREE.BufferGeometry instead."
+            'THREE.DecalGeometry no longer supports THREE.Geometry. Use THREE.BufferGeometry instead.',
           );
           return;
         }
@@ -88,7 +88,7 @@
 
           uvs.push(
             0.5 + decalVertex.position.x / size.x,
-            0.5 + decalVertex.position.y / size.y
+            0.5 + decalVertex.position.y / size.y,
           ); // transform the vertex back to world space
 
           decalVertex.position.applyMatrix4(projectorMatrix); // now create vertex and normal buffer data
@@ -96,12 +96,12 @@
           vertices.push(
             decalVertex.position.x,
             decalVertex.position.y,
-            decalVertex.position.z
+            decalVertex.position.z,
           );
           normals.push(
             decalVertex.normal.x,
             decalVertex.normal.y,
-            decalVertex.normal.z
+            decalVertex.normal.z,
           );
         }
       }
@@ -232,13 +232,13 @@
           new THREE.Vector3(
             v0.position.x + s0 * (v1.position.x - v0.position.x),
             v0.position.y + s0 * (v1.position.y - v0.position.y),
-            v0.position.z + s0 * (v1.position.z - v0.position.z)
+            v0.position.z + s0 * (v1.position.z - v0.position.z),
           ),
           new THREE.Vector3(
             v0.normal.x + s0 * (v1.normal.x - v0.normal.x),
             v0.normal.y + s0 * (v1.normal.y - v0.normal.y),
-            v0.normal.z + s0 * (v1.normal.z - v0.normal.z)
-          )
+            v0.normal.z + s0 * (v1.normal.z - v0.normal.z),
+          ),
         ); // need to clip more values (texture coordinates)? do it this way:
         // intersectpoint.value = a.value + s * ( b.value - a.value );
 
