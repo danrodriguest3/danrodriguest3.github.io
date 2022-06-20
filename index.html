@@ -1,162 +1,706 @@
 <html>
-
-<script src="https://aframe.io/releases/1.2.0/aframe.min.js"></script>
-<script src="https://raw.githack.com/AR-js-org/AR.js/master/aframe/build/aframe-ar-nft.js"></script>
-<script src="https://cdn.jsdelivr.net/gh/donmccurdy/aframe-extras@v6.1.1/dist/aframe-extras.min.js"></script>
-
-<script src="gesture-detector.js"></script>
-<script src="gesture-handler.js"></script>
-
-<script>
-    AFRAME.registerComponent('clickdetection', {
-        dependencies: ['raycaster'],
-        init: function() {
-            document.addEventListener('click', function (evt) {
-                switch (evt.detail.intersection.object.el.id) {
-                    case 'zorro0':
-                        window.open('https://tonic3.com/', 'Tonic3');
-                        break;
-                    case 'zorro1':
-                        window.open('https://tonic3.com/ar-vr', 'Tonic3');
-                        break;
-                    case 'baby0':
-                        window.open('https://tonic3.com/', 'Tonic3');
-                        break;
-                    case 'baby1':
-                        window.open('https://tonic3.com/ar-vr', 'Tonic3');
-                        break;
-                }
-            });
-        },
-    });
-    AFRAME.registerComponent('soundhandler', {
+  <head>
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css"
+    />
+    <title>cityAR Easter Event</title>
+    <script src="https://aframe.io/releases/1.2.0/aframe.min.js"></script>
+    <script src="js/aframe-ar.js"></script>
+    <script src="js/gesture-detector.js"></script>
+    <script src="js/gesture-handler.js"></script>
+    <script src="js/DecalGeometry.js"></script>
+    <script src="js/aframe-animation-timeline-component.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/gh/donmccurdy/aframe-extras@v6.1.1/dist/aframe-extras.min.js"></script>
+    <script
+      xmlns="http://www.w3.org/1999/xhtml"
+      async=""
+      src="https://cdn.rawgit.com/eligrey/FileSaver.js/5ed507ef8aa53d8ecfea96d96bc7214cd2476fd2/FileSaver.min.js"
+    ></script>
+    <script src="https://html2canvas.hertzen.com/dist/html2canvas.js"></script>
+    <script>
+      var anim_clips = [];
+      var scene = document.getElementById('scene');
+      var xpType = 'obj_walkaround'; // 'obj_generation', 'obj_interaction', 'obj_walkaround'
+      var decalsArray = new Array();
+      AFRAME.registerComponent('autoscale', {
         init: function () {
-            this.soundEl = document.querySelector('#babysound');
+          this.scale();
         },
-        events: {
-            markerFound: function (evt) {
-                //alert('FOUND');
-                this.soundEl.components.sound.playSound();
-            },
-            markerLost: function (evt) {
-                //alert('LOST');
-                this.soundEl.components.sound.stopSound();
-            }
-        },
-    });
-</script>
+        scale: function () {
+          const el = this.el;
+          const span = this.data;
+          const mesh = el.getObject3D('mesh');
 
-<style>
-    .arjs-loader {
-        height: 100%;
+          if (!mesh) return;
+
+          // Compute bounds.
+          const bbox = new THREE.Box3().setFromObject(mesh);
+
+          // Normalize scale.
+          const scale = span / bbox.getSize().length();
+          mesh.scale.set(scale, scale, scale);
+
+          // Recenter.
+          const offset = bbox.getCenter().multiplyScalar(scale);
+          mesh.position.sub(offset);
+        },
+      });
+      function takePhoto() {
+        document.getElementById('review_modal').style.display = 'block';
+        const myImgElem = document.getElementById('review-img');
+        myImgElem.src = '';
+        myImgElem.style.display = 'none';
+        var _frame = document.getElementById('photo-frame'),
+          _logo = document.getElementById('event-logo');
+        html2canvas(document.getElementById('arjs-video')).then(function (
+          canvas,
+        ) {
+          // Getting video and object as canvases
+          var canvas_video = canvas.toDataURL();
+          var canvas_objects = document
+            .querySelector('[arjs]')
+            .components.screenshot.getCanvas('perspective')
+            .toDataURL();
+          // ===================== Building composite canvas ====================== //
+          var _canvas1 = document.getElementById('canvas1');
+          if (/iPad|iPhone|iPod/.test(navigator.userAgent)) {
+            _canvas1.height = canvas.height * 1.1;
+            _canvas1.width = canvas.width * 1.1;
+          } else {
+            _canvas1.height = canvas.height;
+            _canvas1.width = canvas.width;
+          }
+          var _ctx1 = _canvas1.getContext('2d');
+          // Draw video background
+          var img = new Image();
+          img.onload = function () {
+            _ctx1.clearRect(0, 0, _canvas1.width, _canvas1.height);
+            if (/iPad|iPhone|iPod/.test(navigator.userAgent)) {
+              _ctx1.drawImage(
+                img,
+                0,
+                0,
+                _canvas1.width * 1.1,
+                _canvas1.height * 1.1,
+                0,
+                0,
+                _canvas1.width * 1.21,
+                _canvas1.height * 1.21,
+              );
+            } else {
+              _ctx1.drawImage(
+                img,
+                0,
+                0,
+                _canvas1.width,
+                _canvas1.height,
+                0,
+                0,
+                _canvas1.width,
+                _canvas1.height,
+              );
+            }
+          };
+          img.src = canvas_video;
+          // Draw 3d elements
+          var ovr = new Image();
+          ovr.onload = function () {
+            if (canvas.width > canvas.height) {
+              _ctx1.drawImage(
+                ovr,
+                0,
+                0,
+                ovr.width,
+                ovr.height,
+                0,
+                0,
+                img.width,
+                img.height,
+              );
+            } else {
+              _ctx1.drawImage(
+                ovr,
+                2048 - _canvas1.height / 2,
+                1024 - _canvas1.width / 2,
+                _canvas1.height,
+                _canvas1.width,
+                0,
+                -80,
+                _canvas1.width,
+                _canvas1.height,
+              );
+            }
+            _ctx1.drawImage(
+              _frame,
+              0,
+              0,
+              _frame.width + 100,
+              _frame.height,
+              0,
+              0,
+              _frame.width * (_canvas1.width / 380) +
+                100 * (_canvas1.width / 380),
+              _frame.height * (_canvas1.height / 527),
+            );
+            //_ctx1.drawImage(_frame,0,0,_frame.width,_frame.height,0,0,_frame.width*(_canvas1.width/380),_frame.height*(_canvas1.height/527));
+            _ctx1.drawImage(
+              _logo,
+              0,
+              0,
+              _logo.width,
+              _logo.height,
+              _canvas1.width / 2 - (_logo.width * (_canvas1.height / 527)) / 2,
+              0,
+              _logo.width * (_canvas1.height / 527),
+              _logo.height * (_canvas1.height / 527),
+            );
+          };
+          ovr.src = canvas_objects;
+          // Get data from new canvas
+          setTimeout(() => {
+            var _image = _canvas1.toDataURL('image/png');
+            myImgElem.src = _image;
+            document.getElementById('review-img').style.display = 'inline';
+          }, 250);
+        });
+      }
+      function resetPosition() {
+        const _old_camera = document.querySelector('a-camera');
+        const _sceneEl = document.querySelector('a-scene');
+        var _camera = document.createElement('a-camera');
+        _sceneEl.appendChild(_camera);
+        _camera.setAttribute('look-controls', 'touchEnabled: false');
+        _camera.setAttribute('camera', 'active', true);
+        _sceneEl.removeChild(_old_camera);
+      }
+      document.addEventListener('loaded', [fixFrame(), checkValues()]);
+      function selectAnimation(index) {
+        document
+          .getElementById('3dobj')
+          .setAttribute('animation-mixer', 'clip', anim_clips[index].name);
+      }
+      function closeReview() {
+        document.getElementById('review_modal').style.display = 'none';
+      }
+      function fixFrame() {
+        setTimeout(() => {
+          const myFrame = document.getElementById('photo-frame'),
+            myLogo = document.getElementById('event-logo'),
+            myArrow = document.getElementById('arrow'),
+            myArrowContainer = document.getElementById('arrow_container'),
+            myObj = document.getElementById('3dobj'),
+            myBar = document.getElementById('genBar');
+          switch (xpType) {
+            case 'obj_interaction':
+              myBar.setAttribute('style', 'display: none');
+              if (!/iPad|iPhone|iPod/.test(navigator.userAgent)) {
+                myArrow.setAttribute('style', 'display: none;');
+                myArrowContainer.setAttribute(
+                  'style',
+                  'background-color: rgba(0,0,0,.6);border: solid; border-radius: 12px; border-width: 1px; border-color: rgb(230,230,230); padding: 8px 8px; margin: auto;',
+                );
+              }
+              break;
+            case 'obj_generation':
+              myObj.remove();
+              if (!/iPad|iPhone|iPod/.test(navigator.userAgent)) {
+                myArrow.setAttribute('style', 'display: none;');
+              }
+              myArrowContainer.setAttribute('style', 'display: none');
+              break;
+            case 'obj_walkaround':
+              myBar.setAttribute('style', 'display: none');
+              myArrowContainer.setAttribute('style', 'display: none');
+          }
+          let scaleFactor = [innerWidth / 380, innerHeight / 527];
+          myFrame.style =
+            'position: fixed; top: 0; left: 0; pointer-events: none;';
+          myFrame.width = innerWidth;
+          myFrame.height = innerHeight;
+          myFrame.style.transform =
+            'scale(' + scaleFactor[0] + ',' + scaleFactor[1] + ')';
+          myLogo.style =
+            'position: fixed; top: 0; left: 50%; pointer-events: none; margin-left: -36px';
+        }, 50);
+      }
+      function soundControl() {
+        document.querySelector('video').muted =
+          !document.querySelector('video').muted;
+        const icon = document.getElementById('soundIcon');
+        if (document.querySelector('video').muted) {
+          icon.setAttribute('class', 'fa fa-volume-off');
+        } else {
+          icon.setAttribute('class', 'fa fa-volume-up');
+        }
+        document.querySelector('video').play();
+      }
+      function checkValues() {
+        setTimeout(() => {
+          var x = document.getElementById('qtt').value;
+          document.getElementById('qttView').innerHTML = 'Quantity: ' + x;
+        }, 50);
+      }
+      function appendObject(id, scale, position, rotation) {
+        var _entity = document.createElement('a-entity');
+        _entity.id = id;
+        _entity.setAttribute('class', 'generated');
+        _entity.setAttribute('position', position); //this doesn't set the position
+        _entity.setAttribute('scale', scale);
+        _entity.setAttribute('rotation', rotation);
+        _entity.setAttribute('gltf-model', '#model');
+        _entity.setAttribute('animation-mixer', '');
+        document.getElementById('scene').appendChild(_entity);
+        document.getElementById(id).setAttribute('position', position); // this sets the position as a workaround
+        _entity.addEventListener('model-loaded', e => {
+          var obj = _entity.getObject3D('mesh');
+          obj.traverse(async function (node) {
+            if (node.isMesh) {
+              var tempCanvas = document.createElement('canvas');
+              var tempCtx = tempCanvas.getContext('2d');
+              tempCanvas.width = node.material.map.image.width;
+              tempCanvas.height = node.material.map.image.height;
+              var txt = new Image();
+              txt.setAttribute(
+                'filter',
+                'hue-rotate(' + Math.random() * 360 + 'deg)',
+              );
+              txt.onload = await async function () {
+                var grd = tempCtx.createLinearGradient(
+                  0,
+                  0,
+                  tempCanvas.width,
+                  0,
+                );
+                grd.addColorStop(
+                  0,
+                  'hsl(' +
+                    Math.random() * 360 +
+                    ', ' +
+                    Math.floor(Math.random() * (70 + 1)) +
+                    '%, ' +
+                    Math.floor((1 + Math.random()) * (70 / 2 + 1)) +
+                    '%)',
+                );
+                grd.addColorStop(
+                  0.5,
+                  'hsl(' +
+                    Math.random() * 360 +
+                    ', ' +
+                    Math.floor(Math.random() * (70 + 1)) +
+                    '%, ' +
+                    Math.floor((1 + Math.random()) * (70 / 2 + 1)) +
+                    '%)',
+                );
+                grd.addColorStop(
+                  1,
+                  'hsl(' +
+                    Math.random() * 360 +
+                    ', ' +
+                    Math.floor(Math.random() * (70 + 1)) +
+                    '%, ' +
+                    Math.floor((1 + Math.random()) * (70 / 2 + 1)) +
+                    '%)',
+                );
+                tempCtx.fillStyle = grd;
+                await tempCtx.fillRect(
+                  0,
+                  0,
+                  tempCanvas.width,
+                  tempCanvas.height,
+                );
+                await tempCtx.drawImage(txt, 0, 0);
+                // Exclusive to the bunny event \/
+                await tempCtx.arc(678, 702, 16, 0, 100);
+                tempCtx.fillStyle = 'rgb(0,0,0)';
+                await tempCtx.fill();
+                // Exclusive to the bunny event /\
+                var canvasTexture = await new THREE.CanvasTexture(
+                  tempCtx.canvas,
+                );
+                node.material.map = canvasTexture;
+              };
+              if (
+                document.getElementById('texture_seq').value ==
+                decalsArray.length + 1
+              ) {
+                var sel = Math.floor(Math.random() * decalsArray.length);
+                txt.src = 'textures/p' + sel + '.png';
+              } else {
+                txt.src =
+                  'textures/p' +
+                  document.getElementById('texture_seq').value +
+                  '.png';
+              }
+              node.material.needsUpdate = true;
+            }
+          });
+        });
+      }
+    </script>
+    <style>
+      body {
+        margin: 0;
+        overflow: hidden;
+      }
+      @-webkit-keyframes spin {
+        0% {
+          -webkit-transform: rotate(0deg);
+        }
+        100% {
+          -webkit-transform: rotate(360deg);
+        }
+      }
+      @keyframes spin {
+        0% {
+          transform: rotate(0deg);
+        }
+        100% {
+          transform: rotate(360deg);
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <a-scene
+      id="scene"
+      arjs="sourceType: webcam; videoTexture: true; debugUIEnabled: false;"
+      embedded
+      renderer="logarithmicDepthBuffer: true; antialias: true;"
+      vr-mode-ui="enabled: false"
+      gesture-detector
+    >
+      <a-assets timeout="15000">
+        <a-asset-item id="model" src="models_temp/bunny.glb"></a-asset-item>
+        <a-asset-item id="modelb" src="models_temp/egg.glb"></a-asset-item>
+      </a-assets>
+      <a-entity>
+        <a-entity
+          id="3dobj"
+          shadow="cast: true; receive: true"
+          gltf-model="#model"
+          animation-mixer
+          class="clickable"
+          position="0 -6 0"
+          gps-entity-place="latitude: -3.7414120; longitude: -38.5358149"
+        >
+        </a-entity>
+        <a-entity
+          id="3dobjb"
+          shadow="cast: true; receive: true"
+          gltf-model="#modelb"
+          animation-mixer
+          class="clickable"
+          position="0 -6 0"
+          gps-entity-place="latitude: -3.7411490; longitude: -38.5357096"
+        >
+        </a-entity
+      ></a-entity>
+      <a-entity
+        id="raycaster"
+        cursor="fuse: false;"
+        raycaster="objects: .clickable"
+      >
+      </a-entity>
+      <a-camera
+        gps-camera
+        rotation-reader
+        look-controls-enabled="false"
+        arjs-look-controls="smoothingFactor: 0.1"
+      ></a-camera>
+    </a-scene>
+    <video
+      src="../irish.mp3"
+      muted
+      controls
+      autoplay
+      loop
+      playsinline
+      style="display: none"
+    ></video>
+    <!-- EVENT FRAME -->
+    <img src="./vector/otl-green-frame.svg" id="photo-frame" />
+    <img src="./vector/logo.svg" id="event-logo" />
+    <!-- MUTE/UNMUTE -->
+    <button
+      onclick="soundControl()"
+      style="
+        position: fixed;
+        top: 20;
+        right: 20;
+        background-color: rgba(0, 0, 0, 0.6);
+        border: solid;
+        border-radius: 50%;
+        border-width: 1px;
+        color: rgb(230, 230, 230);
+        width: 10vw;
+        height: 10vw;
+        text-align: center;
+      "
+    >
+      <i class="fa fa-volume-off" id="soundIcon" style="font-size: 5vw"></i>
+    </button>
+    <!-- ACTION BAR -->
+    <div
+      style="
+        position: fixed;
+        bottom: 0;
+        left: 0;
         width: 100%;
-        position: absolute;
+        background-image: linear-gradient(
+          rgba(0, 0, 0, 0),
+          rgba(0, 0, 0, 0.6),
+          rgba(0, 0, 0, 1)
+        );
+      "
+    >
+      <div
+        id="genBar"
+        style="
+          margin: auto;
+          width: 95%;
+          padding-top: 16px;
+          padding-bottom: 16px;
+          display: flex;
+          justify-content: center;
+        "
+      >
+        <div
+          style="
+            margin: auto;
+            flex-direction: column;
+            display: flex;
+            width: 30%;
+          "
+        >
+          <label id="qttView" for="qtt" style="color: #fff">Quantity:</label>
+          <input
+            type="range"
+            id="qtt"
+            name="qtt"
+            min="1"
+            max="12"
+            step="1"
+            onchange="checkValues()"
+          />
+        </div>
+        <div
+          id=""
+          style="
+            background-color: rgba(230, 230, 230, 0.2);
+            border: solid;
+            border-radius: 50%;
+            border-width: 1px;
+            border-color: rgb(230, 230, 230);
+            padding: 6px 6px;
+            width: 6vw;
+            height: 6vw;
+            overflow: hidden;
+            margin: auto;
+          "
+        >
+          <img
+            id="decalThumb"
+            style="width: 90%; height: 90%"
+            src="textures/test.png"
+          />
+        </div>
+        <div
+          id=""
+          style="
+            background-color: rgba(0, 0, 0, 0.6);
+            border: solid;
+            border-radius: 12px;
+            border-width: 1px;
+            border-color: rgb(230, 230, 230);
+            padding: 6px 6px;
+            margin: auto;
+          "
+        >
+          <select
+            name="texture_seq"
+            id="texture_seq"
+            onchange="updateThumb(this.value)"
+            style="
+              background-color: rgba(0, 0, 0, 0);
+              border-width: 0px;
+              color: rgb(230, 230, 230);
+              text-align: center;
+              text-decoration: none;
+              margin: auto;
+              font-size: 12px;
+            "
+          ></select>
+          <i
+            id="arrow"
+            class="fa fa-arrow-down"
+            style="color: rgb(230, 230, 230); font-size: 10px"
+          ></i>
+        </div>
+        <button
+          onclick="createObjects()"
+          style="
+            background-color: rgba(0, 0, 0, 0.6);
+            border: solid;
+            border-radius: 12px;
+            border-width: 1px;
+            color: rgb(230, 230, 230);
+            padding: 8px 4px;
+            text-align: center;
+            text-decoration: none;
+            margin: auto;
+            font-size: 12px;
+          "
+        >
+          Generate
+        </button>
+      </div>
+      <div
+        style="
+          margin: auto;
+          width: 95%;
+          padding-top: 16px;
+          padding-bottom: 16px;
+          display: flex;
+          justify-content: center;
+        "
+      >
+        <button
+          onclick="resetPosition()"
+          style="
+            background-color: rgba(0, 0, 0, 0.6);
+            border: solid;
+            border-radius: 12px;
+            border-width: 1px;
+            color: rgb(230, 230, 230);
+            padding: 8px 4px;
+            text-align: center;
+            text-decoration: none;
+            margin: auto;
+            font-size: 12px;
+          "
+        >
+          Reset Scene
+        </button>
+        <div
+          id="arrow_container"
+          style="
+            background-color: rgba(0, 0, 0, 0.6);
+            border: solid;
+            border-radius: 12px;
+            border-width: 1px;
+            border-color: rgb(230, 230, 230);
+            padding: 6px 6px;
+            margin: auto;
+          "
+        >
+          <select
+            name="anim_seq"
+            id="anim_seq"
+            onchange="selectAnimation(this.value)"
+            style="
+              background-color: rgba(0, 0, 0, 0);
+              border-width: 0px;
+              color: rgb(230, 230, 230);
+              text-align: center;
+              text-decoration: none;
+              margin: auto;
+              font-size: 12px;
+            "
+          ></select>
+          <i
+            id="arrow"
+            class="fa fa-arrow-down"
+            style="color: rgb(230, 230, 230); font-size: 10px"
+          ></i>
+        </div>
+        <button
+          onclick="takePhoto()"
+          style="
+            background-color: rgba(255, 255, 255, 0.8);
+            border-radius: 12px;
+            border-width: 1px;
+            color: rgb(230, 30, 30);
+            padding: 8px 4px;
+            text-align: center;
+            text-decoration: none;
+            margin: auto;
+            font-size: 16px;
+          "
+        >
+          <i class="fa fa-camera"></i> Take Photo
+        </button>
+      </div>
+    </div>
+    <!-- TEMPORARY CANVAS USED TO BUILD FINAL IMAGE -->
+    <canvas style="position: relative; top: 0; left: 0" id="canvas1"> </canvas>
+    <!-- REVIEW VIEW -->
+    <div
+      id="review_modal"
+      style="
+        position: fixed;
         top: 0;
         left: 0;
-        background-color: rgba(0, 0, 0, 0.8);
-        z-index: 9999;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-    }
-
-    .arjs-loader div {
-        text-align: center;
-        font-size: 1.25em;
-        color: white;
-    }
-</style>
-
-<body style="margin : 0px; overflow: hidden;">
-
-    <div class="arjs-loader">
-        <div><h3>Loading Assets</h3><p>005Xx DEV</p></div>
+        width: 100%;
+        height: 100%;
+        background-color: rgb(255, 255, 255);
+        display: none;
+        z-index: 3;
+      "
+    >
+      <div
+        style="
+          width: 100%;
+          padding-top: 16px;
+          padding-bottom: 16px;
+          padding-left: 8px;
+          background-color: rgba(0, 0, 0, 0.6);
+          pointer-events: none;
+        "
+      >
+        <button
+          onclick="closeReview()"
+          style="
+            background-color: rgba(0, 0, 0, 0.6);
+            border: solid;
+            border-radius: 12px;
+            border-width: 1px;
+            color: rgb(230, 230, 230);
+            padding: 8px 8px;
+            text-align: center;
+            text-decoration: none;
+            font-size: 12px;
+            pointer-events: auto;
+          "
+        >
+          Back
+        </button>
+      </div>
+      <div style="width: 100%">
+        <div
+          id="loader"
+          style="
+            position: fixed;
+            top: 25%;
+            z-index: -1;
+            left: 50%;
+            margin-left: -40px;
+            border: 10px solid #f3f3f3;
+            border-radius: 50%;
+            border-top: 10px solid #00ff00;
+            width: 80px;
+            height: 80px;
+            -webkit-animation: spin 2s linear infinite; /* Safari */
+            animation: spin 2s linear infinite;
+          "
+        ></div>
+        <img id="review-img" style="width: 100%; pointer-events: auto" />
+        <div style="width: 90%; margin: auto; pointer-events: none">
+          <p style="text-align: center">
+            Tap and hold on the image to save to your photos or share
+          </p>
+        </div>
+      </div>
     </div>
-    <a-scene
-        arjs
-        embedded 
-        renderer="logarithmicDepthBuffer: true; maxCanvasWidth: 1920; maxCanvasHeight: 1920;"
-        vr-mode-ui="enabled: false"
-        gesture-detector
-        soundhandler
-        clickdetection>
-        <a-assets timeout="10000">
-            <a-asset-item id="model" src="./model/baby/scene.gltf">
-            </a-asset-item>
-            <a-asset-item id="model2" src="./model/fox/scene.gltf">
-            </a-asset-item>
-            <a-asset-item id="sound" src="audio.mp3" preload="auto">
-            </a-asset-item>
-            <a-asset-item id="baby" src="baby.mp3" preload="auto">
-            </a-asset-item>
-        </a-assets>
-        <a-nft 
-            type="nft" 
-            url="./marker/t3a/t3a" 
-            smooth="true" 
-            smoothCount="10" 
-            smoothTolerance=".01" 
-            smoothThreshold="5" 
-            emitevents="true">
-            <a-entity
-                id="zorro0"
-                animation-mixer
-                gltf-model="#model2"
-                scale="4 4 4"
-                rotation="270 0 0"
-                class="clickable"
-                position="60 -60 0"
-                gesture-handler>
-            </a-entity>
-        </a-nft>
-        <a-nft 
-            type="nft" 
-            url="./marker/t3b/t3b" 
-            smooth="true" 
-            smoothCount="10" 
-            smoothTolerance=".01" 
-            smoothThreshold="5" 
-            emitevents="true">
-            <a-entity
-                    id="baby0"
-                    animation-mixer
-                    gltf-model="#model"
-                    scale=".15 .15 .15" 
-                    rotation="270 0 0" 
-                    class="clickable"
-                    position="0 -60 20"
-                    gesture-handler>
-                </a-entity>
-                <a-entity
-                    id="zorro1"
-                    animation-mixer
-                    gltf-model="#model2"
-                    scale="2 2 2"
-                    rotation="270 0 0"
-                    class="clickable"
-                    position="100 -60 -20"
-                    gesture-handler>
-                </a-entity>
-                <a-entity
-                    id="baby1"
-                    animation-mixer
-                    gltf-model="#model"
-                    scale=".1 .1 .1" 
-                    rotation="270 0 0" 
-                    class="clickable"
-                    position="300 -240 -20"
-                    gesture-handler>
-                </a-entity>
-        </a-nft>
-        <a-entity id="babysound" sound="src: #baby; loop: true;"></a-entity>
-        <a-entity sound="src: #sound; autoplay: true; loop: true; volume: 0.4"></a-entity>
-        <a-entity>
-            <a-entity 
-            cursor="fuse: false;" 
-            raycaster="objects: .clickable">
-            </a-entity>
-        </a-entity>
-    </a-scene>
-</body>
-
+  </body>
 </html>
