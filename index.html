@@ -375,7 +375,7 @@
         <a-asset-item id="modelb" src="models_temp/egg.glb"></a-asset-item>
       </a-assets>
       <a-entity
-        id="3dobj"
+        id="3dobja"
         shadow="cast: true; receive: true"
         gltf-model="#model"
         animation-mixer
@@ -395,7 +395,7 @@
       >
       </a-entity>
       <a-entity
-        id="3dobj"
+        id="3dobjc"
         shadow="cast: true; receive: true"
         gltf-model="#model"
         animation-mixer
@@ -405,7 +405,7 @@
       >
       </a-entity>
       <a-entity
-        id="3dobjb"
+        id="3dobjd"
         shadow="cast: true; receive: true"
         gltf-model="#modelb"
         animation-mixer
@@ -413,6 +413,66 @@
         position="0 -6 0"
         gps-entity-place="latitude: 32.96748101159948; longitude: -96.80500928723593"
       >
+        <a-entity
+          id="3dobje"
+          shadow="cast: true; receive: true"
+          gltf-model="#model"
+          animation-mixer
+          class="clickable"
+          position="0 -6 0"
+          gps-entity-place="latitude: -3.743599; longitude: -38.536892"
+        >
+        </a-entity>
+        <a-entity
+          id="3dobjf"
+          shadow="cast: true; receive: true"
+          gltf-model="#model"
+          animation-mixer
+          class="clickable"
+          position="0 -6 0"
+          gps-entity-place="latitude: -3.743501; longitude: -38.537185"
+        >
+        </a-entity>
+        <a-entity
+          id="3dobjg"
+          shadow="cast: true; receive: true"
+          gltf-model="#model"
+          animation-mixer
+          class="clickable"
+          position="0 -6 0"
+          gps-entity-place="latitude: -3.743686; longitude: -38.537343"
+        >
+        </a-entity>
+        <a-entity
+          id="3dobjh"
+          shadow="cast: true; receive: true"
+          gltf-model="#model"
+          animation-mixer
+          class="clickable"
+          position="0 -6 0"
+          gps-entity-place="latitude: -3.743750; longitude: -38.537147"
+        >
+        </a-entity>
+        <a-entity
+          id="3dobji"
+          shadow="cast: true; receive: true"
+          gltf-model="#model"
+          animation-mixer
+          class="clickable"
+          position="0 -6 0"
+          gps-entity-place="latitude: -3.743953; longitude: -38.537085"
+        >
+        </a-entity>
+        <a-entity
+          id="3dobjj"
+          shadow="cast: true; receive: true"
+          gltf-model="#model"
+          animation-mixer
+          class="clickable"
+          position="0 -6 0"
+          gps-entity-place="latitude: -3.744038; longitude: -38.537453"
+        >
+        </a-entity>
       </a-entity>
       <a-entity
         id="raycaster"
@@ -421,7 +481,7 @@
       >
       </a-entity>
       <a-camera
-        gps-camera
+        gps-camera="maxDistance: 20;"
         rotation-reader
         look-controls-enabled="false"
         arjs-look-controls
