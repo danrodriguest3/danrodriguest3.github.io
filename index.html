@@ -167,6 +167,7 @@
       }
       function resetPosition() {
         const _old_camera = document.querySelector('a-camera');
+        console.log(_old_camera);
         const _sceneEl = document.querySelector('a-scene');
         var _camera = document.createElement('a-camera');
         _sceneEl.appendChild(_camera);
@@ -391,7 +392,7 @@
       >
       </a-entity>
       <a-camera
-        gps-camera="maxDistance: 300; gpsMinDistance: 0.5; alert: true; positionMinAccuracy: 5;"
+        gps-camera="maxDistance: 300; gpsMinDistance: 0.5; alert: true; positionMinAccuracy: 1;"
         rotation-reader
       ></a-camera>
     </a-scene>
