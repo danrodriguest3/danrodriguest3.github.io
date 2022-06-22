@@ -337,6 +337,14 @@
           });
         });
       }
+      const objects = [
+        { latitude: -3.741412, longitude: -38.5358149 },
+        { latitude: -3.744038, longitude: -38.537453 },
+        { latitude: 32.967288, longitude: -96.807213 },
+        { latitude: 32.967481, longitude: -96.805009 },
+        { latitude: 32.967524, longitude: -96.806822 },
+        { latitude: 32.967728, longitude: -96.806415 },
+      ];
     </script>
     <style>
       body {
@@ -376,74 +384,15 @@
       </a-assets>
       <a-entity
         id="3dobja"
-        shadow="cast: true; receive: true"
         gltf-model="#model"
         animation-mixer
-        class="clickable"
-        position="0 -6 0"
+        position="0 -4 0"
         gps-entity-place="latitude: -3.7414120; longitude: -38.5358149"
       >
       </a-entity>
-      <a-entity
-        id="3dobjc"
-        shadow="cast: true; receive: true"
-        gltf-model="#model"
-        animation-mixer
-        class="clickable"
-        position="0 -6 0"
-        gps-entity-place="latitude: 32.967288; longitude: -96.807213"
-      >
-      </a-entity>
-      <a-entity
-        id="3dobjd"
-        shadow="cast: true; receive: true"
-        gltf-model="#modelb"
-        animation-mixer
-        class="clickable"
-        position="0 -6 0"
-        gps-entity-place="latitude: 32.967481; longitude: -96.805009"
-      >
-      </a-entity>
-      <a-entity
-        id="3dobjj"
-        shadow="cast: true; receive: true"
-        gltf-model="#model"
-        animation-mixer
-        class="clickable"
-        position="0 -6 0"
-        gps-entity-place="latitude: -3.744038; longitude: -38.537453"
-      >
-      </a-entity>
-      <a-entity
-        id="3dobjk"
-        shadow="cast: true; receive: true"
-        gltf-model="#model"
-        animation-mixer
-        class="clickable"
-        position="0 -6 0"
-        gps-entity-place="latitude: 32.967524; longitude: -96.806822"
-      >
-      </a-entity>
-      <a-entity
-        id="3dobjl"
-        shadow="cast: true; receive: true"
-        gltf-model="#model"
-        animation-mixer
-        class="clickable"
-        position="0 -6 0"
-        gps-entity-place="latitude: 32.967728; longitude: -96.806415"
-      >
-      </a-entity>
-      <a-entity
-        id="raycaster"
-        cursor="fuse: false;"
-        raycaster="objects: .clickable"
-      >
-      </a-entity>
       <a-camera
-        gps-camera="maxDistance: 300; gpsMinDistance: 0.5;"
+        gps-camera="maxDistance: 300; gpsMinDistance: 0.5; alert: true;"
         rotation-reader
-        arjs-look-controls
       ></a-camera>
     </a-scene>
     <video
