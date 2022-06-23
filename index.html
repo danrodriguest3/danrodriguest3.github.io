@@ -5,7 +5,7 @@
       href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css"
     />
     <title>cityAR Easter Event</title>
-    <script src="js/aframe.min.js"></script>
+    <script src="https://aframe.io/releases/1.2.0/aframe.min.js"></script>
     <script src="js/aframe-ar.js"></script>
     <script src="js/gesture-detector.js"></script>
     <script src="js/gesture-handler.js"></script>
@@ -337,14 +337,100 @@
           });
         });
       }
-      let _tick = setInterval(() => {
-        let camera = document.getElementById('camera');
-        console.log(camera.getAttribute('position'));
-        if (camera.getAttribute('position').x !== 0) {
-          let _loader = document.getElementById('loader');
-          _loader.remove();
-          clearInterval(_tick);
-        }
+      // -3.744059, -38.537455
+      // -3.743816, -38.537505
+      // -3.743477, -38.537154
+      const locations = [
+        {
+          latitude: -3.741032,
+          longitude: -38.535662,
+        },
+        {
+          latitude: -3.741773,
+          longitude: -38.535033,
+        },
+        {
+          latitude: -3.741656,
+          longitude: -38.534095,
+        },
+        {
+          latitude: 32.96728844721977,
+          longitude: -96.8072138915505,
+        },
+        {
+          latitude: 32.96748101159948,
+          longitude: -96.80500928723593,
+        },
+        {
+          latitude: 32.967524050990924,
+          longitude: -96.80682211744134,
+        },
+        {
+          latitude: 32.96772869742061,
+          longitude: -96.8064152244685,
+        },
+        {
+          latitude: -3.743535,
+          longitude: -38.536877,
+        },
+        {
+          latitude: -3.743627,
+          longitude: -38.537093,
+        },
+        {
+          latitude: -3.743906,
+          longitude: -38.537084,
+        },
+        {
+          latitude: -3.744173,
+          longitude: -38.537229,
+        },
+        {
+          latitude: -3.744059,
+          longitude: -38.537455,
+        },
+        {
+          latitude: -3.743816,
+          longitude: -38.537505,
+        },
+        {
+          latitude: -3.743477,
+          longitude: -38.537154,
+        },
+      ];
+      locations.map((pos, index) => {
+        const curMX = (pos.latitude * Math.PI * 6371000) / 180;
+        const curMY = (pos.longitude * Math.PI * 6371000) / 180;
+        const _str = curMX + ' 0 ' + curMY;
+        document.addEventListener('renderstart', e => {
+          console.log(e);
+          appendObject('geolocated' + index, '.25 .25 .25', _str, '0 0 0');
+        });
+      });
+      let prevPos = { coords: { x: 0, z: 0 } };
+      function moveCamera() {
+        const _camera = document.querySelector('a-camera');
+        _camera.setAttribute(
+          'position',
+          prevPos.coords.x + ' 0 ' + prevPos.coords.z,
+        );
+        _camera.needsUpdate = true;
+        console.log(prevPos);
+      }
+      setInterval(() => {
+        console.log(prevPos);
+        navigator.geolocation.getCurrentPosition(success => {
+          const curMX = (success.coords.latitude * Math.PI * 6371000) / 180;
+          const curMY = (success.coords.longitude * Math.PI * 6371000) / 180;
+          if (
+            Math.abs(prevPos.coords.x - curMX) > 1 ||
+            Math.abs(prevPos.coords.z - curMY) > 1
+          ) {
+            prevPos.coords.x = curMX;
+            prevPos.coords.z = curMY;
+            moveCamera();
+          }
+        });
       }, 1000);
     </script>
     <style>
@@ -373,140 +459,36 @@
   <body>
     <a-scene
       id="scene"
-      vr-mode-ui="enabled: false"
       arjs="sourceType: webcam; videoTexture: true; debugUIEnabled: false;"
-      renderer="antialias: true; alpha: true"
+      embedded
+      renderer="logarithmicDepthBuffer: true; antialias: true;"
+      vr-mode-ui="enabled: false"
+      gesture-detector
     >
       <a-assets timeout="15000">
         <a-asset-item id="model" src="models_temp/bunny.glb"></a-asset-item>
         <a-asset-item id="modelb" src="models_temp/egg.glb"></a-asset-item>
       </a-assets>
-      <a-entity
-        id="3dobja"
-        shadow="cast: true; receive: true"
-        gltf-model="#model"
-        animation-mixer
-        class="clickable"
-        gps-entity-place="latitude: -3.743366; longitude: -38.537044"
-      >
-      </a-entity>
-      <a-entity
-        id="3dobjj"
-        shadow="cast: true; receive: true"
-        gltf-model="#model"
-        animation-mixer
-        class="clickable"
-        gps-entity-place="latitude: -3.743516; longitude: -38.536863"
-      >
-      </a-entity>
-      <a-entity
-        id="3dobjc"
-        shadow="cast: true; receive: true"
-        gltf-model="#model"
-        animation-mixer
-        class="clickable"
-        gps-entity-place="latitude: -3.743511; longitude: -38.537176"
-      >
-      </a-entity>
-      <a-entity
-        id="3dobjd"
-        shadow="cast: true; receive: true"
-        gltf-model="#modelb"
-        animation-mixer
-        class="clickable"
-        gps-entity-place="latitude: -3.743686; longitude: -38.536960"
-      >
-      </a-entity>
-      <a-entity
-        id="3dobjk"
-        shadow="cast: true; receive: true"
-        gltf-model="#model"
-        animation-mixer
-        class="clickable"
-        gps-entity-place="latitude: -3.743621; longitude: -38.537298"
-      >
-      </a-entity>
-      <a-entity
-        id="3dobjl"
-        shadow="cast: true; receive: true"
-        gltf-model="#model"
-        animation-mixer
-        class="clickable"
-        gps-entity-place="latitude: -3.743812; longitude: -38.537004"
-      >
-      </a-entity>
-      <a-entity
-        id="3dobjm"
-        shadow="cast: true; receive: true"
-        gltf-model="#model"
-        animation-mixer
-        class="clickable"
-        gps-entity-place="latitude: -3.743771; longitude: -38.537457"
-      >
-      </a-entity>
-      <a-entity
-        id="3dobjn"
-        shadow="cast: true; receive: true"
-        gltf-model="#model"
-        animation-mixer
-        class="clickable"
-        gps-entity-place="latitude: -3.744036; longitude: -38.537126"
-      >
-      </a-entity>
-      <a-entity
-        id="3dobjo"
-        shadow="cast: true; receive: true"
-        gltf-model="#model"
-        animation-mixer
-        class="clickable"
-        gps-entity-place="latitude: -3.743989; longitude: -38.537421"
-      >
-      </a-entity>
-      <a-entity
-        id="3dobjp"
-        shadow="cast: true; receive: true"
-        gltf-model="#model"
-        animation-mixer
-        class="clickable"
-        gps-entity-place="latitude: -3.744267; longitude: -38.537222"
-      >
-      </a-entity>
-      <a-entity
-        id="3dobjq"
-        shadow="cast: true; receive: true"
-        gltf-model="#model"
-        animation-mixer
-        class="clickable"
-        gps-entity-place="latitude: -3.741405; longitude: -38.535830"
-      >
-      </a-entity>
-      <a-entity
-        id="3dobjr"
-        shadow="cast: true; receive: true"
-        gltf-model="#model"
-        animation-mixer
-        class="clickable"
-        gps-entity-place="latitude: -3.741528; longitude: -38.535888"
-      >
-      </a-entity>
-      <a-entity
-        id="3dobjs"
-        shadow="cast: true; receive: true"
-        gltf-model="#model"
-        animation-mixer
-        class="clickable"
-        gps-entity-place="latitude: -3.743036; longitude: -38.536548"
-      >
-      </a-entity>
-      <a-entity
-        id="3dobjt"
-        shadow="cast: true; receive: true"
-        gltf-model="#model"
-        animation-mixer
-        class="clickable"
-        gps-entity-place="latitude: -3.741164; longitude: -38.535719"
-      >
-      </a-entity>
+      <a-entity>
+        <a-entity
+          id="3dobj"
+          shadow="cast: true; receive: true"
+          gltf-model="#model"
+          animation-mixer
+          class="clickable"
+          position="0 -6 0"
+        >
+        </a-entity>
+        <a-entity
+          id="3dobjb"
+          shadow="cast: true; receive: true"
+          gltf-model="#modelb"
+          animation-mixer
+          class="clickable"
+          position="0 -6 0"
+        >
+        </a-entity
+      ></a-entity>
       <a-entity
         id="raycaster"
         cursor="fuse: false;"
@@ -514,11 +496,9 @@
       >
       </a-entity>
       <a-camera
-        id="camera"
-        gps-camera="maxDistance:  300;  gpsMinDistance:  1;"
         rotation-reader
         look-controls-enabled="false"
-        wasd-controls-enabled="false"
+        arjs-look-controls="smoothingFactor: 0.1"
       ></a-camera>
     </a-scene>
     <video
@@ -552,22 +532,6 @@
     >
       <i class="fa fa-volume-off" id="soundIcon" style="font-size: 5vw"></i>
     </button>
-    <div
-      id="loader"
-      style="
-        position: absolute;
-        top: 0;
-        left: 0;
-        background-color: rgba(0, 0, 0, 0.6);
-        width: 100%;
-        height: 100%;
-        text-align: center;
-        z-index: 22;
-        color: rgb(230, 230, 230);
-      "
-    >
-      <h1>Getting Location from GPS...</h1>
-    </div>
     <!-- ACTION BAR -->
     <div
       style="
