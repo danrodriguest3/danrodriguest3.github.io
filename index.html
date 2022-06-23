@@ -337,10 +337,11 @@
           });
         });
       }
-      // -3.744059, -38.537455
-      // -3.743816, -38.537505
-      // -3.743477, -38.537154
       const locations = [
+        {
+          latitude: -3.741326,
+          longitude: -38.535055,
+        },
         {
           latitude: -3.741032,
           longitude: -38.535662,
@@ -398,40 +399,71 @@
           longitude: -38.537154,
         },
       ];
-      locations.map((pos, index) => {
-        const curMX = (pos.latitude * Math.PI * 6371000) / 180;
-        const curMY = (pos.longitude * Math.PI * 6371000) / 180;
-        const _str = curMX + ' 0 ' + curMY;
-        document.addEventListener('renderstart', e => {
-          console.log(e);
-          appendObject('geolocated' + index, '.25 .25 .25', _str, '0 0 0');
-        });
-      });
       let prevPos = { coords: { x: 0, z: 0 } };
-      function moveCamera() {
-        const _camera = document.querySelector('a-camera');
-        _camera.setAttribute(
-          'position',
-          prevPos.coords.x + ' 0 ' + prevPos.coords.z,
-        );
-        _camera.needsUpdate = true;
-        console.log(prevPos);
-      }
-      setInterval(() => {
-        console.log(prevPos);
-        navigator.geolocation.getCurrentPosition(success => {
-          const curMX = (success.coords.latitude * Math.PI * 6371000) / 180;
-          const curMY = (success.coords.longitude * Math.PI * 6371000) / 180;
-          if (
-            Math.abs(prevPos.coords.x - curMX) > 1 ||
-            Math.abs(prevPos.coords.z - curMY) > 1
-          ) {
-            prevPos.coords.x = curMX;
-            prevPos.coords.z = curMY;
-            moveCamera();
+      let prevArray = [];
+      let lastIndex = 0;
+      let renderstarted = false;
+      let generatedCount = 0;
+      document.addEventListener('renderstart', () => {
+        renderstarted = true;
+      });
+      function updateObjPos(_prevPos) {
+        locations.map((pos, index) => {
+          const curMX = (pos.latitude * Math.PI * 6371000) / 180;
+          const curMZ = (pos.longitude * Math.PI * 6371000) / 180;
+          const _str =
+            (curMX - prevPos.coords.x).toString() +
+            ' 0 ' +
+            (curMZ - prevPos.coords.z).toString();
+          if (!renderstarted) {
+            document.addEventListener('renderstart', e => {
+              generatedCount++;
+              appendObject('geolocated' + index, '.5 .5 .5', _str, '0 0 0');
+            });
+          } else if (generatedCount < locations.length) {
+            generatedCount++;
+            appendObject('geolocated' + index, '.5 .5 .5', _str, '0 0 0');
+          } else {
+            let _obj = document.getElementById('geolocated' + index);
+            _obj.setAttribute('position', _str);
+            _obj.needsUpdate = true;
+            console.log(_obj);
           }
         });
-      }, 1000);
+      }
+      setInterval(() => {
+        console.log(prevArray);
+        navigator.geolocation.getCurrentPosition(success => {
+          const curMX = (success.coords.latitude * Math.PI * 6371000) / 180;
+          const curMZ = (success.coords.longitude * Math.PI * 6371000) / 180;
+          if (
+            Math.abs(prevPos.coords.x - curMX) > 0.5 ||
+            Math.abs(prevPos.coords.z - curMZ) > 0.5
+          ) {
+            if (prevArray.length === 8) {
+              let avX = 0;
+              let avZ = 0;
+              prevArray.map((pos, index) => {
+                avX = (pos.x + curMX + avX) / 3;
+                avZ = (pos.z + curMZ + avZ) / 3;
+                if (index === 7) {
+                  prevArray.splice(lastIndex, 1, { x: curMX, z: curMZ });
+                  if (lastIndex < 7) {
+                    lastIndex++;
+                  } else {
+                    lastIndex = 0;
+                  }
+                  prevPos.coords.x = avX;
+                  prevPos.coords.z = avZ;
+                  updateObjPos(prevPos);
+                }
+              });
+            } else {
+              if (prevArray.length < 8) prevArray.push({ x: curMX, z: curMZ });
+            }
+          }
+        });
+      }, 500);
     </script>
     <style>
       body {
@@ -469,26 +501,6 @@
         <a-asset-item id="model" src="models_temp/bunny.glb"></a-asset-item>
         <a-asset-item id="modelb" src="models_temp/egg.glb"></a-asset-item>
       </a-assets>
-      <a-entity>
-        <a-entity
-          id="3dobj"
-          shadow="cast: true; receive: true"
-          gltf-model="#model"
-          animation-mixer
-          class="clickable"
-          position="0 -6 0"
-        >
-        </a-entity>
-        <a-entity
-          id="3dobjb"
-          shadow="cast: true; receive: true"
-          gltf-model="#modelb"
-          animation-mixer
-          class="clickable"
-          position="0 -6 0"
-        >
-        </a-entity
-      ></a-entity>
       <a-entity
         id="raycaster"
         cursor="fuse: false;"
