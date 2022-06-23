@@ -413,7 +413,7 @@
           const curMZ = (pos.longitude * Math.PI * 6371000) / 180;
           const _str =
             (curMX - prevPos.coords.x).toString() +
-            ' 0 ' +
+            ' -0.5 ' +
             (curMZ - prevPos.coords.z).toString();
           if (!renderstarted) {
             document.addEventListener('renderstart', e => {
@@ -433,36 +433,43 @@
       }
       setInterval(() => {
         console.log(prevArray);
-        navigator.geolocation.getCurrentPosition(success => {
-          const curMX = (success.coords.latitude * Math.PI * 6371000) / 180;
-          const curMZ = (success.coords.longitude * Math.PI * 6371000) / 180;
-          if (
-            Math.abs(prevPos.coords.x - curMX) > 0.5 ||
-            Math.abs(prevPos.coords.z - curMZ) > 0.5
-          ) {
-            if (prevArray.length === 8) {
-              let avX = 0;
-              let avZ = 0;
-              prevArray.map((pos, index) => {
-                avX = (pos.x + curMX + avX) / 3;
-                avZ = (pos.z + curMZ + avZ) / 3;
-                if (index === 7) {
-                  prevArray.splice(lastIndex, 1, { x: curMX, z: curMZ });
-                  if (lastIndex < 7) {
-                    lastIndex++;
-                  } else {
-                    lastIndex = 0;
+        navigator.geolocation.getCurrentPosition(
+          success => {
+            const curMX = (success.coords.latitude * Math.PI * 6371000) / 180;
+            const curMZ = (success.coords.longitude * Math.PI * 6371000) / 180;
+            if (
+              Math.abs(prevPos.coords.x - curMX) > 0.5 ||
+              Math.abs(prevPos.coords.z - curMZ) > 0.5
+            ) {
+              if (prevArray.length === 8) {
+                let avX = 0;
+                let avZ = 0;
+                prevArray.map((pos, index) => {
+                  avX =
+                    avX !== 0 ? (pos.x + curMX + avX) / 3 : (pos.x + curMX) / 2;
+                  avZ =
+                    avZ !== 0 ? (pos.z + curMZ + avZ) / 3 : (pos.z + curMZ) / 2;
+                  if (index === 7) {
+                    prevArray.splice(lastIndex, 1, { x: curMX, z: curMZ });
+                    if (lastIndex < 7) {
+                      lastIndex++;
+                    } else {
+                      lastIndex = 0;
+                    }
+                    prevPos.coords.x = avX;
+                    prevPos.coords.z = avZ;
+                    updateObjPos(prevPos);
                   }
-                  prevPos.coords.x = avX;
-                  prevPos.coords.z = avZ;
-                  updateObjPos(prevPos);
-                }
-              });
-            } else {
-              if (prevArray.length < 8) prevArray.push({ x: curMX, z: curMZ });
+                });
+              } else {
+                if (prevArray.length < 8)
+                  prevArray.push({ x: curMX, z: curMZ });
+              }
             }
-          }
-        });
+          },
+          error => error,
+          { enableHighAccuracy: true },
+        );
       }, 500);
     </script>
     <style>
