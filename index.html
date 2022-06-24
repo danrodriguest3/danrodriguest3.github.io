@@ -20,7 +20,7 @@
     <script src="https://html2canvas.hertzen.com/dist/html2canvas.js"></script>
     <script>
       var anim_clips = [];
-      var scene = document.getElementById('scene');
+      var scene = document.querySelector('a-scene');
       var xpType = 'obj_walkaround'; // 'obj_generation', 'obj_interaction', 'obj_walkaround'
       var decalsArray = new Array();
       AFRAME.registerComponent('autoscale', {
@@ -427,10 +427,37 @@
             let _obj = document.getElementById('geolocated' + index);
             _obj.setAttribute('position', _str);
             _obj.needsUpdate = true;
-            console.log(_obj);
           }
         });
       }
+      const sensor = /iPad|iPhone|iPod/.test(navigator.userAgent)
+        ? null
+        : new AbsoluteOrientationSensor();
+      let firstFrame = true;
+      let correction;
+      if (!/iPad|iPhone|iPod/.test(navigator.userAgent)) sensor.start();
+      window.addEventListener('deviceorientation', function (event) {
+        let __scene = document.querySelector('a-scene');
+        if (/iPad|iPhone|iPod/.test(navigator.userAgent)) {
+          if (firstFrame) {
+            correction = event.webkitCompassHeading;
+            firstFrame = false;
+            __scene.setAttribute('rotation', correction + ' 0 0');
+            __scene.needsUpdate = true;
+          }
+          document.getElementById('debug').innerHTML = correction;
+        } else {
+          __scene.setAttribute('rotation', '300 0 0');
+          __scene.needsUpdate = true;
+          //const quaternion = new THREE.Quaternion();
+          //quaternion.fromArray(sensor.quaternion);
+          if (firstFrame) {
+            //correction = sensor.quaternion[2];
+            firstFrame = false;
+          }
+          document.getElementById('debug').innerHTML = correction;
+        }
+      });
       setInterval(() => {
         console.log(prevArray);
         navigator.geolocation.getCurrentPosition(
@@ -497,12 +524,10 @@
   </head>
   <body>
     <a-scene
-      id="scene"
       arjs="sourceType: webcam; videoTexture: true; debugUIEnabled: false;"
       embedded
       renderer="logarithmicDepthBuffer: true; antialias: true;"
       vr-mode-ui="enabled: false"
-      gesture-detector
     >
       <a-assets timeout="15000">
         <a-asset-item id="model" src="models_temp/bunny.glb"></a-asset-item>
@@ -514,6 +539,7 @@
         raycaster="objects: .clickable"
       >
       </a-entity>
+      <a-entity id="scene"></a-entity>
       <a-camera
         rotation-reader
         look-controls-enabled="false"
@@ -693,6 +719,7 @@
         >
           Reset Scene
         </button>
+        <p id="debug" style="color: #fff"></p>
         <div
           id="arrow_container"
           style="
