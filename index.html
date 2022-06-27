@@ -404,9 +404,11 @@
       let lastIndex = 0;
       let renderstarted = false;
       let generatedCount = 0;
+      let factor;
       document.addEventListener('renderstart', () => {
         renderstarted = true;
       });
+
       function updateObjPos(_prevPos) {
         locations.map((pos, index) => {
           const curMX = (pos.latitude * Math.PI * 6371000) / 180;
@@ -415,9 +417,9 @@
             (curMX - prevPos.coords.x).toString() +
             ' -0.5 ' +
             (curMZ - prevPos.coords.z).toString();
-          if (!renderstarted) {
+          if (!renderstarted && generatedCount < locations.length) {
+            generatedCount++;
             document.addEventListener('renderstart', e => {
-              generatedCount++;
               appendObject('geolocated' + index, '.5 .5 .5', _str, '0 0 0');
             });
           } else if (generatedCount < locations.length) {
@@ -430,6 +432,7 @@
           }
         });
       }
+
       const sensor = /iPad|iPhone|iPod/.test(navigator.userAgent)
         ? null
         : new AbsoluteOrientationSensor();
@@ -438,7 +441,7 @@
 
       function correctRotation(_correction) {
         let sc = document.getElementById('scene');
-        let factor = /iPad|iPhone|iPod/.test(navigator.userAgent)
+        factor = /iPad|iPhone|iPod/.test(navigator.userAgent)
           ? _correction + 90
           : _correction;
         sc.setAttribute('rotation', '0 ' + factor + ' 0');
@@ -448,26 +451,31 @@
       window.addEventListener('deviceorientation', function (event) {
         let __scene = document.querySelector('a-scene');
         if (/iPad|iPhone|iPod/.test(navigator.userAgent)) {
-          document.getElementById('debug').innerHTML =
-            event.webkitCompassHeading;
           if (firstFrame) {
             correctRotation(event.webkitCompassHeading);
             firstFrame = false;
           }
         } else {
           if (
-            /Android|webOS|BlackBerry|IEMobile|Opera Mini/i.test(
-              navigator.userAgent,
-            )
+            /Android|BlackBerry|IEMobile|Opera Mini/.test(navigator.userAgent)
           ) {
             const quaternion = new THREE.Quaternion();
-            quaternion.fromArray(sensor.quaternion);
-            let _t = new THREE.Euler();
-            _t.setFromQuaternion(quaternion);
-            document.getElementById('debug').innerHTML = _t.y * 57.2958;
+            quaternion.fromArray([
+              0,
+              sensor.quaternion[2],
+              0,
+              sensor.quaternion[3],
+            ]);
+            quaternion.normalize();
+            document.getElementById('debug').innerHTML = quaternion.y;
             if (firstFrame) {
-              correctRotation(_t.y * 57.2958);
-              firstFrame = false;
+              if (quaternion.y < 0) {
+                correctRotation(quaternion.y * 180);
+                firstFrame = false;
+              } else {
+                correctRotation((0.5 + (1 - quaternion.y)) * 180);
+                firstFrame = false;
+              }
               // 57,2958
             }
           } else {
@@ -476,7 +484,9 @@
         }
       });
       setInterval(() => {
-        console.log(prevArray);
+        let asd = document.querySelector('a-camera');
+        document.getElementById('debug').innerHTML =
+          asd.getAttribute('rotation').y;
         navigator.geolocation.getCurrentPosition(
           success => {
             const curMX = (success.coords.latitude * Math.PI * 6371000) / 180;
