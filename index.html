@@ -434,28 +434,45 @@
         ? null
         : new AbsoluteOrientationSensor();
       let firstFrame = true;
-      let correction;
       if (!/iPad|iPhone|iPod/.test(navigator.userAgent)) sensor.start();
+
+      function correctRotation(_correction) {
+        let sc = document.getElementById('scene');
+        let factor = /iPad|iPhone|iPod/.test(navigator.userAgent)
+          ? _correction + 90
+          : _correction;
+        sc.setAttribute('rotation', '0 ' + factor + ' 0');
+        sc.needsUpdate = true;
+      }
+
       window.addEventListener('deviceorientation', function (event) {
         let __scene = document.querySelector('a-scene');
         if (/iPad|iPhone|iPod/.test(navigator.userAgent)) {
+          document.getElementById('debug').innerHTML =
+            event.webkitCompassHeading;
           if (firstFrame) {
-            correction = event.webkitCompassHeading;
+            correctRotation(event.webkitCompassHeading);
             firstFrame = false;
-            __scene.setAttribute('rotation', correction + ' 0 0');
-            __scene.needsUpdate = true;
           }
-          document.getElementById('debug').innerHTML = correction;
         } else {
-          __scene.setAttribute('rotation', '300 0 0');
-          __scene.needsUpdate = true;
-          //const quaternion = new THREE.Quaternion();
-          //quaternion.fromArray(sensor.quaternion);
-          if (firstFrame) {
-            //correction = sensor.quaternion[2];
-            firstFrame = false;
+          if (
+            /Android|webOS|BlackBerry|IEMobile|Opera Mini/i.test(
+              navigator.userAgent,
+            )
+          ) {
+            const quaternion = new THREE.Quaternion();
+            quaternion.fromArray(sensor.quaternion);
+            let _t = new THREE.Euler();
+            _t.setFromQuaternion(quaternion);
+            document.getElementById('debug').innerHTML = _t.y * 57.2958;
+            if (firstFrame) {
+              correctRotation(_t.y * 57.2958);
+              firstFrame = false;
+              // 57,2958
+            }
+          } else {
+            console.log('PC Mode');
           }
-          document.getElementById('debug').innerHTML = correction;
         }
       });
       setInterval(() => {
