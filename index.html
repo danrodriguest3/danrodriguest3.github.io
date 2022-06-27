@@ -404,6 +404,7 @@
       let lastIndex = 0;
       let renderstarted = false;
       let generatedCount = 0;
+      const distance = 100;
       let factor;
       document.addEventListener('renderstart', () => {
         renderstarted = true;
@@ -415,20 +416,43 @@
           const curMZ = (pos.longitude * Math.PI * 6371000) / 180;
           const _str =
             (curMX - prevPos.coords.x).toString() +
-            ' -0.5 ' +
+            ' -2 ' +
             (curMZ - prevPos.coords.z).toString();
           if (!renderstarted && generatedCount < locations.length) {
             generatedCount++;
-            document.addEventListener('renderstart', e => {
-              appendObject('geolocated' + index, '.5 .5 .5', _str, '0 0 0');
-            });
+            if (
+              curMX - prevPos.coords.x < distance &&
+              curMX - prevPos.coords.x > -distance &&
+              curMZ - prevPos.coords.z < distance &&
+              curMZ - prevPos.coords.z > -distance
+            )
+              document.addEventListener('renderstart', e => {
+                appendObject('geolocated' + index, '.5 .5 .5', _str, '0 0 0');
+              });
           } else if (generatedCount < locations.length) {
             generatedCount++;
-            appendObject('geolocated' + index, '.5 .5 .5', _str, '0 0 0');
+
+            if (
+              curMX - prevPos.coords.x < distance &&
+              curMX - prevPos.coords.x > -distance &&
+              curMZ - prevPos.coords.z < distance &&
+              curMZ - prevPos.coords.z > -distance
+            )
+              appendObject('geolocated' + index, '.5 .5 .5', _str, '0 0 0');
           } else {
-            let _obj = document.getElementById('geolocated' + index);
-            _obj.setAttribute('position', _str);
-            _obj.needsUpdate = true;
+            if (
+              curMX - prevPos.coords.x < distance &&
+              curMX - prevPos.coords.x > -distance &&
+              curMZ - prevPos.coords.z < distance &&
+              curMZ - prevPos.coords.z > -distance
+            ) {
+              let _obj = document.getElementById('geolocated' + index);
+              _obj.setAttribute('position', _str);
+              _obj.needsUpdate = true;
+            } else {
+              let _obj = document.getElementById('geolocated' + index);
+              _obj.remove();
+            }
           }
         });
       }
@@ -492,8 +516,8 @@
             const curMX = (success.coords.latitude * Math.PI * 6371000) / 180;
             const curMZ = (success.coords.longitude * Math.PI * 6371000) / 180;
             if (
-              Math.abs(prevPos.coords.x - curMX) > 0.5 ||
-              Math.abs(prevPos.coords.z - curMZ) > 0.5
+              Math.abs(prevPos.coords.x - curMX) > 0.25 ||
+              Math.abs(prevPos.coords.z - curMZ) > 0.25
             ) {
               if (prevArray.length === 8) {
                 let avX = 0;
