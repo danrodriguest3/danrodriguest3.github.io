@@ -404,8 +404,13 @@
       let lastIndex = 0;
       let renderstarted = false;
       let generatedCount = 0;
-      const distance = 100;
-      let factor;
+      const distance = 600;
+      let factor = 0;
+      const sensor = /iPad|iPhone|iPod/.test(navigator.userAgent)
+        ? null
+        : new AbsoluteOrientationSensor();
+      let firstFrame = true;
+      if (!/iPad|iPhone|iPod/.test(navigator.userAgent)) sensor.start();
       document.addEventListener('renderstart', () => {
         renderstarted = true;
       });
@@ -415,9 +420,9 @@
           const curMX = (pos.latitude * Math.PI * 6371000) / 180;
           const curMZ = (pos.longitude * Math.PI * 6371000) / 180;
           const _str =
-            (curMX - prevPos.coords.x).toString() +
+            (curMZ - prevPos.coords.z).toString() +
             ' -2 ' +
-            (curMZ - prevPos.coords.z).toString();
+            (curMX - prevPos.coords.x).toString();
           if (!renderstarted && generatedCount < locations.length) {
             generatedCount++;
             if (
@@ -431,7 +436,6 @@
               });
           } else if (generatedCount < locations.length) {
             generatedCount++;
-
             if (
               curMX - prevPos.coords.x < distance &&
               curMX - prevPos.coords.x > -distance &&
@@ -457,60 +461,15 @@
         });
       }
 
-      const sensor = /iPad|iPhone|iPod/.test(navigator.userAgent)
-        ? null
-        : new AbsoluteOrientationSensor();
-      let firstFrame = true;
-      if (!/iPad|iPhone|iPod/.test(navigator.userAgent)) sensor.start();
-
       function correctRotation(_correction) {
         let sc = document.getElementById('scene');
-        factor = /iPad|iPhone|iPod/.test(navigator.userAgent)
-          ? _correction + 90
-          : _correction;
+        factor = _correction;
         sc.setAttribute('rotation', '0 ' + factor + ' 0');
         sc.needsUpdate = true;
+        if (sc.getAttribute('rotation').y === _correction) firstFrame = false;
       }
-
-      window.addEventListener('deviceorientation', function (event) {
-        let __scene = document.querySelector('a-scene');
-        if (/iPad|iPhone|iPod/.test(navigator.userAgent)) {
-          if (firstFrame) {
-            correctRotation(event.webkitCompassHeading);
-            firstFrame = false;
-          }
-        } else {
-          if (
-            /Android|BlackBerry|IEMobile|Opera Mini/.test(navigator.userAgent)
-          ) {
-            const quaternion = new THREE.Quaternion();
-            quaternion.fromArray([
-              0,
-              sensor.quaternion[2],
-              0,
-              sensor.quaternion[3],
-            ]);
-            quaternion.normalize();
-            document.getElementById('debug').innerHTML = quaternion.y;
-            if (firstFrame) {
-              if (quaternion.y < 0) {
-                correctRotation(quaternion.y * 180);
-                firstFrame = false;
-              } else {
-                correctRotation((0.5 + (1 - quaternion.y)) * 180);
-                firstFrame = false;
-              }
-              // 57,2958
-            }
-          } else {
-            console.log('PC Mode');
-          }
-        }
-      });
       setInterval(() => {
         let asd = document.querySelector('a-camera');
-        document.getElementById('debug').innerHTML =
-          asd.getAttribute('rotation').y;
         navigator.geolocation.getCurrentPosition(
           success => {
             const curMX = (success.coords.latitude * Math.PI * 6371000) / 180;
@@ -549,6 +508,35 @@
           { enableHighAccuracy: true },
         );
       }, 500);
+      window.addEventListener('deviceorientation', function (event) {
+        let __scene = document.querySelector('a-scene');
+        if (/iPad|iPhone|iPod/.test(navigator.userAgent)) {
+          if (firstFrame) {
+            correctRotation(event.webkitCompassHeading + 90);
+          }
+        } else {
+          if (
+            /Android|BlackBerry|IEMobile|Opera Mini/.test(navigator.userAgent)
+          ) {
+            const quaternion = new THREE.Quaternion();
+            quaternion.fromArray([
+              sensor.quaternion[0],
+              sensor.quaternion[1],
+              sensor.quaternion[2],
+              sensor.quaternion[3],
+            ]);
+            const _totalRot =
+              180 - (Math.atan2(quaternion.z, quaternion.x) * 360) / Math.PI;
+            if (firstFrame) {
+              correctRotation(_totalRot - 90);
+            }
+            // 57,2958
+            document.getElementById('debug').innerHTML = _totalRot;
+          } else {
+            console.log('PC Mode');
+          }
+        }
+      });
     </script>
     <style>
       body {
