@@ -402,140 +402,125 @@
       let prevPos = { coords: { x: 0, z: 0 } };
       let prevArray = [];
       let lastIndex = 0;
-      let renderstarted = false;
       let generatedCount = 0;
       const distance = 600;
-      let factor = 0;
+      let factor = 2560;
       const sensor = /iPad|iPhone|iPod/.test(navigator.userAgent)
         ? null
         : new AbsoluteOrientationSensor();
       let firstFrame = true;
       if (!/iPad|iPhone|iPod/.test(navigator.userAgent)) sensor.start();
-      document.addEventListener('renderstart', () => {
-        renderstarted = true;
-      });
-
-      function updateObjPos(_prevPos) {
+      function correctRotation(_correction) {
+        const sc = document.getElementById('scene');
+        factor = _correction;
+        sc.setAttribute('rotation', '0 ' + _correction + ' 0');
+        sc.needsUpdate = true;
+        if (sc.getAttribute('rotation').y === _correction) firstFrame = false;
+      }
+      function updateObjPos() {
         locations.map((pos, index) => {
           const curMX = (pos.latitude * Math.PI * 6371000) / 180;
           const curMZ = (pos.longitude * Math.PI * 6371000) / 180;
           const _str =
-            (curMZ - prevPos.coords.z).toString() +
+            (curMX - prevPos.coords.x).toString() +
             ' -2 ' +
-            (curMX - prevPos.coords.x).toString();
-          if (!renderstarted && generatedCount < locations.length) {
-            generatedCount++;
-            if (
-              curMX - prevPos.coords.x < distance &&
-              curMX - prevPos.coords.x > -distance &&
-              curMZ - prevPos.coords.z < distance &&
-              curMZ - prevPos.coords.z > -distance
-            )
-              document.addEventListener('renderstart', e => {
-                appendObject('geolocated' + index, '.5 .5 .5', _str, '0 0 0');
-              });
-          } else if (generatedCount < locations.length) {
-            generatedCount++;
-            if (
-              curMX - prevPos.coords.x < distance &&
-              curMX - prevPos.coords.x > -distance &&
-              curMZ - prevPos.coords.z < distance &&
-              curMZ - prevPos.coords.z > -distance
-            )
-              appendObject('geolocated' + index, '.5 .5 .5', _str, '0 0 0');
-          } else {
-            if (
-              curMX - prevPos.coords.x < distance &&
-              curMX - prevPos.coords.x > -distance &&
-              curMZ - prevPos.coords.z < distance &&
-              curMZ - prevPos.coords.z > -distance
-            ) {
-              let _obj = document.getElementById('geolocated' + index);
+            (curMZ - prevPos.coords.z).toString();
+          const _obj = document.getElementById('geolocated' + index);
+          if (
+            curMX - prevPos.coords.x < distance &&
+            curMX - prevPos.coords.x > -distance &&
+            curMZ - prevPos.coords.z < distance &&
+            curMZ - prevPos.coords.z > -distance
+          ) {
+            if (_obj) {
               _obj.setAttribute('position', _str);
               _obj.needsUpdate = true;
+              console.log(
+                document
+                  .getElementById('geolocated' + index)
+                  .getAttribute('position'),
+              );
+              document.getElementById('debug').innerHTML = document
+                .getElementById('geolocated1')
+                .getAttribute('position');
             } else {
-              let _obj = document.getElementById('geolocated' + index);
-              _obj.remove();
+              appendObject('geolocated' + index, '.5 .5 .5', _str, '0 0 0');
             }
+          } else {
+            if (_obj) _obj.remove();
           }
         });
       }
-
-      function correctRotation(_correction) {
-        let sc = document.getElementById('scene');
-        factor = _correction;
-        sc.setAttribute('rotation', '0 ' + factor + ' 0');
-        sc.needsUpdate = true;
-        if (sc.getAttribute('rotation').y === _correction) firstFrame = false;
-      }
-      setInterval(() => {
-        let asd = document.querySelector('a-camera');
-        navigator.geolocation.getCurrentPosition(
-          success => {
-            const curMX = (success.coords.latitude * Math.PI * 6371000) / 180;
-            const curMZ = (success.coords.longitude * Math.PI * 6371000) / 180;
-            if (
-              Math.abs(prevPos.coords.x - curMX) > 0.25 ||
-              Math.abs(prevPos.coords.z - curMZ) > 0.25
-            ) {
-              if (prevArray.length === 8) {
-                let avX = 0;
-                let avZ = 0;
-                prevArray.map((pos, index) => {
-                  avX =
-                    avX !== 0 ? (pos.x + curMX + avX) / 3 : (pos.x + curMX) / 2;
-                  avZ =
-                    avZ !== 0 ? (pos.z + curMZ + avZ) / 3 : (pos.z + curMZ) / 2;
-                  if (index === 7) {
-                    prevArray.splice(lastIndex, 1, { x: curMX, z: curMZ });
-                    if (lastIndex < 7) {
-                      lastIndex++;
-                    } else {
-                      lastIndex = 0;
-                    }
-                    prevPos.coords.x = avX;
-                    prevPos.coords.z = avZ;
-                    updateObjPos(prevPos);
-                  }
-                });
-              } else {
-                if (prevArray.length < 8)
-                  prevArray.push({ x: curMX, z: curMZ });
-              }
-            }
-          },
-          error => error,
-          { enableHighAccuracy: true },
-        );
-      }, 500);
-      window.addEventListener('deviceorientation', function (event) {
-        let __scene = document.querySelector('a-scene');
-        if (/iPad|iPhone|iPod/.test(navigator.userAgent)) {
-          if (firstFrame) {
-            correctRotation(event.webkitCompassHeading + 90);
-          }
-        } else {
-          if (
-            /Android|BlackBerry|IEMobile|Opera Mini/.test(navigator.userAgent)
-          ) {
-            const quaternion = new THREE.Quaternion();
-            quaternion.fromArray([
-              sensor.quaternion[0],
-              sensor.quaternion[1],
-              sensor.quaternion[2],
-              sensor.quaternion[3],
-            ]);
-            const _totalRot =
-              180 - (Math.atan2(quaternion.z, quaternion.x) * 360) / Math.PI;
-            if (firstFrame) {
-              correctRotation(_totalRot - 90);
+      document.addEventListener('renderstart', () => {
+        const __scene = document.getElementById('scene');
+        document.querySelector('a-scene').getAttribute('arjs').sourceWidth =
+          innerWidth;
+        document.querySelector('a-scene').getAttribute('arjs').sourceHeight =
+          innerHeight;
+        window.addEventListener('deviceorientation', function (event) {
+          if (/iPad|iPhone|iPod/.test(navigator.userAgent)) {
+            if (firstFrame) correctRotation(event.webkitCompassHeading + 90);
+          } else {
+            if (sensor.quaternion) {
+              const quaternion = new THREE.Quaternion();
+              quaternion.fromArray([
+                sensor.quaternion[0],
+                0,
+                sensor.quaternion[2],
+                sensor.quaternion[3],
+              ]);
+              const _totalRot =
+                180 - (Math.atan2(quaternion.z, quaternion.x) * 360) / Math.PI;
+              if (firstFrame) correctRotation(_totalRot);
             }
             // 57,2958
-            document.getElementById('debug').innerHTML = _totalRot;
-          } else {
-            console.log('PC Mode');
           }
-        }
+        });
+        setInterval(() => {
+          let asd = document.querySelector('a-camera');
+          navigator.geolocation.getCurrentPosition(
+            success => {
+              const curMX = (success.coords.latitude * Math.PI * 6371000) / 180;
+              const curMZ =
+                (success.coords.longitude * Math.PI * 6371000) / 180;
+              if (
+                Math.abs(prevPos.coords.x - curMX) > 0.25 ||
+                Math.abs(prevPos.coords.z - curMZ) > 0.25
+              ) {
+                if (prevArray.length === 8) {
+                  let avX = 0;
+                  let avZ = 0;
+                  prevArray.map((pos, index) => {
+                    avX =
+                      avX !== 0
+                        ? (pos.x + curMX + avX) / 3
+                        : (pos.x + curMX) / 2;
+                    avZ =
+                      avZ !== 0
+                        ? (pos.z + curMZ + avZ) / 3
+                        : (pos.z + curMZ) / 2;
+                    if (index === 7) {
+                      prevArray.splice(lastIndex, 1, { x: curMX, z: curMZ });
+                      if (lastIndex < 7) {
+                        lastIndex++;
+                      } else {
+                        lastIndex = 0;
+                      }
+                      prevPos.coords.x = avX;
+                      prevPos.coords.z = avZ;
+                      updateObjPos();
+                    }
+                  });
+                } else {
+                  if (prevArray.length < 8)
+                    prevArray.push({ x: curMX, z: curMZ });
+                }
+              }
+            },
+            error => error,
+            { enableHighAccuracy: true },
+          );
+        }, 500);
       });
     </script>
     <style>
@@ -561,9 +546,17 @@
       }
     </style>
   </head>
+  <!-- arjs
+    sourceWidth:1280; 
+    sourceHeight:960; 
+    displayWidth: 1280; 
+    displayHeight: 960; -->
+  <!-- renderer: 
+    maxCanvasWidth: 1920;
+    maxCanvasHeight: 1920; -->
   <body>
     <a-scene
-      arjs="sourceType: webcam; videoTexture: true; debugUIEnabled: false;"
+      arjs="sourceType: webcam;"
       embedded
       renderer="logarithmicDepthBuffer: true; antialias: true;"
       vr-mode-ui="enabled: false"
