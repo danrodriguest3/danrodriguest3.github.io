@@ -339,8 +339,8 @@
       }
       const locations = [
         {
-          latitude: -3.741326,
-          longitude: -38.535055,
+          latitude: -3.741715,
+          longitude: -38.535978,
         },
         {
           latitude: -3.741032,
@@ -422,27 +422,28 @@
           const curMX = (pos.latitude * Math.PI * 6371000) / 180;
           const curMZ = (pos.longitude * Math.PI * 6371000) / 180;
           const _str =
-            (curMX - prevPos.coords.x).toString() +
+            (-curMX + prevPos.coords.x).toString() +
             ' -2 ' +
-            (curMZ - prevPos.coords.z).toString();
+            (-curMZ + prevPos.coords.z).toString();
           const _obj = document.getElementById('geolocated' + index);
           if (
-            curMX - prevPos.coords.x < distance &&
-            curMX - prevPos.coords.x > -distance &&
-            curMZ - prevPos.coords.z < distance &&
-            curMZ - prevPos.coords.z > -distance
+            Math.abs(curMX - prevPos.coords.x) < distance &&
+            Math.abs(curMZ - prevPos.coords.z) < distance
           ) {
             if (_obj) {
               _obj.setAttribute('position', _str);
               _obj.needsUpdate = true;
               console.log(
-                document
-                  .getElementById('geolocated' + index)
-                  .getAttribute('position'),
+                document.getElementById('geolocated0').getAttribute('position')
+                  .x,
               );
-              document.getElementById('debug').innerHTML = document
-                .getElementById('geolocated1')
-                .getAttribute('position');
+              document.getElementById('debug').innerHTML =
+                'X: ' +
+                document.getElementById('geolocated0').getAttribute('position')
+                  .x +
+                ' Z: ' +
+                document.getElementById('geolocated0').getAttribute('position')
+                  .z;
             } else {
               appendObject('geolocated' + index, '.5 .5 .5', _str, '0 0 0');
             }
@@ -459,7 +460,7 @@
           innerHeight;
         window.addEventListener('deviceorientation', function (event) {
           if (/iPad|iPhone|iPod/.test(navigator.userAgent)) {
-            if (firstFrame) correctRotation(event.webkitCompassHeading + 90);
+            if (firstFrame) correctRotation(event.webkitCompassHeading - 90);
           } else {
             if (sensor.quaternion) {
               const quaternion = new THREE.Quaternion();
@@ -470,7 +471,7 @@
                 sensor.quaternion[3],
               ]);
               const _totalRot =
-                180 - (Math.atan2(quaternion.z, quaternion.x) * 360) / Math.PI;
+                (Math.atan2(quaternion.x, quaternion.z) * 360) / Math.PI + 90;
               if (firstFrame) correctRotation(_totalRot);
             }
             // 57,2958
