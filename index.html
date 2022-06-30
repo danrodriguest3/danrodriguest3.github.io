@@ -547,8 +547,9 @@
           _gmap_canvas.setAttribute('class', 'gmap_canvas');
           const _mapframe = document.createElement('iframe');
           _mapframe.setAttribute('id', 'gmap_canvas');
-          _mapframe.setAttribute('width', '100%');
-          _mapframe.setAttribute('height', '100%');
+          _mapframe.setAttribute('width', '125%');
+          _mapframe.setAttribute('style', 'margin-left: -12.5%; margin-top: -6vh')
+          _mapframe.setAttribute('height', '110%');
           _mapframe.setAttribute('referrerpolicy', 'no-referrer-when-downgrade');
           _mapframe.setAttribute('src', 'https://maps.google.com/maps/embed/v1/view?key=AIzaSyDc9ur60NkZPril1HgtHvm4EkAWCIRnOX0&zoom=20&center=' + success.coords.latitude + ',' + success.coords.longitude);
           const _pos_overlay = document.createElement('div');
@@ -649,7 +650,7 @@
 
     .pos_overlay {
       position: absolute;
-      top: 35vh;
+      top: 30vh;
       left: 0px;
       width: 100vw;
       text-align: center;
