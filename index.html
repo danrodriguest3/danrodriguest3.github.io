@@ -2,7 +2,6 @@
 
 <head>
   <link rel="stylesheet" href="fonts/fontawesome-free-6.1.1-web/css/all.css" />
-  <meta name="viewport" content="width=device-width, user-scalable=no">
   <title>cityAR Easter Event</title>
   <script src="https://aframe.io/releases/1.2.0/aframe.min.js"></script>
   <script src="js/aframe-ar.js"></script>
@@ -398,7 +397,6 @@
       });
     }
     document.addEventListener('renderstart', () => {
-      fixFrame();
       const __scene = document.getElementById('scene');
       document.querySelector('a-scene').getAttribute('arjs').sourceWidth =
         innerWidth;
@@ -499,8 +497,8 @@
       _int_scene.setAttribute('id', 'scene');
       const _int_camera = document.createElement('a-camera');
       _int_camera.setAttribute('rotation-reader', '');
-      _int_camera.setAttribute('look-controls-enabled', 'false');
-      _int_camera.setAttribute('arjs-look-controls', 'smoothingFactor: 0.1');
+      _int_camera.setAttribute('look-controls', 'enabled: false; touchEnabled: false;');
+      _int_camera.setAttribute('arjs-look-controls', 'smoothingFactor: 0.1; touchEnabled: false;');
       _a_scene.appendChild(_a_assets);
       _a_scene.appendChild(_raycaster);
       _a_scene.appendChild(_int_scene);
