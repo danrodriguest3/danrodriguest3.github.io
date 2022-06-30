@@ -1,600 +1,687 @@
 <html>
-  <head>
-    <link
-      rel="stylesheet"
-      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css"
-    />
-    <title>cityAR Easter Event</title>
-    <script src="https://aframe.io/releases/1.2.0/aframe.min.js"></script>
-    <script src="js/aframe-ar.js"></script>
-    <script src="js/gesture-detector.js"></script>
-    <script src="js/gesture-handler.js"></script>
-    <script src="js/DecalGeometry.js"></script>
-    <script src="js/aframe-animation-timeline-component.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/gh/donmccurdy/aframe-extras@v6.1.1/dist/aframe-extras.min.js"></script>
-    <script
-      xmlns="http://www.w3.org/1999/xhtml"
-      async=""
-      src="https://cdn.rawgit.com/eligrey/FileSaver.js/5ed507ef8aa53d8ecfea96d96bc7214cd2476fd2/FileSaver.min.js"
-    ></script>
-    <script src="https://html2canvas.hertzen.com/dist/html2canvas.js"></script>
-    <script>
-      var anim_clips = [];
-      var scene = document.querySelector('a-scene');
-      var xpType = 'obj_walkaround'; // 'obj_generation', 'obj_interaction', 'obj_walkaround'
-      var decalsArray = new Array();
-      AFRAME.registerComponent('autoscale', {
-        init: function () {
-          this.scale();
-        },
-        scale: function () {
-          const el = this.el;
-          const span = this.data;
-          const mesh = el.getObject3D('mesh');
 
-          if (!mesh) return;
+<head>
+  <link rel="stylesheet" href="fonts/fontawesome-free-6.1.1-web/css/all.css" />
+  <meta name="viewport" content="width=device-width, user-scalable=no">
+  <title>cityAR Easter Event</title>
+  <script src="https://aframe.io/releases/1.2.0/aframe.min.js"></script>
+  <script src="js/aframe-ar.js"></script>
+  <script src="js/gesture-detector.js"></script>
+  <script src="js/gesture-handler.js"></script>
+  <script src="js/DecalGeometry.js"></script>
+  <script src="js/aframe-animation-timeline-component.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/gh/donmccurdy/aframe-extras@v6.1.1/dist/aframe-extras.min.js"></script>
+  <script xmlns="http://www.w3.org/1999/xhtml" async=""
+    src="https://cdn.rawgit.com/eligrey/FileSaver.js/5ed507ef8aa53d8ecfea96d96bc7214cd2476fd2/FileSaver.min.js"></script>
+  <script src="https://html2canvas.hertzen.com/dist/html2canvas.js"></script>
+  <script>
+    var anim_clips = [];
+    var scene = document.querySelector('a-scene');
+    var xpType = 'obj_walkaround'; // 'obj_generation', 'obj_interaction', 'obj_walkaround'
+    var decalsArray = new Array();
+    AFRAME.registerComponent('autoscale', {
+      init: function () {
+        this.scale();
+      },
+      scale: function () {
+        const el = this.el;
+        const span = this.data;
+        const mesh = el.getObject3D('mesh');
 
-          // Compute bounds.
-          const bbox = new THREE.Box3().setFromObject(mesh);
+        if (!mesh) return;
 
-          // Normalize scale.
-          const scale = span / bbox.getSize().length();
-          mesh.scale.set(scale, scale, scale);
+        // Compute bounds.
+        const bbox = new THREE.Box3().setFromObject(mesh);
 
-          // Recenter.
-          const offset = bbox.getCenter().multiplyScalar(scale);
-          mesh.position.sub(offset);
-        },
-      });
-      function takePhoto() {
-        document.getElementById('review_modal').style.display = 'block';
-        const myImgElem = document.getElementById('review-img');
-        myImgElem.src = '';
-        myImgElem.style.display = 'none';
-        var _frame = document.getElementById('photo-frame'),
-          _logo = document.getElementById('event-logo');
-        html2canvas(document.getElementById('arjs-video')).then(function (
-          canvas,
-        ) {
-          // Getting video and object as canvases
-          var canvas_video = canvas.toDataURL();
-          var canvas_objects = document
-            .querySelector('[arjs]')
-            .components.screenshot.getCanvas('perspective')
-            .toDataURL();
-          // ===================== Building composite canvas ====================== //
-          var _canvas1 = document.getElementById('canvas1');
-          if (/iPad|iPhone|iPod/.test(navigator.userAgent)) {
-            _canvas1.height = canvas.height * 1.1;
-            _canvas1.width = canvas.width * 1.1;
-          } else {
-            _canvas1.height = canvas.height;
-            _canvas1.width = canvas.width;
-          }
-          var _ctx1 = _canvas1.getContext('2d');
-          // Draw video background
-          var img = new Image();
-          img.onload = function () {
-            _ctx1.clearRect(0, 0, _canvas1.width, _canvas1.height);
-            if (/iPad|iPhone|iPod/.test(navigator.userAgent)) {
-              _ctx1.drawImage(
-                img,
-                0,
-                0,
-                _canvas1.width * 1.1,
-                _canvas1.height * 1.1,
-                0,
-                0,
-                _canvas1.width * 1.21,
-                _canvas1.height * 1.21,
-              );
-            } else {
-              _ctx1.drawImage(
-                img,
-                0,
-                0,
-                _canvas1.width,
-                _canvas1.height,
-                0,
-                0,
-                _canvas1.width,
-                _canvas1.height,
-              );
-            }
-          };
-          img.src = canvas_video;
-          // Draw 3d elements
-          var ovr = new Image();
-          ovr.onload = function () {
-            if (canvas.width > canvas.height) {
-              _ctx1.drawImage(
-                ovr,
-                0,
-                0,
-                ovr.width,
-                ovr.height,
-                0,
-                0,
-                img.width,
-                img.height,
-              );
-            } else {
-              _ctx1.drawImage(
-                ovr,
-                2048 - _canvas1.height / 2,
-                1024 - _canvas1.width / 2,
-                _canvas1.height,
-                _canvas1.width,
-                0,
-                -80,
-                _canvas1.width,
-                _canvas1.height,
-              );
-            }
-            _ctx1.drawImage(
-              _frame,
-              0,
-              0,
-              _frame.width + 100,
-              _frame.height,
-              0,
-              0,
-              _frame.width * (_canvas1.width / 380) +
-                100 * (_canvas1.width / 380),
-              _frame.height * (_canvas1.height / 527),
-            );
-            //_ctx1.drawImage(_frame,0,0,_frame.width,_frame.height,0,0,_frame.width*(_canvas1.width/380),_frame.height*(_canvas1.height/527));
-            _ctx1.drawImage(
-              _logo,
-              0,
-              0,
-              _logo.width,
-              _logo.height,
-              _canvas1.width / 2 - (_logo.width * (_canvas1.height / 527)) / 2,
-              0,
-              _logo.width * (_canvas1.height / 527),
-              _logo.height * (_canvas1.height / 527),
-            );
-          };
-          ovr.src = canvas_objects;
-          // Get data from new canvas
-          setTimeout(() => {
-            var _image = _canvas1.toDataURL('image/png');
-            myImgElem.src = _image;
-            document.getElementById('review-img').style.display = 'inline';
-          }, 250);
-        });
-      }
-      function resetPosition() {
-        const _old_camera = document.querySelector('a-camera');
-        const _sceneEl = document.querySelector('a-scene');
-        var _camera = document.createElement('a-camera');
-        _sceneEl.appendChild(_camera);
-        _camera.setAttribute('look-controls', 'touchEnabled: false');
-        _camera.setAttribute('camera', 'active', true);
-        _sceneEl.removeChild(_old_camera);
-      }
-      document.addEventListener('loaded', [fixFrame(), checkValues()]);
-      function selectAnimation(index) {
-        document
-          .getElementById('3dobj')
-          .setAttribute('animation-mixer', 'clip', anim_clips[index].name);
-      }
-      function closeReview() {
-        document.getElementById('review_modal').style.display = 'none';
-      }
-      function fixFrame() {
-        setTimeout(() => {
-          const myFrame = document.getElementById('photo-frame'),
-            myLogo = document.getElementById('event-logo'),
-            myArrow = document.getElementById('arrow'),
-            myArrowContainer = document.getElementById('arrow_container'),
-            myObj = document.getElementById('3dobj'),
-            myBar = document.getElementById('genBar');
-          switch (xpType) {
-            case 'obj_interaction':
-              myBar.setAttribute('style', 'display: none');
-              if (!/iPad|iPhone|iPod/.test(navigator.userAgent)) {
-                myArrow.setAttribute('style', 'display: none;');
-                myArrowContainer.setAttribute(
-                  'style',
-                  'background-color: rgba(0,0,0,.6);border: solid; border-radius: 12px; border-width: 1px; border-color: rgb(230,230,230); padding: 8px 8px; margin: auto;',
-                );
-              }
-              break;
-            case 'obj_generation':
-              myObj.remove();
-              if (!/iPad|iPhone|iPod/.test(navigator.userAgent)) {
-                myArrow.setAttribute('style', 'display: none;');
-              }
-              myArrowContainer.setAttribute('style', 'display: none');
-              break;
-            case 'obj_walkaround':
-              myBar.setAttribute('style', 'display: none');
-              myArrowContainer.setAttribute('style', 'display: none');
-          }
-          let scaleFactor = [innerWidth / 380, innerHeight / 527];
-          myFrame.style =
-            'position: fixed; top: 0; left: 0; pointer-events: none;';
-          myFrame.width = innerWidth;
-          myFrame.height = innerHeight;
-          myFrame.style.transform =
-            'scale(' + scaleFactor[0] + ',' + scaleFactor[1] + ')';
-          myLogo.style =
-            'position: fixed; top: 0; left: 50%; pointer-events: none; margin-left: -36px';
-        }, 50);
-      }
-      function soundControl() {
-        document.querySelector('video').muted =
-          !document.querySelector('video').muted;
-        const icon = document.getElementById('soundIcon');
-        if (document.querySelector('video').muted) {
-          icon.setAttribute('class', 'fa fa-volume-off');
+        // Normalize scale.
+        const scale = span / bbox.getSize().length();
+        mesh.scale.set(scale, scale, scale);
+
+        // Recenter.
+        const offset = bbox.getCenter().multiplyScalar(scale);
+        mesh.position.sub(offset);
+      },
+    });
+    function takePhoto() {
+      document.getElementById('review_modal').style.display = 'block';
+      const myImgElem = document.getElementById('review-img');
+      myImgElem.src = '';
+      myImgElem.style.display = 'none';
+      var _frame = document.getElementById('photo-frame'),
+        _logo = document.getElementById('event-logo');
+      html2canvas(document.getElementById('arjs-video'), { allowTaint: true }).then(function (
+        canvas,
+      ) {
+        // Getting video and object as canvases
+        var canvas_video = canvas.toDataURL();
+        var canvas_objects = document
+          .querySelector('[arjs]')
+          .components.screenshot.getCanvas('perspective')
+          .toDataURL();
+        // ===================== Building composite canvas ====================== //
+        var _canvas1 = document.getElementById('canvas1');
+        if (/iPad|iPhone|iPod/.test(navigator.userAgent)) {
+          _canvas1.height = canvas.height * 1.1;
+          _canvas1.width = canvas.width * 1.1;
         } else {
-          icon.setAttribute('class', 'fa fa-volume-up');
+          _canvas1.height = canvas.height;
+          _canvas1.width = canvas.width;
         }
-        document.querySelector('video').play();
-      }
-      function checkValues() {
-        setTimeout(() => {
-          var x = document.getElementById('qtt').value;
-          document.getElementById('qttView').innerHTML = 'Quantity: ' + x;
-        }, 50);
-      }
-      function appendObject(id, scale, position, rotation) {
-        var _entity = document.createElement('a-entity');
-        _entity.id = id;
-        _entity.setAttribute('class', 'generated');
-        _entity.setAttribute('position', position); //this doesn't set the position
-        _entity.setAttribute('scale', scale);
-        _entity.setAttribute('rotation', rotation);
-        _entity.setAttribute('gltf-model', '#model');
-        _entity.setAttribute('animation-mixer', '');
-        document.getElementById('scene').appendChild(_entity);
-        document.getElementById(id).setAttribute('position', position); // this sets the position as a workaround
-        _entity.addEventListener('model-loaded', e => {
-          var obj = _entity.getObject3D('mesh');
-          obj.traverse(async function (node) {
-            if (node.isMesh) {
-              var tempCanvas = document.createElement('canvas');
-              var tempCtx = tempCanvas.getContext('2d');
-              tempCanvas.width = node.material.map.image.width;
-              tempCanvas.height = node.material.map.image.height;
-              var txt = new Image();
-              txt.setAttribute(
-                'filter',
-                'hue-rotate(' + Math.random() * 360 + 'deg)',
-              );
-              txt.onload = await async function () {
-                var grd = tempCtx.createLinearGradient(
-                  0,
-                  0,
-                  tempCanvas.width,
-                  0,
-                );
-                grd.addColorStop(
-                  0,
-                  'hsl(' +
-                    Math.random() * 360 +
-                    ', ' +
-                    Math.floor(Math.random() * (70 + 1)) +
-                    '%, ' +
-                    Math.floor((1 + Math.random()) * (70 / 2 + 1)) +
-                    '%)',
-                );
-                grd.addColorStop(
-                  0.5,
-                  'hsl(' +
-                    Math.random() * 360 +
-                    ', ' +
-                    Math.floor(Math.random() * (70 + 1)) +
-                    '%, ' +
-                    Math.floor((1 + Math.random()) * (70 / 2 + 1)) +
-                    '%)',
-                );
-                grd.addColorStop(
-                  1,
-                  'hsl(' +
-                    Math.random() * 360 +
-                    ', ' +
-                    Math.floor(Math.random() * (70 + 1)) +
-                    '%, ' +
-                    Math.floor((1 + Math.random()) * (70 / 2 + 1)) +
-                    '%)',
-                );
-                tempCtx.fillStyle = grd;
-                await tempCtx.fillRect(
-                  0,
-                  0,
-                  tempCanvas.width,
-                  tempCanvas.height,
-                );
-                await tempCtx.drawImage(txt, 0, 0);
-                // Exclusive to the bunny event \/
-                await tempCtx.arc(678, 702, 16, 0, 100);
-                tempCtx.fillStyle = 'rgb(0,0,0)';
-                await tempCtx.fill();
-                // Exclusive to the bunny event /\
-                var canvasTexture = await new THREE.CanvasTexture(
-                  tempCtx.canvas,
-                );
-                node.material.map = canvasTexture;
-              };
-              if (
-                document.getElementById('texture_seq').value ==
-                decalsArray.length + 1
-              ) {
-                var sel = Math.floor(Math.random() * decalsArray.length);
-                txt.src = 'textures/p' + sel + '.png';
-              } else {
-                txt.src =
-                  'textures/p' +
-                  document.getElementById('texture_seq').value +
-                  '.png';
-              }
-              node.material.needsUpdate = true;
-            }
-          });
-        });
-      }
-      const locations = [
-        {
-          latitude: -3.741715,
-          longitude: -38.535978,
-        },
-        {
-          latitude: -3.741032,
-          longitude: -38.535662,
-        },
-        {
-          latitude: -3.741773,
-          longitude: -38.535033,
-        },
-        {
-          latitude: -3.741656,
-          longitude: -38.534095,
-        },
-        {
-          latitude: 32.96728844721977,
-          longitude: -96.8072138915505,
-        },
-        {
-          latitude: 32.96748101159948,
-          longitude: -96.80500928723593,
-        },
-        {
-          latitude: 32.967524050990924,
-          longitude: -96.80682211744134,
-        },
-        {
-          latitude: 32.96772869742061,
-          longitude: -96.8064152244685,
-        },
-        {
-          latitude: -3.743535,
-          longitude: -38.536877,
-        },
-        {
-          latitude: -3.743627,
-          longitude: -38.537093,
-        },
-        {
-          latitude: -3.743906,
-          longitude: -38.537084,
-        },
-        {
-          latitude: -3.744173,
-          longitude: -38.537229,
-        },
-        {
-          latitude: -3.744059,
-          longitude: -38.537455,
-        },
-        {
-          latitude: -3.743816,
-          longitude: -38.537505,
-        },
-        {
-          latitude: -3.743477,
-          longitude: -38.537154,
-        },
-      ];
-      let prevPos = { coords: { x: 0, z: 0 } };
-      let prevArray = [];
-      let lastIndex = 0;
-      let generatedCount = 0;
-      const distance = 600;
-      let factor = 2560;
-      const sensor = /iPad|iPhone|iPod/.test(navigator.userAgent)
-        ? null
-        : new AbsoluteOrientationSensor();
-      let firstFrame = true;
-      if (!/iPad|iPhone|iPod/.test(navigator.userAgent)) sensor.start();
-      function correctRotation(_correction) {
-        const sc = document.getElementById('scene');
-        factor = _correction;
-        sc.setAttribute('rotation', '0 ' + _correction + ' 0');
-        sc.needsUpdate = true;
-        if (sc.getAttribute('rotation').y === _correction) firstFrame = false;
-      }
-      function updateObjPos() {
-        locations.map((pos, index) => {
-          const curMX = (pos.latitude * Math.PI * 6371000) / 180;
-          const curMZ = (pos.longitude * Math.PI * 6371000) / 180;
-          const _str =
-            (-curMX + prevPos.coords.x).toString() +
-            ' -2 ' +
-            (-curMZ + prevPos.coords.z).toString();
-          const _obj = document.getElementById('geolocated' + index);
-          if (
-            Math.abs(curMX - prevPos.coords.x) < distance &&
-            Math.abs(curMZ - prevPos.coords.z) < distance
-          ) {
-            if (_obj) {
-              _obj.setAttribute('position', _str);
-              _obj.needsUpdate = true;
-              console.log(
-                document.getElementById('geolocated0').getAttribute('position')
-                  .x,
-              );
-              document.getElementById('debug').innerHTML =
-                'X: ' +
-                document.getElementById('geolocated0').getAttribute('position')
-                  .x +
-                ' Z: ' +
-                document.getElementById('geolocated0').getAttribute('position')
-                  .z;
-            } else {
-              appendObject('geolocated' + index, '.5 .5 .5', _str, '0 0 0');
-            }
-          } else {
-            if (_obj) _obj.remove();
-          }
-        });
-      }
-      document.addEventListener('renderstart', () => {
-        const __scene = document.getElementById('scene');
-        document.querySelector('a-scene').getAttribute('arjs').sourceWidth =
-          innerWidth;
-        document.querySelector('a-scene').getAttribute('arjs').sourceHeight =
-          innerHeight;
-        window.addEventListener('deviceorientation', function (event) {
+        var _ctx1 = _canvas1.getContext('2d');
+        // Draw video background
+        var img = new Image();
+        img.onload = function () {
+          _ctx1.clearRect(0, 0, _canvas1.width, _canvas1.height);
           if (/iPad|iPhone|iPod/.test(navigator.userAgent)) {
-            if (firstFrame) correctRotation(event.webkitCompassHeading - 90);
+            _ctx1.drawImage(
+              img,
+              0,
+              0,
+              _canvas1.width * 1.1,
+              _canvas1.height * 1.1,
+              0,
+              0,
+              _canvas1.width * 1.21,
+              _canvas1.height * 1.21,
+            );
           } else {
-            if (sensor.quaternion) {
-              const quaternion = new THREE.Quaternion();
-              quaternion.fromArray([
-                sensor.quaternion[0],
+            _ctx1.drawImage(
+              img,
+              0,
+              0,
+              _canvas1.width,
+              _canvas1.height,
+              0,
+              0,
+              _canvas1.width,
+              _canvas1.height,
+            );
+          }
+        };
+        img.src = canvas_video;
+        // Draw 3d elements
+        var ovr = new Image();
+        ovr.onload = function () {
+          if (canvas.width > canvas.height) {
+            _ctx1.drawImage(
+              ovr,
+              0,
+              0,
+              ovr.width,
+              ovr.height,
+              0,
+              0,
+              img.width,
+              img.height,
+            );
+          } else {
+            _ctx1.drawImage(
+              ovr,
+              2048 - _canvas1.height / 2,
+              1024 - _canvas1.width / 2,
+              _canvas1.height,
+              _canvas1.width,
+              0,
+              -80,
+              _canvas1.width,
+              _canvas1.height,
+            );
+          }
+          _ctx1.drawImage(
+            _frame,
+            0,
+            0,
+            _frame.width + 100,
+            _frame.height,
+            0,
+            0,
+            _frame.width * (_canvas1.width / 380) +
+            100 * (_canvas1.width / 380),
+            _frame.height * (_canvas1.height / 527),
+          );
+          //_ctx1.drawImage(_frame,0,0,_frame.width,_frame.height,0,0,_frame.width*(_canvas1.width/380),_frame.height*(_canvas1.height/527));
+          _ctx1.drawImage(
+            _logo,
+            0,
+            0,
+            _logo.width,
+            _logo.height,
+            _canvas1.width / 2 - (_logo.width * (_canvas1.height / 527)) / 2,
+            0,
+            _logo.width * (_canvas1.height / 527),
+            _logo.height * (_canvas1.height / 527),
+          );
+        };
+        ovr.src = canvas_objects;
+        // Get data from new canvas
+        setTimeout(() => {
+          var _image = _canvas1.toDataURL('image/png');
+          myImgElem.src = _image;
+          document.getElementById('review-img').style.display = 'inline';
+        }, 250);
+      });
+    }
+    function resetPosition() {
+      const _old_camera = document.querySelector('a-camera');
+      const _sceneEl = document.querySelector('a-scene');
+      var _camera = document.createElement('a-camera');
+      _sceneEl.appendChild(_camera);
+      _camera.setAttribute('look-controls', 'touchEnabled: false');
+      _camera.setAttribute('camera', 'active', true);
+      _sceneEl.removeChild(_old_camera);
+    }
+    function selectAnimation(index) {
+      document
+        .getElementById('3dobj')
+        .setAttribute('animation-mixer', 'clip', anim_clips[index].name);
+    }
+    function closeReview() {
+      document.getElementById('review_modal').style.display = 'none';
+      runScene();
+    }
+    function fixFrame() {
+      setTimeout(() => {
+        const myFrame = document.getElementById('photo-frame'),
+          myLogo = document.getElementById('event-logo');
+        let scaleFactor = [innerWidth / 380, innerHeight / 527];
+        myFrame.style =
+          'position: fixed; top: 0; left: 0; pointer-events: none;';
+        myFrame.width = innerWidth;
+        myFrame.height = innerHeight;
+        myFrame.style.transform =
+          'scale(' + scaleFactor[0] + ',' + scaleFactor[1] + ')';
+        myLogo.style =
+          'position: fixed; top: 0; left: 42vw; pointer-events: none; width: 16vw; height: 16vw;';
+      }, 50);
+    }
+    function soundControl() {
+      document.querySelector('video').muted =
+        !document.querySelector('video').muted;
+      const icon = document.getElementById('soundIcon');
+      if (document.querySelector('video').muted) {
+        icon.setAttribute('class', 'fa fa-volume-off');
+      } else {
+        icon.setAttribute('class', 'fa fa-volume-up');
+      }
+      document.querySelector('video').play();
+    }
+    function appendObject(id, scale, position, rotation) {
+      var _entity = document.createElement('a-entity');
+      _entity.id = id;
+      _entity.setAttribute('class', 'generated');
+      _entity.setAttribute('position', position); //this doesn't set the position
+      _entity.setAttribute('scale', scale);
+      _entity.setAttribute('rotation', rotation);
+      _entity.setAttribute('gltf-model', '#model');
+      _entity.setAttribute('animation-mixer', '');
+      document.getElementById('scene').appendChild(_entity);
+      document.getElementById(id).setAttribute('position', position); // this sets the position as a workaround
+      _entity.addEventListener('model-loaded', e => {
+        var obj = _entity.getObject3D('mesh');
+        obj.traverse(async function (node) {
+          if (node.isMesh) {
+            var tempCanvas = document.createElement('canvas');
+            var tempCtx = tempCanvas.getContext('2d');
+            tempCanvas.width = node.material.map.image.width;
+            tempCanvas.height = node.material.map.image.height;
+            var txt = new Image();
+            txt.setAttribute(
+              'filter',
+              'hue-rotate(' + Math.random() * 360 + 'deg)',
+            );
+            txt.onload = await async function () {
+              var grd = tempCtx.createLinearGradient(
                 0,
-                sensor.quaternion[2],
-                sensor.quaternion[3],
-              ]);
-              const _totalRot =
-                (Math.atan2(quaternion.x, quaternion.z) * 360) / Math.PI + 90;
-              if (firstFrame) correctRotation(_totalRot);
-            }
-            // 57,2958
+                0,
+                tempCanvas.width,
+                0,
+              );
+              grd.addColorStop(
+                0,
+                'hsl(' +
+                Math.random() * 360 +
+                ', ' +
+                Math.floor(Math.random() * (70 + 1)) +
+                '%, ' +
+                Math.floor((1 + Math.random()) * (70 / 2 + 1)) +
+                '%)',
+              );
+              grd.addColorStop(
+                0.5,
+                'hsl(' +
+                Math.random() * 360 +
+                ', ' +
+                Math.floor(Math.random() * (70 + 1)) +
+                '%, ' +
+                Math.floor((1 + Math.random()) * (70 / 2 + 1)) +
+                '%)',
+              );
+              grd.addColorStop(
+                1,
+                'hsl(' +
+                Math.random() * 360 +
+                ', ' +
+                Math.floor(Math.random() * (70 + 1)) +
+                '%, ' +
+                Math.floor((1 + Math.random()) * (70 / 2 + 1)) +
+                '%)',
+              );
+              tempCtx.fillStyle = grd;
+              await tempCtx.fillRect(
+                0,
+                0,
+                tempCanvas.width,
+                tempCanvas.height,
+              );
+              await tempCtx.drawImage(txt, 0, 0);
+              // Exclusive to the bunny event \/
+              await tempCtx.arc(678, 702, 16, 0, 100);
+              tempCtx.fillStyle = 'rgb(0,0,0)';
+              await tempCtx.fill();
+              // Exclusive to the bunny event /\
+              var canvasTexture = await new THREE.CanvasTexture(
+                tempCtx.canvas,
+              );
+              node.material.map = canvasTexture;
+            };
+            node.material.needsUpdate = true;
           }
         });
-        setInterval(() => {
-          let asd = document.querySelector('a-camera');
-          navigator.geolocation.getCurrentPosition(
-            success => {
-              const curMX = (success.coords.latitude * Math.PI * 6371000) / 180;
-              const curMZ =
-                (success.coords.longitude * Math.PI * 6371000) / 180;
-              if (
-                Math.abs(prevPos.coords.x - curMX) > 0.25 ||
-                Math.abs(prevPos.coords.z - curMZ) > 0.25
-              ) {
-                if (prevArray.length === 8) {
-                  let avX = 0;
-                  let avZ = 0;
-                  prevArray.map((pos, index) => {
-                    avX =
-                      avX !== 0
-                        ? (pos.x + curMX + avX) / 3
-                        : (pos.x + curMX) / 2;
-                    avZ =
-                      avZ !== 0
-                        ? (pos.z + curMZ + avZ) / 3
-                        : (pos.z + curMZ) / 2;
-                    if (index === 7) {
-                      prevArray.splice(lastIndex, 1, { x: curMX, z: curMZ });
-                      if (lastIndex < 7) {
-                        lastIndex++;
-                      } else {
-                        lastIndex = 0;
-                      }
-                      prevPos.coords.x = avX;
-                      prevPos.coords.z = avZ;
-                      updateObjPos();
-                    }
-                  });
-                } else {
-                  if (prevArray.length < 8)
-                    prevArray.push({ x: curMX, z: curMZ });
-                }
-              }
-            },
-            error => error,
-            { enableHighAccuracy: true },
-          );
-        }, 500);
       });
-    </script>
-    <style>
-      body {
-        margin: 0;
-        overflow: hidden;
+    }
+    const locations = [
+      {
+        latitude: -3.741715,
+        longitude: -38.535978,
+      },
+      {
+        latitude: -3.741032,
+        longitude: -38.535662,
+      },
+      {
+        latitude: -3.741773,
+        longitude: -38.535033,
+      },
+      {
+        latitude: -3.741656,
+        longitude: -38.534095,
+      },
+      {
+        latitude: 32.96728844721977,
+        longitude: -96.8072138915505,
+      },
+      {
+        latitude: 32.96748101159948,
+        longitude: -96.80500928723593,
+      },
+      {
+        latitude: 32.967524050990924,
+        longitude: -96.80682211744134,
+      },
+      {
+        latitude: 32.96772869742061,
+        longitude: -96.8064152244685,
+      },
+      {
+        latitude: -3.743535,
+        longitude: -38.536877,
+      },
+      {
+        latitude: -3.743627,
+        longitude: -38.537093,
+      },
+      {
+        latitude: -3.743906,
+        longitude: -38.537084,
+      },
+      {
+        latitude: -3.744173,
+        longitude: -38.537229,
+      },
+      {
+        latitude: -3.744059,
+        longitude: -38.537455,
+      },
+      {
+        latitude: -3.743816,
+        longitude: -38.537505,
+      },
+      {
+        latitude: -3.743477,
+        longitude: -38.537154,
+      },
+    ];
+    let prevPos = { coords: { x: 0, z: 0 } };
+    let prevArray = [];
+    let lastIndex = 0;
+    let generatedCount = 0;
+    const distance = 600;
+    let factor = 2560;
+    const sensor = /iPad|iPhone|iPod/.test(navigator.userAgent)
+      ? null
+      : new AbsoluteOrientationSensor();
+    let firstFrame = true;
+    if (!/iPad|iPhone|iPod/.test(navigator.userAgent)) sensor.start();
+    function correctRotation(_correction) {
+      const sc = document.getElementById('scene');
+      factor = _correction;
+      sc.setAttribute('rotation', '0 ' + _correction + ' 0');
+      sc.needsUpdate = true;
+      if (sc.getAttribute('rotation').y === _correction) firstFrame = false;
+    }
+    function updateObjPos() {
+      locations.map((pos, index) => {
+        const curMX = (pos.latitude * Math.PI * 6371000) / 180;
+        const curMZ = (pos.longitude * Math.PI * 6371000) / 180;
+        const _str =
+          (-curMX + prevPos.coords.x).toString() +
+          ' -2 ' +
+          (-curMZ + prevPos.coords.z).toString();
+        const _obj = document.getElementById('geolocated' + index);
+        if (
+          Math.abs(curMX - prevPos.coords.x) < distance &&
+          Math.abs(curMZ - prevPos.coords.z) < distance
+        ) {
+          if (_obj) {
+            _obj.setAttribute('position', _str);
+            _obj.needsUpdate = true;
+            console.log(
+              document.getElementById('geolocated0').getAttribute('position')
+                .x,
+            );
+          } else {
+            appendObject('geolocated' + index, '.5 .5 .5', _str, '0 0 0');
+          }
+        } else {
+          if (_obj) _obj.remove();
+        }
+      });
+    }
+    document.addEventListener('renderstart', () => {
+      fixFrame();
+      const __scene = document.getElementById('scene');
+      document.querySelector('a-scene').getAttribute('arjs').sourceWidth =
+        innerWidth;
+      document.querySelector('a-scene').getAttribute('arjs').sourceHeight =
+        innerHeight;
+      window.addEventListener('deviceorientation', function (event) {
+        document.getElementById('debug').innerHTML =
+          event.webkitCompassHeading;
+        if (/iPad|iPhone|iPod/.test(navigator.userAgent)) {
+          if (firstFrame) correctRotation(event.webkitCompassHeading - 90);
+        } else {
+          if (sensor.quaternion) {
+            const quaternion = new THREE.Quaternion();
+            quaternion.fromArray([
+              sensor.quaternion[0],
+              0,
+              sensor.quaternion[2],
+              sensor.quaternion[3],
+            ]);
+            const _totalRot =
+              (Math.atan2(quaternion.x, quaternion.z) * 360) / Math.PI + 90;
+            if (firstFrame) correctRotation(_totalRot);
+          }
+          // 57,2958
+        }
+      });
+      setInterval(() => {
+        let asd = document.querySelector('a-camera');
+        navigator.geolocation.getCurrentPosition(
+          success => {
+            const curMX = (success.coords.latitude * Math.PI * 6371000) / 180;
+            const curMZ =
+              (success.coords.longitude * Math.PI * 6371000) / 180;
+            if (
+              Math.abs(prevPos.coords.x - curMX) > 0.25 ||
+              Math.abs(prevPos.coords.z - curMZ) > 0.25
+            ) {
+              if (prevArray.length === 8) {
+                let avX = 0;
+                let avZ = 0;
+                prevArray.map((pos, index) => {
+                  avX =
+                    avX !== 0
+                      ? (pos.x + curMX + avX) / 3
+                      : (pos.x + curMX) / 2;
+                  avZ =
+                    avZ !== 0
+                      ? (pos.z + curMZ + avZ) / 3
+                      : (pos.z + curMZ) / 2;
+                  if (index === 7) {
+                    prevArray.splice(lastIndex, 1, { x: curMX, z: curMZ });
+                    if (lastIndex < 7) {
+                      lastIndex++;
+                    } else {
+                      lastIndex = 0;
+                    }
+                    prevPos.coords.x = avX;
+                    prevPos.coords.z = avZ;
+                    updateObjPos();
+                  }
+                });
+              } else {
+                if (prevArray.length < 8)
+                  prevArray.push({ x: curMX, z: curMZ });
+              }
+            }
+          },
+          error => error,
+          { enableHighAccuracy: true, timeout: 500 },
+        );
+      }, 500);
+    });
+    async function runScene() {
+      const _a_scene = document.createElement('a-scene');
+      _a_scene.setAttribute('id', 'inserted_ar');
+      _a_scene.setAttribute('arjs', 'sourceType: webcam;');
+      _a_scene.setAttribute('embedded', '');
+      _a_scene.setAttribute(
+        'renderer',
+        'logarithmicDepthBuffer: true; antialias: true;',
+      );
+      _a_scene.setAttribute('vr-mode-ui', 'enabled: false');
+      const _a_assets = document.createElement('a-assets');
+      _a_assets.setAttribute('timeout', '15000');
+      _a_assets.innerHTML = `<a-asset-item
+                    id='model'
+                    src='models_temp/bunny.glb'
+                  ></a-asset-item>
+                  <a-asset-item
+                    id='modelb'
+                    src='models_temp/egg.glb'
+                  ></a-asset-item>`;
+      const _raycaster = document.createElement('a-entity');
+      _raycaster.setAttribute('id', 'raycaster');
+      _raycaster.setAttribute('cursor', 'fuse: false;');
+      _raycaster.setAttribute('raycaster', 'objects: .clickable');
+      const _int_scene = document.createElement('a-entity');
+      _int_scene.setAttribute('id', 'scene');
+      const _int_camera = document.createElement('a-camera');
+      _int_camera.setAttribute('rotation-reader', '');
+      _int_camera.setAttribute('look-controls-enabled', 'false');
+      _int_camera.setAttribute('arjs-look-controls', 'smoothingFactor: 0.1');
+      _a_scene.appendChild(_a_assets);
+      _a_scene.appendChild(_raycaster);
+      _a_scene.appendChild(_int_scene);
+      _a_scene.appendChild(_int_camera);
+      document.getElementById('sound_control').setAttribute('style',
+        `position: fixed;
+          top: 20;
+          right: 20;
+          background-color: rgba(0, 0, 0, 0.6);
+          border: solid;
+          border-radius: 50%;
+          border-width: 1px;
+          color: rgb(230, 230, 230);
+          width: 10vw;
+          height: 10vw;
+          text-align: center;`);
+      document.getElementById('action_bar').setAttribute('style',
+        `position: fixed;
+          bottom: 0;
+          left: 0;
+          width: 100%;
+          background-image: linear-gradient(rgba(0, 0, 0, 0), rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 1));`);
+      const _insert_div = document.getElementById('insert_content');
+      const _inserted_landing = document.getElementById('inserted_landing');
+      if (_insert_div) {
+        document.body.replaceChild(_a_scene, _insert_div);
+      } else {
+        document.body.replaceChild(_a_scene, _inserted_landing);
       }
-      @-webkit-keyframes spin {
-        0% {
-          -webkit-transform: rotate(0deg);
-        }
-        100% {
-          -webkit-transform: rotate(360deg);
-        }
+    }
+    function landing() {
+      const _main = document.createElement('div');
+      _main.setAttribute('id', 'inserted_landing');
+      _main.setAttribute('style', 'scroll: none; height: 100%;');
+      document.addEventListener('DOMContentLoaded', e => {
+        document.getElementById('sound_control').setAttribute('style', 'display: none');
+        document.getElementById('action_bar').setAttribute('style', 'display: none');
+        fixFrame();
+        navigator.geolocation.getCurrentPosition(success => {
+          const _insert_div = document.getElementById('insert_content');
+          const _mapouter = document.createElement('div');
+          _mapouter.setAttribute('class', 'mapouter');
+          const _gmap_canvas = document.createElement('div');
+          _gmap_canvas.setAttribute('class', 'gmap_canvas');
+          const _mapframe = document.createElement('iframe');
+          _mapframe.setAttribute('id', 'gmap_canvas');
+          _mapframe.setAttribute('width', '100%');
+          _mapframe.setAttribute('height', '100%');
+          _mapframe.setAttribute('referrerpolicy', 'no-referrer-when-downgrade');
+          _mapframe.setAttribute('src', 'https://maps.google.com/maps/embed/v1/view?key=AIzaSyDc9ur60NkZPril1HgtHvm4EkAWCIRnOX0&zoom=20&center=' + success.coords.latitude + ',' + success.coords.longitude);
+          const _pos_overlay = document.createElement('div');
+          _pos_overlay.setAttribute('class', 'pos_overlay');
+          const _pos_icon = document.createElement('i');
+          _pos_icon.setAttribute('class', 'fa-solid fa-location-crosshairs pos_icon');
+          const _buttonStart = document.createElement('button');
+          _buttonStart.innerHTML = 'Click to start';
+          _buttonStart.style = 'border: none; background-color: orangered; color: white; padding: 15px 0px; text-align: center; font-size: 8vw; width: 75%; margin-left: 12.5%; margin-top: 10%';
+          _buttonStart.setAttribute('onclick', 'runScene()');
+          _gmap_canvas.appendChild(_mapframe);
+          _mapouter.appendChild(_gmap_canvas);
+          _main.appendChild(_mapouter);
+          _main.appendChild(_pos_overlay);
+          _main.appendChild(_buttonStart);
+          _pos_overlay.appendChild(_pos_icon);
+          document.body.replaceChild(_main, _insert_div);
+        });
+      });
+    }
+    landing();
+  </script>
+  <style>
+    body {
+      margin: 0;
+      overflow: hidden;
+    }
+
+    @-webkit-keyframes spin {
+      0% {
+        -webkit-transform: rotate(0deg);
       }
-      @keyframes spin {
-        0% {
-          transform: rotate(0deg);
-        }
-        100% {
-          transform: rotate(360deg);
-        }
+
+      100% {
+        -webkit-transform: rotate(360deg);
       }
-    </style>
-  </head>
-  <!-- arjs
+    }
+
+    @keyframes spin {
+      0% {
+        transform: rotate(0deg);
+      }
+
+      100% {
+        transform: rotate(360deg);
+      }
+    }
+
+    @-webkit-keyframes pulse {
+      0% {
+        -webkit-transform: scale(0.75, 0.75);
+        -webkit-filter: opacity(1);
+      }
+
+      50% {
+        -webkit-transform: scale(1, 1);
+        -webkit-filter: opacity(0.5);
+      }
+
+      100% {
+        -webkit-transform: scale(0.75, 0.75);
+        -webkit-filter: opacity(1);
+      }
+    }
+
+    @keyframes pulse {
+      0% {
+        -webkit-transform: scale(0.75, 0.75);
+        -webkit-filter: opacity(1);
+      }
+
+      50% {
+        -webkit-transform: scale(1, 1);
+        -webkit-filter: opacity(0.5);
+      }
+
+      100% {
+        -webkit-transform: scale(0.75, 0.75);
+        -webkit-filter: opacity(1);
+      }
+    }
+
+    .mapouter {
+      position: relative;
+      text-align: right;
+      margin: auto;
+      height: 80%;
+      width: 100%;
+      pointer-events: none;
+    }
+
+    .gmap_canvas {
+      overflow: hidden;
+      background: none !important;
+      height: 100%;
+      width: 100%;
+    }
+
+    .pos_overlay {
+      position: absolute;
+      top: 35vh;
+      left: 0px;
+      width: 100vw;
+      text-align: center;
+      pointer-events: none;
+    }
+
+    .pos_icon {
+      font-size: 6vh;
+      color: orangered;
+      -webkit-animation: pulse 2s linear infinite;
+      /* Safari */
+      animation: pulse 2s linear infinite;
+    }
+  </style>
+</head>
+<!-- arjs
     sourceWidth:1280; 
     sourceHeight:960; 
     displayWidth: 1280; 
     displayHeight: 960; -->
-  <!-- renderer: 
+<!-- renderer: 
     maxCanvasWidth: 1920;
     maxCanvasHeight: 1920; -->
-  <body>
-    <a-scene
-      arjs="sourceType: webcam;"
-      embedded
-      renderer="logarithmicDepthBuffer: true; antialias: true;"
-      vr-mode-ui="enabled: false"
-    >
-      <a-assets timeout="15000">
-        <a-asset-item id="model" src="models_temp/bunny.glb"></a-asset-item>
-        <a-asset-item id="modelb" src="models_temp/egg.glb"></a-asset-item>
-      </a-assets>
-      <a-entity
-        id="raycaster"
-        cursor="fuse: false;"
-        raycaster="objects: .clickable"
-      >
-      </a-entity>
-      <a-entity id="scene"></a-entity>
-      <a-camera
-        rotation-reader
-        look-controls-enabled="false"
-        arjs-look-controls="smoothingFactor: 0.1"
-      ></a-camera>
-    </a-scene>
-    <video
-      src="../irish.mp3"
-      muted
-      controls
-      autoplay
-      loop
-      playsinline
-      style="display: none"
-    ></video>
-    <!-- EVENT FRAME -->
-    <img src="./vector/otl-green-frame.svg" id="photo-frame" />
-    <img src="./vector/logo.svg" id="event-logo" />
-    <!-- MUTE/UNMUTE -->
-    <button
-      onclick="soundControl()"
-      style="
+
+<body>
+  <div id="insert_content"></div>
+  <video src="../irish.mp3" muted controls autoplay loop playsinline style="display: none"></video>
+  <!-- EVENT FRAME -->
+  <img src="./vector/otl-green-frame.svg" id="photo-frame" />
+  <img src="./vector/logo.svg" id="event-logo" />
+  <!-- MUTE/UNMUTE -->
+  <button id="sound_control" onclick="soundControl()" style="
         position: fixed;
         top: 20;
         right: 20;
@@ -606,13 +693,11 @@
         width: 10vw;
         height: 10vw;
         text-align: center;
-      "
-    >
-      <i class="fa fa-volume-off" id="soundIcon" style="font-size: 5vw"></i>
-    </button>
-    <!-- ACTION BAR -->
-    <div
-      style="
+      ">
+    <i class="fa fa-volume-off" id="soundIcon" style="font-size: 5vw"></i>
+  </button>
+  <!-- ACTION BAR -->
+  <div id="action_bar" style="
         position: fixed;
         bottom: 0;
         left: 0;
@@ -622,94 +707,16 @@
           rgba(0, 0, 0, 0.6),
           rgba(0, 0, 0, 1)
         );
-      "
-    >
-      <div
-        id="genBar"
-        style="
+      ">
+    <div style="
           margin: auto;
           width: 95%;
           padding-top: 16px;
           padding-bottom: 16px;
           display: flex;
           justify-content: center;
-        "
-      >
-        <div
-          style="
-            margin: auto;
-            flex-direction: column;
-            display: flex;
-            width: 30%;
-          "
-        >
-          <label id="qttView" for="qtt" style="color: #fff">Quantity:</label>
-          <input
-            type="range"
-            id="qtt"
-            name="qtt"
-            min="1"
-            max="12"
-            step="1"
-            onchange="checkValues()"
-          />
-        </div>
-        <div
-          id=""
-          style="
-            background-color: rgba(230, 230, 230, 0.2);
-            border: solid;
-            border-radius: 50%;
-            border-width: 1px;
-            border-color: rgb(230, 230, 230);
-            padding: 6px 6px;
-            width: 6vw;
-            height: 6vw;
-            overflow: hidden;
-            margin: auto;
-          "
-        >
-          <img
-            id="decalThumb"
-            style="width: 90%; height: 90%"
-            src="textures/test.png"
-          />
-        </div>
-        <div
-          id=""
-          style="
-            background-color: rgba(0, 0, 0, 0.6);
-            border: solid;
-            border-radius: 12px;
-            border-width: 1px;
-            border-color: rgb(230, 230, 230);
-            padding: 6px 6px;
-            margin: auto;
-          "
-        >
-          <select
-            name="texture_seq"
-            id="texture_seq"
-            onchange="updateThumb(this.value)"
-            style="
-              background-color: rgba(0, 0, 0, 0);
-              border-width: 0px;
-              color: rgb(230, 230, 230);
-              text-align: center;
-              text-decoration: none;
-              margin: auto;
-              font-size: 12px;
-            "
-          ></select>
-          <i
-            id="arrow"
-            class="fa fa-arrow-down"
-            style="color: rgb(230, 230, 230); font-size: 10px"
-          ></i>
-        </div>
-        <button
-          onclick="createObjects()"
-          style="
+        ">
+      <button onclick="resetPosition()" style="
             background-color: rgba(0, 0, 0, 0.6);
             border: solid;
             border-radius: 12px;
@@ -720,74 +727,11 @@
             text-decoration: none;
             margin: auto;
             font-size: 12px;
-          "
-        >
-          Generate
-        </button>
-      </div>
-      <div
-        style="
-          margin: auto;
-          width: 95%;
-          padding-top: 16px;
-          padding-bottom: 16px;
-          display: flex;
-          justify-content: center;
-        "
-      >
-        <button
-          onclick="resetPosition()"
-          style="
-            background-color: rgba(0, 0, 0, 0.6);
-            border: solid;
-            border-radius: 12px;
-            border-width: 1px;
-            color: rgb(230, 230, 230);
-            padding: 8px 4px;
-            text-align: center;
-            text-decoration: none;
-            margin: auto;
-            font-size: 12px;
-          "
-        >
-          Reset Scene
-        </button>
-        <p id="debug" style="color: #fff"></p>
-        <div
-          id="arrow_container"
-          style="
-            background-color: rgba(0, 0, 0, 0.6);
-            border: solid;
-            border-radius: 12px;
-            border-width: 1px;
-            border-color: rgb(230, 230, 230);
-            padding: 6px 6px;
-            margin: auto;
-          "
-        >
-          <select
-            name="anim_seq"
-            id="anim_seq"
-            onchange="selectAnimation(this.value)"
-            style="
-              background-color: rgba(0, 0, 0, 0);
-              border-width: 0px;
-              color: rgb(230, 230, 230);
-              text-align: center;
-              text-decoration: none;
-              margin: auto;
-              font-size: 12px;
-            "
-          ></select>
-          <i
-            id="arrow"
-            class="fa fa-arrow-down"
-            style="color: rgb(230, 230, 230); font-size: 10px"
-          ></i>
-        </div>
-        <button
-          onclick="takePhoto()"
-          style="
+          ">
+        Reset Scene
+      </button>
+      <p id="debug" style="color: #fff"></p>
+      <button onclick="takePhoto()" style="
             background-color: rgba(255, 255, 255, 0.8);
             border-radius: 12px;
             border-width: 1px;
@@ -797,18 +741,15 @@
             text-decoration: none;
             margin: auto;
             font-size: 16px;
-          "
-        >
-          <i class="fa fa-camera"></i> Take Photo
-        </button>
-      </div>
+          ">
+        <i class="fa fa-camera"></i> Take Photo
+      </button>
     </div>
-    <!-- TEMPORARY CANVAS USED TO BUILD FINAL IMAGE -->
-    <canvas style="position: relative; top: 0; left: 0" id="canvas1"> </canvas>
-    <!-- REVIEW VIEW -->
-    <div
-      id="review_modal"
-      style="
+  </div>
+  <!-- TEMPORARY CANVAS USED TO BUILD FINAL IMAGE -->
+  <canvas style="position: relative; top: 0; left: 0" id="canvas1"> </canvas>
+  <!-- REVIEW VIEW -->
+  <div id="review_modal" style="
         position: fixed;
         top: 0;
         left: 0;
@@ -817,21 +758,16 @@
         background-color: rgb(255, 255, 255);
         display: none;
         z-index: 3;
-      "
-    >
-      <div
-        style="
+      ">
+    <div style="
           width: 100%;
           padding-top: 16px;
           padding-bottom: 16px;
           padding-left: 8px;
           background-color: rgba(0, 0, 0, 0.6);
           pointer-events: none;
-        "
-      >
-        <button
-          onclick="closeReview()"
-          style="
+        ">
+      <button onclick="closeReview()" style="
             background-color: rgba(0, 0, 0, 0.6);
             border: solid;
             border-radius: 12px;
@@ -842,15 +778,12 @@
             text-decoration: none;
             font-size: 12px;
             pointer-events: auto;
-          "
-        >
-          Back
-        </button>
-      </div>
-      <div style="width: 100%">
-        <div
-          id="loader"
-          style="
+          ">
+        Back
+      </button>
+    </div>
+    <div style="width: 100%">
+      <div id="loader" style="
             position: fixed;
             top: 25%;
             z-index: -1;
@@ -863,15 +796,15 @@
             height: 80px;
             -webkit-animation: spin 2s linear infinite; /* Safari */
             animation: spin 2s linear infinite;
-          "
-        ></div>
-        <img id="review-img" style="width: 100%; pointer-events: auto" />
-        <div style="width: 90%; margin: auto; pointer-events: none">
-          <p style="text-align: center">
-            Tap and hold on the image to save to your photos or share
-          </p>
-        </div>
+          "></div>
+      <img id="review-img" style="width: 100%; pointer-events: auto" />
+      <div style="width: 90%; margin: auto; pointer-events: none">
+        <p style="text-align: center">
+          Tap and hold on the image to save to your photos or share
+        </p>
       </div>
     </div>
-  </body>
+  </div>
+</body>
+
 </html>
