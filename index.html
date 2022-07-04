@@ -542,15 +542,23 @@
         navigator.geolocation.getCurrentPosition(success => {
           const _insert_div = document.getElementById('insert_content');
           const _buttonStart = document.createElement('button');
-          _buttonStart.innerHTML = 'Click to start';
+          _buttonStart.innerHTML = '<i class="fa-solid fa-play"></i>';
           _buttonStart.style = 'border: none; background-color: orangered; color: white; padding: 15px 0px; text-align: center; font-size: 8vw; width: 75%; margin-left: 12.5%; margin-top: 10%';
           _buttonStart.setAttribute('onclick', 'runScene()');
           // MapBox implementation
           const _map_div = document.createElement('div');
           _map_div.setAttribute('id', 'map');
           _map_div.setAttribute('style', 'width: 100%; height: 80%;');
+          /**
+                    const _pos_overlay = document.createElement('div');
+                    _pos_overlay.setAttribute('class', 'pos_overlay');
+                    const _pos_icon = document.createElement('i');
+                    _pos_icon.setAttribute('class', 'fa-solid fa-location-crosshairs pos_icon');
+                    _pos_overlay.appendChild(_pos_icon);
+          **/
           _main.appendChild(_map_div);
           _main.appendChild(_buttonStart);
+          //_main.appendChild(_pos_overlay);
           document.body.replaceChild(_main, _insert_div);
           mapboxgl.accessToken = 'pk.eyJ1IjoidG9uaWMzbWFwcyIsImEiOiJja3JmY3Zod3UwMDA2MnZwOGp0d2R1NWtvIn0.RxlXR6T44X_x3Hf7wZ223g';
           const map = new mapboxgl.Map({
@@ -569,6 +577,7 @@
               enableHighAccuracy: true,
               timeout: 500
             },
+            showAccuracyCircle: false,
             showUserHeading: true,
             showUserLocation: true,
             trackUserLocation: true,
@@ -578,6 +587,18 @@
           map.on('style.load', () => {
             map.setFog({}); // Set the default atmosphere style
             geolocate.trigger();
+            locations.map(_loc => {
+              const _icon = document.createElement('i');
+              _icon.className = 'fa-solid fa-location-dot';
+              _icon.style.fontSize = '8vw';
+              _icon.style.color = 'orangered'
+              const _div = document.createElement('div');
+              _div.className = 'marker';
+              _div.appendChild(_icon);
+              const _marker = new mapboxgl.Marker(_div);
+              _marker.setLngLat({ lng: _loc.longitude, lat: _loc.latitude });
+              _marker.addTo(map);
+            })
           });
         });
       });
