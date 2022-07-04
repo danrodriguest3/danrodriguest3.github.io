@@ -557,11 +557,10 @@
             container: 'map', // container ID
             style: 'mapbox://styles/mapbox/streets-v11', // style URL
             center: [success.coords.longitude, success.coords.latitude], // starting position [lng, lat]
-            maxZoom: 19,
-            minZoom: 17,
+            maxZoom: 20,
+            minZoom: 18,
             zoom: 18, // starting zoom
             projection: 'globe', // display the map as a 3D globe
-            touchZoomRotate: false,
             touchPitch: false,
           });
           const geolocate = new mapboxgl.GeolocateControl({
@@ -573,7 +572,7 @@
             showUserHeading: true,
             showUserLocation: true,
             trackUserLocation: true,
-            fitBoundsOptions: { maxZoom: 19, minZoom: 17, zoom: 18 }
+            fitBoundsOptions: { maxZoom: 20, minZoom: 18, zoom: 18 }
           });
           map.addControl(geolocate);
           map.on('style.load', () => {
