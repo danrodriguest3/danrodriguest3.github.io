@@ -3,7 +3,7 @@
 <head>
   <link rel="stylesheet" href="fonts/fontawesome-free-6.1.1-web/css/all.css" />
   <title>cityAR Easter Event</title>
-  <script src="https://aframe.io/releases/1.2.0/aframe.min.js"></script>
+  <script src="js/aframe.min.js"></script>
   <script src="js/aframe-ar.js"></script>
   <script src="js/gesture-detector.js"></script>
   <script src="js/gesture-handler.js"></script>
@@ -13,6 +13,8 @@
   <script xmlns="http://www.w3.org/1999/xhtml" async=""
     src="https://cdn.rawgit.com/eligrey/FileSaver.js/5ed507ef8aa53d8ecfea96d96bc7214cd2476fd2/FileSaver.min.js"></script>
   <script src="https://html2canvas.hertzen.com/dist/html2canvas.js"></script>
+  <script src='https://api.mapbox.com/mapbox-gl-js/v2.9.1/mapbox-gl.js'></script>
+  <link href='https://api.mapbox.com/mapbox-gl-js/v2.9.1/mapbox-gl.css' rel='stylesheet' />
   <script>
     var anim_clips = [];
     var scene = document.querySelector('a-scene');
@@ -539,32 +541,45 @@
         fixFrame();
         navigator.geolocation.getCurrentPosition(success => {
           const _insert_div = document.getElementById('insert_content');
-          const _mapouter = document.createElement('div');
-          _mapouter.setAttribute('class', 'mapouter');
-          const _gmap_canvas = document.createElement('div');
-          _gmap_canvas.setAttribute('class', 'gmap_canvas');
-          const _mapframe = document.createElement('iframe');
-          _mapframe.setAttribute('id', 'gmap_canvas');
-          _mapframe.setAttribute('width', '125%');
-          _mapframe.setAttribute('style', 'margin-left: -12.5%; margin-top: -6vh')
-          _mapframe.setAttribute('height', '110%');
-          _mapframe.setAttribute('referrerpolicy', 'no-referrer-when-downgrade');
-          _mapframe.setAttribute('src', 'https://maps.google.com/maps/embed/v1/view?key=AIzaSyDc9ur60NkZPril1HgtHvm4EkAWCIRnOX0&zoom=20&center=' + success.coords.latitude + ',' + success.coords.longitude);
-          const _pos_overlay = document.createElement('div');
-          _pos_overlay.setAttribute('class', 'pos_overlay');
-          const _pos_icon = document.createElement('i');
-          _pos_icon.setAttribute('class', 'fa-solid fa-location-crosshairs pos_icon');
           const _buttonStart = document.createElement('button');
           _buttonStart.innerHTML = 'Click to start';
           _buttonStart.style = 'border: none; background-color: orangered; color: white; padding: 15px 0px; text-align: center; font-size: 8vw; width: 75%; margin-left: 12.5%; margin-top: 10%';
           _buttonStart.setAttribute('onclick', 'runScene()');
-          _gmap_canvas.appendChild(_mapframe);
-          _mapouter.appendChild(_gmap_canvas);
-          _main.appendChild(_mapouter);
-          _main.appendChild(_pos_overlay);
+          // MapBox implementation
+          const _map_div = document.createElement('div');
+          _map_div.setAttribute('id', 'map');
+          _map_div.setAttribute('style', 'width: 100%; height: 80%;');
+          _main.appendChild(_map_div);
           _main.appendChild(_buttonStart);
-          _pos_overlay.appendChild(_pos_icon);
           document.body.replaceChild(_main, _insert_div);
+          mapboxgl.accessToken = 'pk.eyJ1IjoidG9uaWMzbWFwcyIsImEiOiJja3JmY3Zod3UwMDA2MnZwOGp0d2R1NWtvIn0.RxlXR6T44X_x3Hf7wZ223g';
+          const map = new mapboxgl.Map({
+            container: 'map', // container ID
+            style: 'mapbox://styles/mapbox/streets-v11', // style URL
+            center: [success.coords.longitude, success.coords.latitude], // starting position [lng, lat]
+            maxZoom: 19,
+            minZoom: 17,
+            zoom: 18, // starting zoom
+            projection: 'globe', // display the map as a 3D globe
+            touchZoomRotate: false,
+            touchPitch: false,
+          });
+          const geolocate = new mapboxgl.GeolocateControl({
+            trackUserLocation: true,
+            positionOptions: {
+              enableHighAccuracy: true,
+              timeout: 500
+            },
+            showUserHeading: true,
+            showUserLocation: true,
+            trackUserLocation: true,
+            fitBoundsOptions: { maxZoom: 19, minZoom: 17, zoom: 18 }
+          });
+          map.addControl(geolocate);
+          map.on('style.load', () => {
+            map.setFog({}); // Set the default atmosphere style
+            geolocate.trigger();
+          });
         });
       });
     }
@@ -648,7 +663,7 @@
 
     .pos_overlay {
       position: absolute;
-      top: 30vh;
+      top: 37%;
       left: 0px;
       width: 100vw;
       text-align: center;
