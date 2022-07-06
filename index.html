@@ -1,6 +1,7 @@
 <html>
 
 <head>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" class="">
   <link rel="stylesheet" href="fonts/fontawesome-free-6.1.1-web/css/all.css" />
   <title>cityAR Easter Event</title>
   <script src="js/aframe.min.js"></script>
@@ -20,6 +21,7 @@
     var scene = document.querySelector('a-scene');
     var xpType = 'obj_walkaround'; // 'obj_generation', 'obj_interaction', 'obj_walkaround'
     var decalsArray = new Array();
+    var renderStarted = false;
     AFRAME.registerComponent('autoscale', {
       init: function () {
         this.scale();
@@ -304,10 +306,6 @@
         longitude: -38.535033,
       },
       {
-        latitude: -3.741656,
-        longitude: -38.534095,
-      },
-      {
         latitude: 32.96728844721977,
         longitude: -96.8072138915505,
       },
@@ -328,47 +326,27 @@
         longitude: -38.536877,
       },
       {
-        latitude: -3.743627,
-        longitude: -38.537093,
-      },
-      {
-        latitude: -3.743906,
-        longitude: -38.537084,
-      },
-      {
-        latitude: -3.744173,
-        longitude: -38.537229,
-      },
-      {
-        latitude: -3.744059,
-        longitude: -38.537455,
-      },
-      {
         latitude: -3.743816,
         longitude: -38.537505,
-      },
-      {
-        latitude: -3.743477,
-        longitude: -38.537154,
       },
     ];
     let prevPos = { coords: { x: 0, z: 0 } };
     let prevArray = [];
     let lastIndex = 0;
     let generatedCount = 0;
-    const distance = 600;
+    const distance = 100;
     let factor = 2560;
     const sensor = /iPad|iPhone|iPod/.test(navigator.userAgent)
       ? null
       : new AbsoluteOrientationSensor();
-    let firstFrame = true;
     if (!/iPad|iPhone|iPod/.test(navigator.userAgent)) sensor.start();
     function correctRotation(_correction) {
+      window.removeEventListener('deviceorientation');
+      console.log('correctRotation');
       const sc = document.getElementById('scene');
       factor = _correction;
       sc.setAttribute('rotation', '0 ' + _correction + ' 0');
       sc.needsUpdate = true;
-      if (sc.getAttribute('rotation').y === _correction) firstFrame = false;
     }
     function updateObjPos() {
       locations.map((pos, index) => {
@@ -386,10 +364,6 @@
           if (_obj) {
             _obj.setAttribute('position', _str);
             _obj.needsUpdate = true;
-            console.log(
-              document.getElementById('geolocated0').getAttribute('position')
-                .x,
-            );
           } else {
             appendObject('geolocated' + index, '.5 .5 .5', _str, '0 0 0');
           }
@@ -399,16 +373,15 @@
       });
     }
     document.addEventListener('renderstart', () => {
+      renderStarted = true;
       const __scene = document.getElementById('scene');
       document.querySelector('a-scene').getAttribute('arjs').sourceWidth =
         innerWidth;
       document.querySelector('a-scene').getAttribute('arjs').sourceHeight =
         innerHeight;
       window.addEventListener('deviceorientation', function (event) {
-        document.getElementById('debug').innerHTML =
-          event.webkitCompassHeading;
         if (/iPad|iPhone|iPod/.test(navigator.userAgent)) {
-          if (firstFrame) correctRotation(event.webkitCompassHeading - 90);
+          correctRotation(event.webkitCompassHeading - 90);
         } else {
           if (sensor.quaternion) {
             const quaternion = new THREE.Quaternion();
@@ -420,56 +393,10 @@
             ]);
             const _totalRot =
               (Math.atan2(quaternion.x, quaternion.z) * 360) / Math.PI + 90;
-            if (firstFrame) correctRotation(_totalRot);
+            correctRotation(_totalRot);
           }
-          // 57,2958
         }
       });
-      setInterval(() => {
-        let asd = document.querySelector('a-camera');
-        navigator.geolocation.getCurrentPosition(
-          success => {
-            const curMX = (success.coords.latitude * Math.PI * 6371000) / 180;
-            const curMZ =
-              (success.coords.longitude * Math.PI * 6371000) / 180;
-            if (
-              Math.abs(prevPos.coords.x - curMX) > 0.25 ||
-              Math.abs(prevPos.coords.z - curMZ) > 0.25
-            ) {
-              if (prevArray.length === 8) {
-                let avX = 0;
-                let avZ = 0;
-                prevArray.map((pos, index) => {
-                  avX =
-                    avX !== 0
-                      ? (pos.x + curMX + avX) / 3
-                      : (pos.x + curMX) / 2;
-                  avZ =
-                    avZ !== 0
-                      ? (pos.z + curMZ + avZ) / 3
-                      : (pos.z + curMZ) / 2;
-                  if (index === 7) {
-                    prevArray.splice(lastIndex, 1, { x: curMX, z: curMZ });
-                    if (lastIndex < 7) {
-                      lastIndex++;
-                    } else {
-                      lastIndex = 0;
-                    }
-                    prevPos.coords.x = avX;
-                    prevPos.coords.z = avZ;
-                    updateObjPos();
-                  }
-                });
-              } else {
-                if (prevArray.length < 8)
-                  prevArray.push({ x: curMX, z: curMZ });
-              }
-            }
-          },
-          error => error,
-          { enableHighAccuracy: true, timeout: 500 },
-        );
-      }, 500);
     });
     async function runScene() {
       const _a_scene = document.createElement('a-scene');
@@ -539,68 +466,212 @@
         document.getElementById('sound_control').setAttribute('style', 'display: none');
         document.getElementById('action_bar').setAttribute('style', 'display: none');
         fixFrame();
-        navigator.geolocation.getCurrentPosition(success => {
-          const _insert_div = document.getElementById('insert_content');
-          const _buttonStart = document.createElement('button');
-          _buttonStart.innerHTML = '<i class="fa-solid fa-play"></i>';
-          _buttonStart.style = 'border: none; background-color: orangered; color: white; padding: 15px 0px; text-align: center; font-size: 8vw; width: 75%; margin-left: 12.5%; margin-top: 10%';
-          _buttonStart.setAttribute('onclick', 'runScene()');
-          // MapBox implementation
-          const _map_div = document.createElement('div');
-          _map_div.setAttribute('id', 'map');
-          _map_div.setAttribute('style', 'width: 100%; height: 80%;');
-          /**
-                    const _pos_overlay = document.createElement('div');
-                    _pos_overlay.setAttribute('class', 'pos_overlay');
-                    const _pos_icon = document.createElement('i');
-                    _pos_icon.setAttribute('class', 'fa-solid fa-location-crosshairs pos_icon');
-                    _pos_overlay.appendChild(_pos_icon);
-          **/
-          _main.appendChild(_map_div);
-          _main.appendChild(_buttonStart);
-          //_main.appendChild(_pos_overlay);
-          document.body.replaceChild(_main, _insert_div);
-          mapboxgl.accessToken = 'pk.eyJ1IjoidG9uaWMzbWFwcyIsImEiOiJja3JmY3Zod3UwMDA2MnZwOGp0d2R1NWtvIn0.RxlXR6T44X_x3Hf7wZ223g';
-          const map = new mapboxgl.Map({
-            container: 'map', // container ID
-            style: 'mapbox://styles/mapbox/streets-v11', // style URL
-            center: [success.coords.longitude, success.coords.latitude], // starting position [lng, lat]
-            maxZoom: 20,
-            minZoom: 18,
-            zoom: 18, // starting zoom
-            projection: 'globe', // display the map as a 3D globe
-            touchPitch: false,
-          });
-          const geolocate = new mapboxgl.GeolocateControl({
-            trackUserLocation: true,
-            positionOptions: {
-              enableHighAccuracy: true,
-              timeout: 500
-            },
-            showAccuracyCircle: false,
-            showUserHeading: true,
-            showUserLocation: true,
-            trackUserLocation: true,
-            fitBoundsOptions: { maxZoom: 20, minZoom: 18, zoom: 18 }
-          });
-          map.addControl(geolocate);
-          map.on('style.load', () => {
-            map.setFog({}); // Set the default atmosphere style
-            geolocate.trigger();
-            locations.map(_loc => {
-              const _icon = document.createElement('i');
-              _icon.className = 'fa-solid fa-location-dot';
-              _icon.style.fontSize = '8vw';
-              _icon.style.color = 'orangered'
-              const _div = document.createElement('div');
-              _div.className = 'marker';
-              _div.appendChild(_icon);
-              const _marker = new mapboxgl.Marker(_div);
-              _marker.setLngLat({ lng: _loc.longitude, lat: _loc.latitude });
-              _marker.addTo(map);
-            })
+        const _insert_div = document.getElementById('insert_content');
+        /**const _buttonStart = document.createElement('button');
+        _buttonStart.innerHTML = '<i class="fa-solid fa-play"></i>';
+        _buttonStart.style = 'border: none; background-color: orangered; color: white; padding: 15px 0px; text-align: center; font-size: 8vw; width: 75%; margin-left: 12.5%; margin-top: 10%';
+        _buttonStart.setAttribute('onclick', 'runScene()');**/
+        // MapBox implementation
+        const _map_div = document.createElement('div');
+        _map_div.setAttribute('id', 'map');
+        _map_div.setAttribute('style', 'width: 100%; height: 100%;');
+        const _debug = document.createElement('p');
+        _debug.id = 'debug';
+        _main.appendChild(_map_div);
+        //_main.appendChild(_buttonStart);
+        _main.appendChild(_debug);
+        document.body.replaceChild(_main, _insert_div);
+        mapboxgl.accessToken = 'pk.eyJ1IjoidG9uaWMzbWFwcyIsImEiOiJja3JmY3Zod3UwMDA2MnZwOGp0d2R1NWtvIn0.RxlXR6T44X_x3Hf7wZ223g';
+        const map = new mapboxgl.Map({
+          container: 'map', // container ID
+          style: 'mapbox://styles/mapbox/streets-v11', // style URL
+          projection: 'globe', // display the map as a 3D globe
+          touchPitch: false,
+          antialias: true
+        });
+        const geolocate = new mapboxgl.GeolocateControl({
+          geolocation: navigator.geolocation,
+          trackUserLocation: true,
+          positionOptions: {
+            enableHighAccuracy: true,
+            timeout: 500,
+          },
+          showUserHeading: true,
+          trackUserLocation: true,
+          showAccuracyCircle: false,
+        });
+        map.addControl(geolocate);
+        map.on('style.load', () => {
+          map.setFog({
+            color: 'rgb(186, 210, 235)', // Lower atmosphere
+            'high-color': 'rgb(36, 92, 223)', // Upper atmosphere
+            'horizon-blend': 0.02, // Atmosphere thickness (default 0.2 at low zooms)
+            'space-color': 'rgb(11, 11, 25)', // Background color
+            'star-intensity': 0.6 // Background star brightness (default 0.35 at low zoooms )
+          }); // Set the default atmosphere style
+          geolocate.trigger();
+          locations.map((_loc, index) => {
+            /**
+            const modelOrigin = { lng: _loc.longitude, lat: _loc.latitude };
+            const modelAltitude = 0;
+            const modelRotate = [Math.PI / 2, Math.random() * Math.PI / 2, 0];
+            const modelAsMercatorCoordinate = mapboxgl.MercatorCoordinate.fromLngLat(
+              modelOrigin,
+              modelAltitude
+            );
+            const modelTransform = {
+              translateX: modelAsMercatorCoordinate.x,
+              translateY: modelAsMercatorCoordinate.y,
+              translateZ: modelAsMercatorCoordinate.z,
+              rotateX: modelRotate[0],
+              rotateY: modelRotate[1],
+              rotateZ: modelRotate[2],
+              scale: modelAsMercatorCoordinate.meterInMercatorCoordinateUnits()
+            };
+            const THREE = window.THREE;
+            const customLayer = {
+              id: '3d-model' + index,
+              type: 'custom',
+              renderingMode: '3d',
+              onAdd: function (map, gl) {
+                this.camera = new THREE.Camera();
+                this.scene = new THREE.Scene();
+                // create two three.js lights to illuminate the model
+                const directionalLight = new THREE.DirectionalLight(0xffffff);
+                directionalLight.position.set(0, -70, 100).normalize();
+                this.scene.add(directionalLight);
+                const directionalLight2 = new THREE.DirectionalLight(0xffffff);
+                directionalLight2.position.set(0, 70, 100).normalize();
+                this.scene.add(directionalLight2);
+                // use the three.js GLTF loader to add the 3D model to the three.js scene
+                const loader = new THREE.GLTFLoader();
+                loader.load(
+                  '/models_temp/ring.gltf',
+                  (gltf) => {
+                    this.scene.add(gltf.scene);
+                  }
+                );
+                this.map = map;
+                // use the Mapbox GL JS map canvas for three.js
+                this.renderer = new THREE.WebGLRenderer({
+                  canvas: map.getCanvas(),
+                  context: gl,
+                  antialias: true
+                });
+                this.renderer.autoClear = false;
+              },
+              render: function (gl, matrix) {
+                const rotationX = new THREE.Matrix4().makeRotationAxis(
+                  new THREE.Vector3(1, 0, 0),
+                  modelTransform.rotateX
+                );
+                const rotationY = new THREE.Matrix4().makeRotationAxis(
+                  new THREE.Vector3(0, 1, 0),
+                  modelTransform.rotateY
+                );
+                const rotationZ = new THREE.Matrix4().makeRotationAxis(
+                  new THREE.Vector3(0, 0, 1),
+                  modelTransform.rotateZ
+                );
+                const m = new THREE.Matrix4().fromArray(matrix);
+                const l = new THREE.Matrix4()
+                  .makeTranslation(
+                    modelTransform.translateX,
+                    modelTransform.translateY,
+                    modelTransform.translateZ
+                  )
+                  .scale(
+                    new THREE.Vector3(
+                      modelTransform.scale,
+                      -modelTransform.scale,
+                      modelTransform.scale
+                    )
+                  )
+                  .multiply(rotationX)
+                  .multiply(rotationY)
+                  .multiply(rotationZ);
+                this.camera.projectionMatrix = m.multiply(l);
+                this.renderer.resetState();
+                this.renderer.render(this.scene, this.camera);
+                this.map.triggerRepaint();
+              }
+            };
+            map.addLayer(customLayer, 'waterway-label');
+            **/
+            const _icon = document.createElement('i');
+            _icon.className = 'fa-solid fa-location-pin';
+            _icon.id = 'pin' + index;
+            _icon.style.fontSize = '8vw';
+            _icon.style.color = 'grey';
+            const _div = document.createElement('div');
+            _div.className = 'marker';
+            _div.appendChild(_icon);
+            const _marker = new mapboxgl.Marker(_div);
+            _marker.setLngLat({ lng: _loc.longitude, lat: _loc.latitude });
+            _marker.addTo(map);
           });
         });
+        navigator.geolocation.watchPosition(async function (success) {
+          if (renderStarted) {
+            const curMX = (success.coords.latitude * Math.PI * 6371000) / 180;
+            const curMZ =
+              (success.coords.longitude * Math.PI * 6371000) / 180;
+            if (
+              Math.abs(prevPos.coords.x - curMX) > 0.5 ||
+              Math.abs(prevPos.coords.z - curMZ) > 0.5
+            ) {
+              if (prevArray.length === 8) {
+                let avX = 0;
+                let avZ = 0;
+                prevArray.map((pos, index) => {
+                  avX =
+                    avX !== 0
+                      ? (pos.x + curMX + avX) / 3
+                      : (pos.x + curMX) / 2;
+                  avZ =
+                    avZ !== 0
+                      ? (pos.z + curMZ + avZ) / 3
+                      : (pos.z + curMZ) / 2;
+                  if (index === 7) {
+                    prevArray.splice(lastIndex, 1, { x: curMX, z: curMZ });
+                    if (lastIndex < 7) {
+                      lastIndex++;
+                    } else {
+                      lastIndex = 0;
+                    }
+                    prevPos.coords.x = avX;
+                    prevPos.coords.z = avZ;
+                    updateObjPos();
+                  }
+                });
+              } else {
+                if (prevArray.length < 8)
+                  prevArray.push({ x: curMX, z: curMZ });
+              }
+            }
+          }
+          if (document.getElementById('pin0')) locations.map((_loc, index) => {
+            const _pin = document.getElementById('pin' + index);
+            if (Math.abs((_loc.longitude * Math.PI * 6371000) / 180 - (success.coords.longitude * Math.PI * 6371000) / 180) < distance && Math.abs((_loc.latitude * Math.PI * 6371000) / 180 - (success.coords.latitude * Math.PI * 6371000) / 180) < distance) {
+              _pin.setAttribute('class', 'fa-solid fa-location-dot');
+              _pin.setAttribute('style', 'font-size: 8vw; color: orangered;');
+              _pin.onclick = function () {
+                const popup = new mapboxgl.Popup({ closeOnClick: false })
+                  .setLngLat([_loc.longitude, _loc.latitude])
+                  .setHTML('<div><h1>You found an AR Experience</h1></br><p>Click the button bellow to see the experience</p></br><button onclick={runScene()}>CLICK ME</button></div>')
+                  .addTo(map);
+              };
+            } else if (_pin.getAttribute('class') == 'fa-solid fa-location-dot') {
+              _pin.setAttribute('class', 'fa-solid fa-location-pin');
+              _pin.setAttribute('style', 'font-size: 8vw; color: grey;');
+              _pin.onclick = {};
+            }
+          })
+        }, error => { }, {
+          enableHighAccuracy: true,
+          timeout: 500,
+          maximumAge: 1
+        })
       });
     }
     landing();
@@ -699,14 +770,6 @@
     }
   </style>
 </head>
-<!-- arjs
-    sourceWidth:1280; 
-    sourceHeight:960; 
-    displayWidth: 1280; 
-    displayHeight: 960; -->
-<!-- renderer: 
-    maxCanvasWidth: 1920;
-    maxCanvasHeight: 1920; -->
 
 <body>
   <div id="insert_content"></div>
