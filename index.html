@@ -17,33 +17,83 @@
   <script src='https://api.mapbox.com/mapbox-gl-js/v2.9.1/mapbox-gl.js'></script>
   <link href='https://api.mapbox.com/mapbox-gl-js/v2.9.1/mapbox-gl.css' rel='stylesheet' />
   <script>
-    var anim_clips = [];
-    var scene = document.querySelector('a-scene');
-    var xpType = 'obj_walkaround'; // 'obj_generation', 'obj_interaction', 'obj_walkaround'
-    var decalsArray = new Array();
-    var renderStarted = false;
-    AFRAME.registerComponent('autoscale', {
-      init: function () {
-        this.scale();
+    let anim_clips = [];
+    let scene = document.querySelector('a-scene');
+    let xpType = 'obj_walkaround'; // 'obj_generation', 'obj_interaction', 'obj_walkaround'
+    let decalsArray = new Array();
+    let renderStarted = false;
+    let prevPos = { coords: { x: 0, z: 0 } };
+    let prevArray = [];
+    let lastIndex = 0;
+    let factor = 2560;
+    const distance = 100;
+    const sensor = /iPad|iPhone|iPod/.test(navigator.userAgent)
+      ? null
+      : new AbsoluteOrientationSensor();
+    const locations = [
+      {
+        latitude: -3.741715,
+        longitude: -38.535978,
       },
-      scale: function () {
-        const el = this.el;
-        const span = this.data;
-        const mesh = el.getObject3D('mesh');
-
-        if (!mesh) return;
-
-        // Compute bounds.
-        const bbox = new THREE.Box3().setFromObject(mesh);
-
-        // Normalize scale.
-        const scale = span / bbox.getSize().length();
-        mesh.scale.set(scale, scale, scale);
-
-        // Recenter.
-        const offset = bbox.getCenter().multiplyScalar(scale);
-        mesh.position.sub(offset);
+      {
+        latitude: -3.741032,
+        longitude: -38.535662,
       },
+      {
+        latitude: -3.741773,
+        longitude: -38.535033,
+      },
+      {
+        latitude: 32.96728844721977,
+        longitude: -96.8072138915505,
+      },
+      {
+        latitude: 32.96748101159948,
+        longitude: -96.80500928723593,
+      },
+      {
+        latitude: 32.967524050990924,
+        longitude: -96.80682211744134,
+      },
+      {
+        latitude: 32.96772869742061,
+        longitude: -96.8064152244685,
+      },
+      {
+        latitude: -3.743535,
+        longitude: -38.536877,
+      },
+      {
+        latitude: -3.743816,
+        longitude: -38.537505,
+      },
+    ];
+    if (!/iPad|iPhone|iPod/.test(navigator.userAgent)) sensor.start();
+    document.addEventListener('renderstart', () => {
+      renderStarted = true;
+      const __scene = document.getElementById('scene');
+      document.querySelector('a-scene').getAttribute('arjs').sourceWidth =
+        innerWidth;
+      document.querySelector('a-scene').getAttribute('arjs').sourceHeight =
+        innerHeight;
+      window.addEventListener('deviceorientation', function (event) {
+        if (/iPad|iPhone|iPod/.test(navigator.userAgent)) {
+          correctRotation(event.webkitCompassHeading - 90);
+        } else {
+          if (sensor.quaternion) {
+            const quaternion = new THREE.Quaternion();
+            quaternion.fromArray([
+              sensor.quaternion[0],
+              0,
+              sensor.quaternion[2],
+              sensor.quaternion[3],
+            ]);
+            const _totalRot =
+              (Math.atan2(quaternion.x, quaternion.z) * 360) / Math.PI + 90;
+            correctRotation(_totalRot);
+          }
+        }
+      });
     });
     function takePhoto() {
       document.getElementById('review_modal').style.display = 'block';
@@ -76,29 +126,9 @@
         img.onload = function () {
           _ctx1.clearRect(0, 0, _canvas1.width, _canvas1.height);
           if (/iPad|iPhone|iPod/.test(navigator.userAgent)) {
-            _ctx1.drawImage(
-              img,
-              0,
-              0,
-              _canvas1.width * 1.1,
-              _canvas1.height * 1.1,
-              0,
-              0,
-              _canvas1.width * 1.21,
-              _canvas1.height * 1.21,
-            );
+            _ctx1.drawImage(img, 0, 0, _canvas1.width * 1.1, _canvas1.height * 1.1, 0, 0, _canvas1.width * 1.21, _canvas1.height * 1.21,);
           } else {
-            _ctx1.drawImage(
-              img,
-              0,
-              0,
-              _canvas1.width,
-              _canvas1.height,
-              0,
-              0,
-              _canvas1.width,
-              _canvas1.height,
-            );
+            _ctx1.drawImage(img, 0, 0, _canvas1.width, _canvas1.height, 0, 0, _canvas1.width, _canvas1.height,);
           }
         };
         img.src = canvas_video;
@@ -106,54 +136,12 @@
         var ovr = new Image();
         ovr.onload = function () {
           if (canvas.width > canvas.height) {
-            _ctx1.drawImage(
-              ovr,
-              0,
-              0,
-              ovr.width,
-              ovr.height,
-              0,
-              0,
-              img.width,
-              img.height,
-            );
+            _ctx1.drawImage(ovr, 0, 0, ovr.width, ovr.height, 0, 0, img.width, img.height);
           } else {
-            _ctx1.drawImage(
-              ovr,
-              2048 - _canvas1.height / 2,
-              1024 - _canvas1.width / 2,
-              _canvas1.height,
-              _canvas1.width,
-              0,
-              -80,
-              _canvas1.width,
-              _canvas1.height,
-            );
+            _ctx1.drawImage(ovr, 2048 - _canvas1.height / 2, 1024 - _canvas1.width / 2, _canvas1.height, _canvas1.width, 0, -80, _canvas1.width, _canvas1.height);
           }
-          _ctx1.drawImage(
-            _frame,
-            0,
-            0,
-            _frame.width + 100,
-            _frame.height,
-            0,
-            0,
-            _frame.width * (_canvas1.width / 380) +
-            100 * (_canvas1.width / 380),
-            _frame.height * (_canvas1.height / 527),
-          );
-          //_ctx1.drawImage(_frame,0,0,_frame.width,_frame.height,0,0,_frame.width*(_canvas1.width/380),_frame.height*(_canvas1.height/527));
-          _ctx1.drawImage(
-            _logo,
-            0,
-            0,
-            _logo.width,
-            _logo.height,
-            _canvas1.width / 2 - (_logo.width * (_canvas1.height / 527)) / 2,
-            0,
-            _logo.width * (_canvas1.height / 527),
-            _logo.height * (_canvas1.height / 527),
-          );
+          _ctx1.drawImage(_frame, 0, 0, _frame.width + 100, _frame.height, 0, 0, _frame.width * (_canvas1.width / 380) + 100 * (_canvas1.width / 380), _frame.height * (_canvas1.height / 527),);
+          _ctx1.drawImage(_logo, 0, 0, _logo.width, _logo.height, _canvas1.width / 2 - (_logo.width * (_canvas1.height / 527)) / 2, 0, _logo.width * (_canvas1.height / 527), _logo.height * (_canvas1.height / 527),);
         };
         ovr.src = canvas_objects;
         // Get data from new canvas
@@ -163,20 +151,6 @@
           document.getElementById('review-img').style.display = 'inline';
         }, 250);
       });
-    }
-    function resetPosition() {
-      const _old_camera = document.querySelector('a-camera');
-      const _sceneEl = document.querySelector('a-scene');
-      var _camera = document.createElement('a-camera');
-      _sceneEl.appendChild(_camera);
-      _camera.setAttribute('look-controls', 'touchEnabled: false');
-      _camera.setAttribute('camera', 'active', true);
-      _sceneEl.removeChild(_old_camera);
-    }
-    function selectAnimation(index) {
-      document
-        .getElementById('3dobj')
-        .setAttribute('animation-mixer', 'clip', anim_clips[index].name);
     }
     function closeReview() {
       document.getElementById('review_modal').style.display = 'none';
@@ -292,54 +266,6 @@
         });
       });
     }
-    const locations = [
-      {
-        latitude: -3.741715,
-        longitude: -38.535978,
-      },
-      {
-        latitude: -3.741032,
-        longitude: -38.535662,
-      },
-      {
-        latitude: -3.741773,
-        longitude: -38.535033,
-      },
-      {
-        latitude: 32.96728844721977,
-        longitude: -96.8072138915505,
-      },
-      {
-        latitude: 32.96748101159948,
-        longitude: -96.80500928723593,
-      },
-      {
-        latitude: 32.967524050990924,
-        longitude: -96.80682211744134,
-      },
-      {
-        latitude: 32.96772869742061,
-        longitude: -96.8064152244685,
-      },
-      {
-        latitude: -3.743535,
-        longitude: -38.536877,
-      },
-      {
-        latitude: -3.743816,
-        longitude: -38.537505,
-      },
-    ];
-    let prevPos = { coords: { x: 0, z: 0 } };
-    let prevArray = [];
-    let lastIndex = 0;
-    let generatedCount = 0;
-    const distance = 100;
-    let factor = 2560;
-    const sensor = /iPad|iPhone|iPod/.test(navigator.userAgent)
-      ? null
-      : new AbsoluteOrientationSensor();
-    if (!/iPad|iPhone|iPod/.test(navigator.userAgent)) sensor.start();
     function correctRotation(_correction) {
       window.removeEventListener('deviceorientation');
       console.log('correctRotation');
@@ -372,32 +298,6 @@
         }
       });
     }
-    document.addEventListener('renderstart', () => {
-      renderStarted = true;
-      const __scene = document.getElementById('scene');
-      document.querySelector('a-scene').getAttribute('arjs').sourceWidth =
-        innerWidth;
-      document.querySelector('a-scene').getAttribute('arjs').sourceHeight =
-        innerHeight;
-      window.addEventListener('deviceorientation', function (event) {
-        if (/iPad|iPhone|iPod/.test(navigator.userAgent)) {
-          correctRotation(event.webkitCompassHeading - 90);
-        } else {
-          if (sensor.quaternion) {
-            const quaternion = new THREE.Quaternion();
-            quaternion.fromArray([
-              sensor.quaternion[0],
-              0,
-              sensor.quaternion[2],
-              sensor.quaternion[3],
-            ]);
-            const _totalRot =
-              (Math.atan2(quaternion.x, quaternion.z) * 360) / Math.PI + 90;
-            correctRotation(_totalRot);
-          }
-        }
-      });
-    });
     async function runScene() {
       const _a_scene = document.createElement('a-scene');
       _a_scene.setAttribute('id', 'inserted_ar');
@@ -467,10 +367,6 @@
         document.getElementById('action_bar').setAttribute('style', 'display: none');
         fixFrame();
         const _insert_div = document.getElementById('insert_content');
-        /**const _buttonStart = document.createElement('button');
-        _buttonStart.innerHTML = '<i class="fa-solid fa-play"></i>';
-        _buttonStart.style = 'border: none; background-color: orangered; color: white; padding: 15px 0px; text-align: center; font-size: 8vw; width: 75%; margin-left: 12.5%; margin-top: 10%';
-        _buttonStart.setAttribute('onclick', 'runScene()');**/
         // MapBox implementation
         const _map_div = document.createElement('div');
         _map_div.setAttribute('id', 'map');
@@ -478,7 +374,6 @@
         const _debug = document.createElement('p');
         _debug.id = 'debug';
         _main.appendChild(_map_div);
-        //_main.appendChild(_buttonStart);
         _main.appendChild(_debug);
         document.body.replaceChild(_main, _insert_div);
         mapboxgl.accessToken = 'pk.eyJ1IjoidG9uaWMzbWFwcyIsImEiOiJja3JmY3Zod3UwMDA2MnZwOGp0d2R1NWtvIn0.RxlXR6T44X_x3Hf7wZ223g';
@@ -511,93 +406,6 @@
           }); // Set the default atmosphere style
           geolocate.trigger();
           locations.map((_loc, index) => {
-            /**
-            const modelOrigin = { lng: _loc.longitude, lat: _loc.latitude };
-            const modelAltitude = 0;
-            const modelRotate = [Math.PI / 2, Math.random() * Math.PI / 2, 0];
-            const modelAsMercatorCoordinate = mapboxgl.MercatorCoordinate.fromLngLat(
-              modelOrigin,
-              modelAltitude
-            );
-            const modelTransform = {
-              translateX: modelAsMercatorCoordinate.x,
-              translateY: modelAsMercatorCoordinate.y,
-              translateZ: modelAsMercatorCoordinate.z,
-              rotateX: modelRotate[0],
-              rotateY: modelRotate[1],
-              rotateZ: modelRotate[2],
-              scale: modelAsMercatorCoordinate.meterInMercatorCoordinateUnits()
-            };
-            const THREE = window.THREE;
-            const customLayer = {
-              id: '3d-model' + index,
-              type: 'custom',
-              renderingMode: '3d',
-              onAdd: function (map, gl) {
-                this.camera = new THREE.Camera();
-                this.scene = new THREE.Scene();
-                // create two three.js lights to illuminate the model
-                const directionalLight = new THREE.DirectionalLight(0xffffff);
-                directionalLight.position.set(0, -70, 100).normalize();
-                this.scene.add(directionalLight);
-                const directionalLight2 = new THREE.DirectionalLight(0xffffff);
-                directionalLight2.position.set(0, 70, 100).normalize();
-                this.scene.add(directionalLight2);
-                // use the three.js GLTF loader to add the 3D model to the three.js scene
-                const loader = new THREE.GLTFLoader();
-                loader.load(
-                  '/models_temp/ring.gltf',
-                  (gltf) => {
-                    this.scene.add(gltf.scene);
-                  }
-                );
-                this.map = map;
-                // use the Mapbox GL JS map canvas for three.js
-                this.renderer = new THREE.WebGLRenderer({
-                  canvas: map.getCanvas(),
-                  context: gl,
-                  antialias: true
-                });
-                this.renderer.autoClear = false;
-              },
-              render: function (gl, matrix) {
-                const rotationX = new THREE.Matrix4().makeRotationAxis(
-                  new THREE.Vector3(1, 0, 0),
-                  modelTransform.rotateX
-                );
-                const rotationY = new THREE.Matrix4().makeRotationAxis(
-                  new THREE.Vector3(0, 1, 0),
-                  modelTransform.rotateY
-                );
-                const rotationZ = new THREE.Matrix4().makeRotationAxis(
-                  new THREE.Vector3(0, 0, 1),
-                  modelTransform.rotateZ
-                );
-                const m = new THREE.Matrix4().fromArray(matrix);
-                const l = new THREE.Matrix4()
-                  .makeTranslation(
-                    modelTransform.translateX,
-                    modelTransform.translateY,
-                    modelTransform.translateZ
-                  )
-                  .scale(
-                    new THREE.Vector3(
-                      modelTransform.scale,
-                      -modelTransform.scale,
-                      modelTransform.scale
-                    )
-                  )
-                  .multiply(rotationX)
-                  .multiply(rotationY)
-                  .multiply(rotationZ);
-                this.camera.projectionMatrix = m.multiply(l);
-                this.renderer.resetState();
-                this.renderer.render(this.scene, this.camera);
-                this.map.triggerRepaint();
-              }
-            };
-            map.addLayer(customLayer, 'waterway-label');
-            **/
             const _icon = document.createElement('i');
             _icon.className = 'fa-solid fa-location-pin';
             _icon.id = 'pin' + index;
@@ -658,7 +466,7 @@
               _pin.onclick = function () {
                 const popup = new mapboxgl.Popup({ closeOnClick: false })
                   .setLngLat([_loc.longitude, _loc.latitude])
-                  .setHTML('<div><h1>You found an AR Experience</h1></br><p>Click the button bellow to see the experience</p></br><button onclick={runScene()}>CLICK ME</button></div>')
+                  .setHTML(`<div><h1>You've found an AR Experience</h1></br><p>Click the button bellow to see the experience</p></br><button onclick={runScene()}>Try it out!</button></div>`)
                   .addTo(map);
               };
             } else if (_pin.getAttribute('class') == 'fa-solid fa-location-dot') {
@@ -813,20 +621,6 @@
           display: flex;
           justify-content: center;
         ">
-      <button onclick="resetPosition()" style="
-            background-color: rgba(0, 0, 0, 0.6);
-            border: solid;
-            border-radius: 12px;
-            border-width: 1px;
-            color: rgb(230, 230, 230);
-            padding: 8px 4px;
-            text-align: center;
-            text-decoration: none;
-            margin: auto;
-            font-size: 12px;
-          ">
-        Reset Scene
-      </button>
       <p id="debug" style="color: #fff"></p>
       <button onclick="takePhoto()" style="
             background-color: rgba(255, 255, 255, 0.8);
