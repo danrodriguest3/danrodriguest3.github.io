@@ -6,16 +6,10 @@
   <title>cityAR Easter Event</title>
   <script src="js/aframe.min.js"></script>
   <script src="js/aframe-ar.js"></script>
-  <script src="js/gesture-detector.js"></script>
-  <script src="js/gesture-handler.js"></script>
-  <script src="js/DecalGeometry.js"></script>
-  <script src="js/aframe-animation-timeline-component.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/gh/donmccurdy/aframe-extras@v6.1.1/dist/aframe-extras.min.js"></script>
-  <script xmlns="http://www.w3.org/1999/xhtml" async=""
-    src="https://cdn.rawgit.com/eligrey/FileSaver.js/5ed507ef8aa53d8ecfea96d96bc7214cd2476fd2/FileSaver.min.js"></script>
-  <script src="https://html2canvas.hertzen.com/dist/html2canvas.js"></script>
-  <script src='https://api.mapbox.com/mapbox-gl-js/v2.9.1/mapbox-gl.js'></script>
-  <link href='https://api.mapbox.com/mapbox-gl-js/v2.9.1/mapbox-gl.css' rel='stylesheet' />
+  <script src="js/aframe-extras.min.js"></script>
+  <script src="js/html2canvas.js"></script>
+  <script src='js/mapbox-gl.js'></script>
+  <link href='js/mapbox-gl.css' rel='stylesheet' />
   <script>
     let anim_clips = [];
     let scene = document.querySelector('a-scene');
@@ -268,7 +262,6 @@
     }
     function correctRotation(_correction) {
       window.removeEventListener('deviceorientation');
-      console.log('correctRotation');
       const sc = document.getElementById('scene');
       factor = _correction;
       sc.setAttribute('rotation', '0 ' + _correction + ' 0');
@@ -313,10 +306,6 @@
       _a_assets.innerHTML = `<a-asset-item
                     id='model'
                     src='models_temp/bunny.glb'
-                  ></a-asset-item>
-                  <a-asset-item
-                    id='modelb'
-                    src='models_temp/egg.glb'
                   ></a-asset-item>`;
       const _raycaster = document.createElement('a-entity');
       _raycaster.setAttribute('id', 'raycaster');
@@ -354,7 +343,7 @@
       const _inserted_landing = document.getElementById('inserted_landing');
       if (_insert_div) {
         document.body.replaceChild(_a_scene, _insert_div);
-      } else {
+      } else if (_inserted_landing) {
         document.body.replaceChild(_a_scene, _inserted_landing);
       }
     }
