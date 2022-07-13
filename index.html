@@ -3,7 +3,7 @@
 <head>
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" class="">
   <link rel="stylesheet" href="fonts/fontawesome-free-6.1.1-web/css/all.css" />
-  <title>cityAR Easter Event</title>
+  <title>cityAR Geolocation DEMO</title>
   <script src="js/aframe.min.js"></script>
   <script src="js/aframe-ar.js"></script>
   <script src="js/aframe-extras.min.js"></script>
@@ -66,24 +66,16 @@
     document.addEventListener('renderstart', () => {
       renderStarted = true;
       const __scene = document.getElementById('scene');
-      document.querySelector('a-scene').getAttribute('arjs').sourceWidth =
-        innerWidth;
-      document.querySelector('a-scene').getAttribute('arjs').sourceHeight =
-        innerHeight;
+      document.querySelector('a-scene').getAttribute('arjs').sourceWidth = innerWidth;
+      document.querySelector('a-scene').getAttribute('arjs').sourceHeight = innerHeight;
       window.addEventListener('deviceorientation', function (event) {
         if (/iPad|iPhone|iPod/.test(navigator.userAgent)) {
           correctRotation(event.webkitCompassHeading - 90);
         } else {
           if (sensor.quaternion) {
             const quaternion = new THREE.Quaternion();
-            quaternion.fromArray([
-              sensor.quaternion[0],
-              0,
-              sensor.quaternion[2],
-              sensor.quaternion[3],
-            ]);
-            const _totalRot =
-              (Math.atan2(quaternion.x, quaternion.z) * 360) / Math.PI + 90;
+            quaternion.fromArray([sensor.quaternion[0], 0, sensor.quaternion[2], sensor.quaternion[3]]);
+            const _totalRot = (Math.atan2(quaternion.x, quaternion.z) * 360) / Math.PI + 90;
             correctRotation(_totalRot);
           }
         }
@@ -101,10 +93,7 @@
       ) {
         // Getting video and object as canvases
         var canvas_video = canvas.toDataURL();
-        var canvas_objects = document
-          .querySelector('[arjs]')
-          .components.screenshot.getCanvas('perspective')
-          .toDataURL();
+        var canvas_objects = document.querySelector('[arjs]').components.screenshot.getCanvas('perspective').toDataURL();
         // ===================== Building composite canvas ====================== //
         var _canvas1 = document.getElementById('canvas1');
         if (/iPad|iPhone|iPod/.test(navigator.userAgent)) {
@@ -196,63 +185,21 @@
             tempCanvas.width = node.material.map.image.width;
             tempCanvas.height = node.material.map.image.height;
             var txt = new Image();
-            txt.setAttribute(
-              'filter',
-              'hue-rotate(' + Math.random() * 360 + 'deg)',
-            );
+            txt.setAttribute('filter', 'hue-rotate(' + Math.random() * 360 + 'deg)');
             txt.onload = await async function () {
-              var grd = tempCtx.createLinearGradient(
-                0,
-                0,
-                tempCanvas.width,
-                0,
-              );
-              grd.addColorStop(
-                0,
-                'hsl(' +
-                Math.random() * 360 +
-                ', ' +
-                Math.floor(Math.random() * (70 + 1)) +
-                '%, ' +
-                Math.floor((1 + Math.random()) * (70 / 2 + 1)) +
-                '%)',
-              );
-              grd.addColorStop(
-                0.5,
-                'hsl(' +
-                Math.random() * 360 +
-                ', ' +
-                Math.floor(Math.random() * (70 + 1)) +
-                '%, ' +
-                Math.floor((1 + Math.random()) * (70 / 2 + 1)) +
-                '%)',
-              );
-              grd.addColorStop(
-                1,
-                'hsl(' +
-                Math.random() * 360 +
-                ', ' +
-                Math.floor(Math.random() * (70 + 1)) +
-                '%, ' +
-                Math.floor((1 + Math.random()) * (70 / 2 + 1)) +
-                '%)',
-              );
+              var grd = tempCtx.createLinearGradient(0, 0, tempCanvas.width, 0);
+              grd.addColorStop(0, 'hsl(' + Math.random() * 360 + ', ' + Math.floor(Math.random() * (70 + 1)) + '%, ' + Math.floor((1 + Math.random()) * (70 / 2 + 1)) + '%)');
+              grd.addColorStop(0.5, 'hsl(' + Math.random() * 360 + ', ' + Math.floor(Math.random() * (70 + 1)) + '%, ' + Math.floor((1 + Math.random()) * (70 / 2 + 1)) + '%)');
+              grd.addColorStop(1, 'hsl(' + Math.random() * 360 + ', ' + Math.floor(Math.random() * (70 + 1)) + '%, ' + Math.floor((1 + Math.random()) * (70 / 2 + 1)) + '%)');
               tempCtx.fillStyle = grd;
-              await tempCtx.fillRect(
-                0,
-                0,
-                tempCanvas.width,
-                tempCanvas.height,
-              );
+              await tempCtx.fillRect(0, 0, tempCanvas.width, tempCanvas.height);
               await tempCtx.drawImage(txt, 0, 0);
               // Exclusive to the bunny event \/
               await tempCtx.arc(678, 702, 16, 0, 100);
               tempCtx.fillStyle = 'rgb(0,0,0)';
               await tempCtx.fill();
               // Exclusive to the bunny event /\
-              var canvasTexture = await new THREE.CanvasTexture(
-                tempCtx.canvas,
-              );
+              var canvasTexture = await new THREE.CanvasTexture(tempCtx.canvas);
               node.material.map = canvasTexture;
             };
             node.material.needsUpdate = true;
@@ -271,15 +218,9 @@
       locations.map((pos, index) => {
         const curMX = (pos.latitude * Math.PI * 6371000) / 180;
         const curMZ = (pos.longitude * Math.PI * 6371000) / 180;
-        const _str =
-          (-curMX + prevPos.coords.x).toString() +
-          ' -2 ' +
-          (-curMZ + prevPos.coords.z).toString();
+        const _str = (-curMX + prevPos.coords.x).toString() + ' -2 ' + (-curMZ + prevPos.coords.z).toString();
         const _obj = document.getElementById('geolocated' + index);
-        if (
-          Math.abs(curMX - prevPos.coords.x) < distance &&
-          Math.abs(curMZ - prevPos.coords.z) < distance
-        ) {
+        if (Math.abs(curMX - prevPos.coords.x) < distance && Math.abs(curMZ - prevPos.coords.z) < distance) {
           if (_obj) {
             _obj.setAttribute('position', _str);
             _obj.needsUpdate = true;
@@ -296,10 +237,7 @@
       _a_scene.setAttribute('id', 'inserted_ar');
       _a_scene.setAttribute('arjs', 'sourceType: webcam;');
       _a_scene.setAttribute('embedded', '');
-      _a_scene.setAttribute(
-        'renderer',
-        'logarithmicDepthBuffer: true; antialias: true;',
-      );
+      _a_scene.setAttribute('renderer', 'logarithmicDepthBuffer: true; antialias: true;');
       _a_scene.setAttribute('vr-mode-ui', 'enabled: false');
       const _a_assets = document.createElement('a-assets');
       _a_assets.setAttribute('timeout', '15000');
@@ -411,12 +349,8 @@
         navigator.geolocation.watchPosition(async function (success) {
           if (renderStarted) {
             const curMX = (success.coords.latitude * Math.PI * 6371000) / 180;
-            const curMZ =
-              (success.coords.longitude * Math.PI * 6371000) / 180;
-            if (
-              Math.abs(prevPos.coords.x - curMX) > 0.5 ||
-              Math.abs(prevPos.coords.z - curMZ) > 0.5
-            ) {
+            const curMZ = (success.coords.longitude * Math.PI * 6371000) / 180;
+            if (Math.abs(prevPos.coords.x - curMX) > 0.5 || Math.abs(prevPos.coords.z - curMZ) > 0.5) {
               if (prevArray.length === 8) {
                 let avX = 0;
                 let avZ = 0;
