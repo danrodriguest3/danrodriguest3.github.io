@@ -99,6 +99,9 @@
         if (/iPad|iPhone|iPod/.test(navigator.userAgent)) {
           _canvas1.height = canvas.height * 1.1;
           _canvas1.width = canvas.width * 1.1;
+        } else if (/Android|IEMobile|Opera Mini/i.test(navigator.userAgent)) {
+          _canvas1.height = canvas.width;
+          _canvas1.width = canvas.height;
         } else {
           _canvas1.height = canvas.height;
           _canvas1.width = canvas.width;
@@ -110,6 +113,8 @@
           _ctx1.clearRect(0, 0, _canvas1.width, _canvas1.height);
           if (/iPad|iPhone|iPod/.test(navigator.userAgent)) {
             _ctx1.drawImage(img, 0, 0, _canvas1.width * 1.1, _canvas1.height * 1.1, 0, 0, _canvas1.width * 1.21, _canvas1.height * 1.21,);
+          } else if (/Android|IEMobile|Opera Mini/i.test(navigator.userAgent)) {
+            _ctx1.drawImage(img, 0, 0, _canvas1.height, _canvas1.width, 0, 0, _canvas1.width, _canvas1.height,);
           } else {
             _ctx1.drawImage(img, 0, 0, _canvas1.width, _canvas1.height, 0, 0, _canvas1.width, _canvas1.height,);
           }
@@ -137,7 +142,6 @@
     }
     function closeReview() {
       document.getElementById('review_modal').style.display = 'none';
-      runScene();
     }
     function fixFrame() {
       setTimeout(() => {
