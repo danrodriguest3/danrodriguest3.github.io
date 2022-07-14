@@ -233,34 +233,43 @@
       });
     }
     async function runScene() {
-      const _a_scene = document.createElement('a-scene');
-      _a_scene.setAttribute('id', 'inserted_ar');
-      _a_scene.setAttribute('arjs', 'sourceType: webcam;');
-      _a_scene.setAttribute('embedded', '');
-      _a_scene.setAttribute('renderer', 'logarithmicDepthBuffer: true; antialias: true;');
-      _a_scene.setAttribute('vr-mode-ui', 'enabled: false');
-      const _a_assets = document.createElement('a-assets');
-      _a_assets.setAttribute('timeout', '15000');
-      _a_assets.innerHTML = `<a-asset-item
+      navigator.mediaDevices.getUserMedia({ video: {} }).then(result => {
+        let _track = result.getVideoTracks()[0];
+        let _cap = _track.getCapabilities();
+        let _width = innerWidth > _cap.width.max ? _cap.width.max : innerWidth;
+        let _height = innerHeight > _cap.height.max ? _cap.height.max : innerHeight;
+        _track.applyConstraints({
+          aspectRatio: _width / _height,
+        }).then(e => {
+          let _set = _track.getSettings();
+          const _a_scene = document.createElement('a-scene');
+          _a_scene.setAttribute('arjs', 'sourceType: webcam; sourceWidth: ' + _set.width + '; sourceHeight: ' + _set.height + '; displayWidth: ' + _set.width + '; displayHeight: ' + _set.height + ';');
+          _a_scene.setAttribute('id', 'inserted_ar');
+          _a_scene.setAttribute('embedded', '');
+          _a_scene.setAttribute('renderer', 'logarithmicDepthBuffer: true; antialias: true;');
+          _a_scene.setAttribute('vr-mode-ui', 'enabled: false');
+          const _a_assets = document.createElement('a-assets');
+          _a_assets.setAttribute('timeout', '15000');
+          _a_assets.innerHTML = `<a-asset-item
                     id='model'
                     src='models_temp/bunny.glb'
                   ></a-asset-item>`;
-      const _raycaster = document.createElement('a-entity');
-      _raycaster.setAttribute('id', 'raycaster');
-      _raycaster.setAttribute('cursor', 'fuse: false;');
-      _raycaster.setAttribute('raycaster', 'objects: .clickable');
-      const _int_scene = document.createElement('a-entity');
-      _int_scene.setAttribute('id', 'scene');
-      const _int_camera = document.createElement('a-camera');
-      _int_camera.setAttribute('rotation-reader', '');
-      _int_camera.setAttribute('look-controls', 'enabled: false; touchEnabled: false;');
-      _int_camera.setAttribute('arjs-look-controls', 'smoothingFactor: 0.1; touchEnabled: false;');
-      _a_scene.appendChild(_a_assets);
-      _a_scene.appendChild(_raycaster);
-      _a_scene.appendChild(_int_scene);
-      _a_scene.appendChild(_int_camera);
-      document.getElementById('sound_control').setAttribute('style',
-        `position: fixed;
+          const _raycaster = document.createElement('a-entity');
+          _raycaster.setAttribute('id', 'raycaster');
+          _raycaster.setAttribute('cursor', 'fuse: false;');
+          _raycaster.setAttribute('raycaster', 'objects: .clickable');
+          const _int_scene = document.createElement('a-entity');
+          _int_scene.setAttribute('id', 'scene');
+          const _int_camera = document.createElement('a-camera');
+          _int_camera.setAttribute('rotation-reader', '');
+          _int_camera.setAttribute('look-controls', 'enabled: false; touchEnabled: false;');
+          _int_camera.setAttribute('arjs-look-controls', 'smoothingFactor: 0.1; touchEnabled: false;');
+          _a_scene.appendChild(_a_assets);
+          _a_scene.appendChild(_raycaster);
+          _a_scene.appendChild(_int_scene);
+          _a_scene.appendChild(_int_camera);
+          document.getElementById('sound_control').setAttribute('style',
+            `position: fixed;
           top: 20;
           right: 20;
           background-color: rgba(0, 0, 0, 0.6);
@@ -271,19 +280,21 @@
           width: 10vw;
           height: 10vw;
           text-align: center;`);
-      document.getElementById('action_bar').setAttribute('style',
-        `position: fixed;
+          document.getElementById('action_bar').setAttribute('style',
+            `position: fixed;
           bottom: 0;
           left: 0;
           width: 100%;
           background-image: linear-gradient(rgba(0, 0, 0, 0), rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 1));`);
-      const _insert_div = document.getElementById('insert_content');
-      const _inserted_landing = document.getElementById('inserted_landing');
-      if (_insert_div) {
-        document.body.replaceChild(_a_scene, _insert_div);
-      } else if (_inserted_landing) {
-        document.body.replaceChild(_a_scene, _inserted_landing);
-      }
+          const _insert_div = document.getElementById('insert_content');
+          const _inserted_landing = document.getElementById('inserted_landing');
+          if (_insert_div) {
+            document.body.replaceChild(_a_scene, _insert_div);
+          } else if (_inserted_landing) {
+            document.body.replaceChild(_a_scene, _inserted_landing);
+          }
+        });
+      });
     }
     function landing() {
       const _main = document.createElement('div');
