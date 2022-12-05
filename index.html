@@ -2,29 +2,29 @@
 <html lang="en">
 
 <head>
-    <title>three.js webgl - particles - billboards</title>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
-    <link type="text/css" rel="stylesheet" href="main.css">
+  <title>three.js webgl - particles - billboards</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+  <link type="text/css" rel="stylesheet" href="main.css">
 </head>
 
 <body>
-    <script src="build/three.js"></script>
-    <script defer src="js/shaders/CopyShader.js"></script>
-    <script defer src="js/shaders/BlendShader.js"></script>
-    <script defer src="js/postprocessing/Pass.js"></script>
-    <script defer src="js/postprocessing/RenderPass.js"></script>
-    <script defer src="js/postprocessing/SavePass.js"></script>
-    <script defer src="js/postprocessing/ShaderPass.js"></script>
+  <script src="build/three.js"></script>
+  <script defer src="js/shaders/CopyShader.js"></script>
+  <script defer src="js/shaders/BlendShader.js"></script>
+  <script defer src="js/postprocessing/Pass.js"></script>
+  <script defer src="js/postprocessing/RenderPass.js"></script>
+  <script defer src="js/postprocessing/SavePass.js"></script>
+  <script defer src="js/postprocessing/ShaderPass.js"></script>
 
-    <script defer src="js/shaders/LuminosityHighPassShader.js"></script>
-    <script defer src="js/postprocessing/UnrealBloomPass.js"></script>
-    <script defer src="js/shaders/BokehShader.js"></script>
-    <script defer src="js/postprocessing/BokehPass.js"></script>
+  <script defer src="js/shaders/LuminosityHighPassShader.js"></script>
+  <script defer src="js/postprocessing/UnrealBloomPass.js"></script>
+  <script defer src="js/shaders/BokehShader.js"></script>
+  <script defer src="js/postprocessing/BokehPass.js"></script>
 
-    <script defer src="js/postprocessing/EffectComposer.js"></script>
+  <script defer src="js/postprocessing/EffectComposer.js"></script>
 
-    <script type="x-shader/x-vertex" id="vertexshader">
+  <script type="x-shader/x-vertex" id="vertexshader">
 
 			varying vec2 vUv;
 
@@ -38,7 +38,7 @@
 
 		</script>
 
-    <script type="x-shader/x-fragment" id="fragmentshader">
+  <script type="x-shader/x-fragment" id="fragmentshader">
 
 			uniform sampler2D baseTexture;
 			uniform sampler2D bloomTexture;
@@ -53,183 +53,181 @@
 
 	</script>
 
-    <script type="module">
-        import Stats from './jsm/libs/stats.module.js';
-        import { GUI } from './jsm/libs/lil-gui.module.min.js';
+  <script type="module">
+    import Stats from './jsm/libs/stats.module.js';
+    import { GUI } from './jsm/libs/lil-gui.module.min.js';
 
-        let copyPass, lastFrame = [], lastIndex;
-        let mouseX = 0, mouseY = 0;
+    let copyPass, lastFrame = [], lastIndex;
+    let mouseX = 0, mouseY = 0;
 
-        let windowHalfX = window.innerWidth / 2;
-        let windowHalfY = window.innerHeight / 2;
+    let windowHalfX = window.innerWidth / 2;
+    let windowHalfY = window.innerHeight / 2;
 
-        let motionBufferSize = 400;
+    let motionBufferSize = 400;
 
-        const CAArr = [], CBArr = [];
-        const scene = await new THREE.Scene();
-        const camera = await new THREE.PerspectiveCamera(55, window.innerWidth / window.innerHeight, 2, 2000);
-        camera.position.z = 1000;
+    const CAArr = [], CBArr = [];
+    const scene = await new THREE.Scene();
+    const camera = await new THREE.PerspectiveCamera(55, window.innerWidth / window.innerHeight, 2, 2000);
+    camera.position.z = 1000;
 
-        const renderer = await new THREE.WebGLRenderer();
-        renderer.setPixelRatio(window.devicePixelRatio);
-        renderer.setSize(window.innerWidth, window.innerHeight);
-        const composer = await new THREE.EffectComposer(renderer);
-        const renderPass = await new THREE.RenderPass(scene, camera);
-        const savePass = new THREE.SavePass(new THREE.WebGLRenderTarget(window.innerWidth, window.innerHeight, { minFilter: THREE.LinearFilter, magFilter: THREE.LinearFilter, stencilBuffer: true }));
-        const blendPass = new THREE.ShaderPass(THREE.BlendShader, 'tDiffuse1');
-        blendPass.uniforms['tDiffuse2'].value = savePass.renderTarget.texture;
-        blendPass.uniforms['mixRatio'].value = 0.75;
-        const outputPass = new THREE.ShaderPass(THREE.CopyShader);
+    const renderer = await new THREE.WebGLRenderer();
+    renderer.setPixelRatio(window.devicePixelRatio);
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    const composer = await new THREE.EffectComposer(renderer);
+    const renderPass = await new THREE.RenderPass(scene, camera);
+    const savePass = new THREE.SavePass(new THREE.WebGLRenderTarget(window.innerWidth, window.innerHeight, { minFilter: THREE.LinearFilter, magFilter: THREE.LinearFilter, stencilBuffer: true }));
+    const blendPass = new THREE.ShaderPass(THREE.BlendShader, 'tDiffuse1');
+    blendPass.uniforms['tDiffuse2'].value = savePass.renderTarget.texture;
+    blendPass.uniforms['mixRatio'].value = 0.75;
+    const outputPass = new THREE.ShaderPass(THREE.CopyShader);
 
 
-        const ENTIRE_SCENE = 0, BLOOM_SCENE = 1;
+    const ENTIRE_SCENE = 0, BLOOM_SCENE = 1;
 
-        const bloomLayer = new THREE.Layers();
-        bloomLayer.set(BLOOM_SCENE);
-        const darkMaterial = new THREE.MeshBasicMaterial({ color: 'black' });
-        const materials = {};
+    const bloomLayer = new THREE.Layers();
+    bloomLayer.set(BLOOM_SCENE);
+    const darkMaterial = new THREE.MeshBasicMaterial({ color: 'black' });
+    const materials = {};
 
-        const bloomPass = new THREE.UnrealBloomPass(new THREE.Vector2(window.innerWidth, window.innerHeight), 1.5, 0.4, 0.85);
-        bloomPass.exposure = 1;
-        bloomPass.threshold = 0;
-        bloomPass.strength = 8;
-        bloomPass.radius = 0;
+    const bloomPass = new THREE.UnrealBloomPass(new THREE.Vector2(window.innerWidth, window.innerHeight), 1.5, 0.4, 0.85);
+    bloomPass.exposure = 1;
+    bloomPass.threshold = 0;
+    bloomPass.strength = 8;
+    bloomPass.radius = 0;
 
-        const bokehPass = new THREE.BokehPass(scene, camera, { focus: 1.0, aspect: camera.aspect, aperture: 0.025, maxblur: 128 });
+    const bokehPass = new THREE.BokehPass(scene, camera, { focus: 1.0, aspect: camera.aspect, aperture: 0.025, maxblur: 128 });
 
-        composer.addPass(renderPass);
-        composer.addPass(blendPass);
-        composer.addPass(savePass);
-        composer.addPass(outputPass);
-        composer.addPass(bokehPass);
-        composer.addPass(bloomPass);
-        console.log(bloomPass);
-        const geometryA = new THREE.BufferGeometry(), geometryB = new THREE.BufferGeometry(), geometryCA = new THREE.BufferGeometry(), geometryCB = new THREE.BufferGeometry();
-        const verticesA = [], verticesB = [], verticesCA = [], verticesCB = [];
-        const sprite = new THREE.TextureLoader().load('textures/sprites/disc.png');
+    composer.addPass(renderPass);
+    composer.addPass(blendPass);
+    composer.addPass(savePass);
+    composer.addPass(outputPass);
+    composer.addPass(bokehPass);
+    composer.addPass(bloomPass);
+    console.log(bloomPass);
+    const geometryA = new THREE.BufferGeometry(), geometryB = new THREE.BufferGeometry(), geometryCA = new THREE.BufferGeometry(), geometryCB = new THREE.BufferGeometry();
+    const verticesA = [], verticesB = [], verticesCA = [], verticesCB = [];
+    const sprite = new THREE.TextureLoader().load('textures/sprites/disc.png');
 
-        for (let i = 0; i < Math.floor(1000 * (Math.random() + 0.1)); i++) {
-            const x = window.innerWidth * 4 * Math.random() - window.innerWidth;
-            const y = window.innerHeight * Math.random() - window.innerHeight / 2;
-            const z = window.innerWidth * 4 * Math.random() - window.innerWidth;
-            if (i % 2) {
-                verticesA.push(x, y, z);
-            } else {
-                verticesB.push(x, y, z);
-            }
-            if (i % 10) {
-                if (Math.random() > 0.5) {
-                    verticesCA.push(window.innerWidth / 4 * Math.random() - window.innerWidth / 8, window.innerHeight / 7 * Math.random() - window.innerHeight / 14, window.innerWidth / 4 * Math.random() - window.innerWidth / 8);
-                } else {
-                    verticesCB.push(window.innerWidth / 2 * Math.random() - window.innerWidth / 4, window.innerHeight / 8 * Math.random() - window.innerHeight / 16, window.innerWidth / 2 * Math.random() - window.innerWidth / 4);
-                }
-            }
+    for (let i = 0; i < Math.floor(1000 * (Math.random() + 0.1)); i++) {
+      const x = window.innerWidth * 4 * Math.random() - window.innerWidth;
+      const y = window.innerHeight * Math.random() - window.innerHeight / 2;
+      const z = window.innerWidth * 4 * Math.random() - window.innerWidth;
+      if (i % 2) {
+        verticesA.push(x, y, z);
+      } else {
+        verticesB.push(x, y, z);
+      }
+      if (i % 10) {
+        if (Math.random() > 0.5) {
+          verticesCA.push(window.innerWidth / 4 * Math.random() - window.innerWidth / 8, window.innerHeight / 7 * Math.random() - window.innerHeight / 14, window.innerWidth / 4 * Math.random() - window.innerWidth / 8);
+        } else {
+          verticesCB.push(window.innerWidth / 2 * Math.random() - window.innerWidth / 4, window.innerHeight / 8 * Math.random() - window.innerHeight / 16, window.innerWidth / 2 * Math.random() - window.innerWidth / 4);
         }
-        geometryA.setAttribute('position', new THREE.Float32BufferAttribute(verticesA, 3));
-        geometryB.setAttribute('position', new THREE.Float32BufferAttribute(verticesB, 3));
-        geometryCA.setAttribute('position', new THREE.Float32BufferAttribute(verticesCA, 3));
-        geometryCB.setAttribute('position', new THREE.Float32BufferAttribute(verticesCB, 3));
+      }
+    }
+    geometryA.setAttribute('position', new THREE.Float32BufferAttribute(verticesA, 3));
+    geometryB.setAttribute('position', new THREE.Float32BufferAttribute(verticesB, 3));
+    geometryCA.setAttribute('position', new THREE.Float32BufferAttribute(verticesCA, 3));
+    geometryCB.setAttribute('position', new THREE.Float32BufferAttribute(verticesCB, 3));
 
-        const materialA = new THREE.PointsMaterial({ size: 35, sizeAttenuation: true, map: sprite, alphaTest: 0, transparent: true });
-        materialA.color.set('rgb(255, 140, 33)');
-        materialA.opacity = Math.random() * 0.65;
-        const materialB = new THREE.PointsMaterial({ size: 35, sizeAttenuation: true, map: sprite, alphaTest: 0, transparent: true });
-        materialB.color.set('rgb(255, 140, 33)');
-        materialB.opacity = Math.random() * 0.65;
-        const materialCA = new THREE.PointsMaterial({ size: 15, sizeAttenuation: true, map: sprite, alphaTest: 0, transparent: true });
-        materialCA.color.set('rgb(255, 140, 33)');
-        materialCA.opacity = 1;
-        const materialCB = new THREE.PointsMaterial({ size: 10, sizeAttenuation: true, map: sprite, alphaTest: 0, transparent: true });
-        materialCB.color.set('rgb(255, 140, 33)');
-        materialCB.opacity = 0.75;
-        const particlesA = new THREE.Points(geometryA, materialA), particlesB = new THREE.Points(geometryB, materialB), particlesCA = new THREE.Points(geometryCA, materialCA), particlesCB = new THREE.Points(geometryCB, materialCB);
-        await scene.add(particlesA, particlesB, particlesCA, particlesCB);
-        const stats = new Stats();
-        document.body.appendChild(stats.dom);
+    const materialA = new THREE.PointsMaterial({ size: 35, sizeAttenuation: true, map: sprite, alphaTest: 0, transparent: true });
+    materialA.color.set('rgb(255, 140, 33)');
+    materialA.opacity = Math.random() * 0.65;
+    const materialB = new THREE.PointsMaterial({ size: 35, sizeAttenuation: true, map: sprite, alphaTest: 0, transparent: true });
+    materialB.color.set('rgb(255, 140, 33)');
+    materialB.opacity = Math.random() * 0.65;
+    const materialCA = new THREE.PointsMaterial({ size: 15, sizeAttenuation: true, map: sprite, alphaTest: 0, transparent: true });
+    materialCA.color.set('rgb(255, 140, 33)');
+    materialCA.opacity = 1;
+    const materialCB = new THREE.PointsMaterial({ size: 10, sizeAttenuation: true, map: sprite, alphaTest: 0, transparent: true });
+    materialCB.color.set('rgb(255, 140, 33)');
+    materialCB.opacity = 0.75;
+    const particlesA = new THREE.Points(geometryA, materialA), particlesB = new THREE.Points(geometryB, materialB), particlesCA = new THREE.Points(geometryCA, materialCA), particlesCB = new THREE.Points(geometryCB, materialCB);
+    await scene.add(particlesA, particlesB, particlesCA, particlesCB);
+    const stats = new Stats();
+    document.body.appendChild(stats.dom);
 
-        document.body.style.touchAction = 'none';
-        document.body.addEventListener('pointermove', onPointerMove);
+    document.body.style.touchAction = 'none';
+    document.body.addEventListener('pointermove', onPointerMove);
+    await document.body.appendChild(composer.renderer.domElement);
+    animate();
 
-        window.addEventListener('resize', onWindowResize);
-        await document.body.appendChild(composer.renderer.domElement);
-        animate();
+    function onWindowResize() {
 
+      windowHalfX = window.innerWidth / 2;
+      windowHalfY = window.innerHeight / 2;
 
-        function onWindowResize() {
+      camera.aspect = window.innerWidth / window.innerHeight;
+      camera.updateProjectionMatrix();
 
-            windowHalfX = window.innerWidth / 2;
-            windowHalfY = window.innerHeight / 2;
+      renderer.setSize(window.innerWidth, window.innerHeight);
+      composer.setSize(window.innerWidth, window.innerHeight);
+    }
+    onWindowResize();
+    window.addEventListener('resize', onWindowResize);
+    async function onPointerMove(event) {
+      if (event.isPrimary === false) return;
 
-            camera.aspect = window.innerWidth / window.innerHeight;
-            camera.updateProjectionMatrix();
+      mouseX = event.clientX - windowHalfX;
+      mouseY = event.clientY - windowHalfY;
 
-            renderer.setSize(window.innerWidth, window.innerHeight);
-            composer.setSize(window.innerWidth, window.innerHeight);
-        }
+      //scene.rotation.y = (mouseX - camera.position.x) * 0.005;
+      particlesCA.position.y = (- mouseY - scene.position.y) * 0.75;
+      particlesCB.position.y = (- mouseY - scene.position.y) * 0.75;
+      particlesCA.position.x = (mouseX + scene.position.x) * 0.75;
+      particlesCB.position.x = (mouseX + scene.position.x) * 0.75;
+      particlesA.material.opacity < 0.65 && (particlesA.material.opacity += 0.0005);
+      particlesB.material.opacity < 0.65 && (particlesB.material.opacity += 0.0005);
+      particlesCA.material.opacity < 1 && (particlesCA.material.opacity += 0.001);
+      particlesCB.material.opacity < 0.75 && (particlesCB.material.opacity += 0.001);
+      blendPass.uniforms['mixRatio'].value < 0.8 && (blendPass.uniforms['mixRatio'].value += 0.001);
 
-        async function onPointerMove(event) {
-            if (event.isPrimary === false) return;
+      if (CAArr.length < 32) {
+        CAArr.push(new THREE.Points(geometryCA, materialCA));
+        await scene.add(CAArr[CAArr.length - 1]);
+        CAArr[CAArr.length - 1].position.y = particlesCA.position.y;
+        CAArr[CAArr.length - 1].position.x = particlesCA.position.x;
+        CAArr[CAArr.length - 1].rotation.y = particlesCA.rotation.y;
+      }
+      if (CBArr.length < 32) {
+        CBArr.push(new THREE.Points(geometryCB, materialCB));
+        await scene.add(CBArr[CBArr.length - 1]);
+        CBArr[CBArr.length - 1].position.y = particlesCB.position.y;
+        CBArr[CBArr.length - 1].position.x = particlesCB.position.x;
+        CBArr[CBArr.length - 1].rotation.y = particlesCB.rotation.y;
+      }
+    }
 
-            mouseX = event.clientX - windowHalfX;
-            mouseY = event.clientY - windowHalfY;
+    async function animate() {
+      requestAnimationFrame(animate);
+      stats.update();
+      composer.render();
+      particlesA.rotation.y += 0.0075;
+      particlesB.rotation.y += 0.0125;
+      particlesCA.rotation.y += 0.025;
+      particlesCB.rotation.y += 0.01875;
+      particlesA.material.opacity > 0.01 && (particlesA.material.opacity -= 0.0025);
+      particlesB.material.opacity > 0.01 && (particlesB.material.opacity -= 0.002);
+      particlesCA.material.opacity > 0 && (particlesCA.material.opacity -= 0.005);
+      particlesCB.material.opacity > 0 && (particlesCB.material.opacity -= 0.005);
+      blendPass.uniforms['mixRatio'].value > 0.75 && (blendPass.uniforms['mixRatio'].value -= 0.002);
 
-            //scene.rotation.y = (mouseX - camera.position.x) * 0.005;
-            particlesCA.position.y = (- mouseY - scene.position.y) * 0.75;
-            particlesCB.position.y = (- mouseY - scene.position.y) * 0.75;
-            particlesCA.position.x = (mouseX + scene.position.x) * 0.75;
-            particlesCB.position.x = (mouseX + scene.position.x) * 0.75;
-            particlesA.material.opacity < 0.65 && (particlesA.material.opacity += 0.0005);
-            particlesB.material.opacity < 0.65 && (particlesB.material.opacity += 0.0005);
-            particlesCA.material.opacity < 1 && (particlesCA.material.opacity += 0.001);
-            particlesCB.material.opacity < 0.75 && (particlesCB.material.opacity += 0.001);
-            blendPass.uniforms['mixRatio'].value < 0.8 && (blendPass.uniforms['mixRatio'].value += 0.001);
-
-            if (CAArr.length < 32) {
-                CAArr.push(new THREE.Points(geometryCA, materialCA));
-                await scene.add(CAArr[CAArr.length - 1]);
-                CAArr[CAArr.length - 1].position.y = particlesCA.position.y;
-                CAArr[CAArr.length - 1].position.x = particlesCA.position.x;
-                CAArr[CAArr.length - 1].rotation.y = particlesCA.rotation.y;
-            }
-            if (CBArr.length < 32) {
-                CBArr.push(new THREE.Points(geometryCB, materialCB));
-                await scene.add(CBArr[CBArr.length - 1]);
-                CBArr[CBArr.length - 1].position.y = particlesCB.position.y;
-                CBArr[CBArr.length - 1].position.x = particlesCB.position.x;
-                CBArr[CBArr.length - 1].rotation.y = particlesCB.rotation.y;
-            }
-        }
-
-        async function animate() {
-            requestAnimationFrame(animate);
-            stats.update();
-            composer.render();
-            particlesA.rotation.y += 0.0075;
-            particlesB.rotation.y += 0.0125;
-            particlesCA.rotation.y += 0.025;
-            particlesCB.rotation.y += 0.01875;
-            particlesA.material.opacity > 0.01 && (particlesA.material.opacity -= 0.0025);
-            particlesB.material.opacity > 0.01 && (particlesB.material.opacity -= 0.002);
-            particlesCA.material.opacity > 0 && (particlesCA.material.opacity -= 0.005);
-            particlesCB.material.opacity > 0 && (particlesCB.material.opacity -= 0.005);
-            blendPass.uniforms['mixRatio'].value > 0.75 && (blendPass.uniforms['mixRatio'].value -= 0.002);
-
-            if (CAArr.length > 0) {
-                CAArr.map(_particles => {
-                    _particles.rotation.y += 0.025;
-                });
-                await scene.remove(CAArr[0]);
-                CAArr.splice(0, 1);
-            }
-            if (CBArr.length > 0) {
-                CBArr.map(_particles => {
-                    _particles.rotation.y += 0.01875;
-                });
-                await scene.remove(CBArr[0]);
-                CBArr.splice(0, 1);
-            }
-        }
-    </script>
+      if (CAArr.length > 0) {
+        CAArr.map(_particles => {
+          _particles.rotation.y += 0.025;
+        });
+        await scene.remove(CAArr[0]);
+        CAArr.splice(0, 1);
+      }
+      if (CBArr.length > 0) {
+        CBArr.map(_particles => {
+          _particles.rotation.y += 0.01875;
+        });
+        await scene.remove(CBArr[0]);
+        CBArr.splice(0, 1);
+      }
+    }
+  </script>
 </body>
 
 </html>
