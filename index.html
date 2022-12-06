@@ -149,10 +149,10 @@
       mouseX = event.offsetX - (window.innerWidth / 2);
       mouseY = event.offsetY - (window.innerHeight / 2);
 
-      particlesCA.position.y = (- mouseY - scene.position.y) * 0.75;
-      particlesCB.position.y = (- mouseY - scene.position.y) * 0.75;
-      particlesCA.position.x = (mouseX + scene.position.x) * 0.75;
-      particlesCB.position.x = (mouseX + scene.position.x) * 0.75;
+      particlesCA.position.y = (- mouseY - scene.position.y) * 1.1;
+      particlesCB.position.y = (- mouseY - scene.position.y) * 1.1;
+      particlesCA.position.x = (mouseX + scene.position.x);
+      particlesCB.position.x = (mouseX + scene.position.x);
       particlesA.material.opacity < 0.65 && (particlesA.material.opacity += 0.05);
       particlesB.material.opacity < 0.65 && (particlesB.material.opacity += 0.05);
       particlesCA.material.opacity < 1 && (particlesCA.material.opacity += 0.025);
