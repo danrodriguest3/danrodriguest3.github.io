@@ -5,10 +5,6 @@
   <title>three.js webgl - particles - billboards</title>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
-  <link type="text/css" rel="stylesheet" href="main.css">
-</head>
-
-<body>
   <script src="build/three.js"></script>
   <script defer src="js/shaders/CopyShader.js"></script>
   <script defer src="js/shaders/BlendShader.js"></script>
@@ -25,90 +21,75 @@
   <script defer src="js/postprocessing/EffectComposer.js"></script>
 
   <script type="x-shader/x-vertex" id="vertexshader">
-
-			varying vec2 vUv;
-
-			void main() {
-
-				vUv = uv;
-
-				gl_Position = projectionMatrix * modelViewMatrix * vec4( position, 1.0 );
-
-			}
-
-		</script>
+            varying vec2 vUv;
+            void main() {
+    
+                vUv = uv;
+    
+                gl_Position = projectionMatrix * modelViewMatrix * vec4( position, 1.0 );
+            }
+    	</script>
 
   <script type="x-shader/x-fragment" id="fragmentshader">
-
-			uniform sampler2D baseTexture;
-			uniform sampler2D bloomTexture;
-
-			varying vec2 vUv;
-
-			void main() {
-
-				gl_FragColor = ( texture2D( baseTexture, vUv ) + vec4( 1.0 ) * texture2D( bloomTexture, vUv ) );
-
-			}
-
-	</script>
+            uniform sampler2D baseTexture;
+            uniform sampler2D bloomTexture;
+            varying vec2 vUv;
+            void main() {
+                gl_FragColor = ( texture2D( baseTexture, vUv ) + vec4( 1.0 ) * texture2D( bloomTexture, vUv ) );
+            }
+    	</script>
 
   <script type="module">
     import Stats from './jsm/libs/stats.module.js';
     import { GUI } from './jsm/libs/lil-gui.module.min.js';
 
-    let copyPass, lastFrame = [], lastIndex;
-    let mouseX = 0, mouseY = 0;
-
-    let windowHalfX = window.innerWidth / 2;
-    let windowHalfY = window.innerHeight / 2;
-
-    let motionBufferSize = 400;
+    let mouseX = 0, mouseY = 0, evenFrame = false;
 
     const CAArr = [], CBArr = [];
     const scene = await new THREE.Scene();
     const camera = await new THREE.PerspectiveCamera(55, window.innerWidth / window.innerHeight, 2, 2000);
     camera.position.z = 1000;
+    scene.add(camera);
 
     const renderer = await new THREE.WebGLRenderer();
     renderer.setPixelRatio(window.devicePixelRatio);
     renderer.setSize(window.innerWidth, window.innerHeight);
     const composer = await new THREE.EffectComposer(renderer);
     const renderPass = await new THREE.RenderPass(scene, camera);
-    const savePass = new THREE.SavePass(new THREE.WebGLRenderTarget(window.innerWidth, window.innerHeight, { minFilter: THREE.LinearFilter, magFilter: THREE.LinearFilter, stencilBuffer: true }));
+    const savePass = new THREE.SavePass(new THREE.WebGLRenderTarget(renderer.getRenderTarget()));
     const blendPass = new THREE.ShaderPass(THREE.BlendShader, 'tDiffuse1');
     blendPass.uniforms['tDiffuse2'].value = savePass.renderTarget.texture;
     blendPass.uniforms['mixRatio'].value = 0.75;
     const outputPass = new THREE.ShaderPass(THREE.CopyShader);
-
-
-    const ENTIRE_SCENE = 0, BLOOM_SCENE = 1;
-
-    const bloomLayer = new THREE.Layers();
-    bloomLayer.set(BLOOM_SCENE);
     const darkMaterial = new THREE.MeshBasicMaterial({ color: 'black' });
     const materials = {};
 
     const bloomPass = new THREE.UnrealBloomPass(new THREE.Vector2(window.innerWidth, window.innerHeight), 1.5, 0.4, 0.85);
     bloomPass.exposure = 1;
     bloomPass.threshold = 0;
-    bloomPass.strength = 8;
+    bloomPass.strength = 6;
     bloomPass.radius = 0;
 
     const bokehPass = new THREE.BokehPass(scene, camera, { focus: 1.0, aspect: camera.aspect, aperture: 0.025, maxblur: 128 });
 
     composer.addPass(renderPass);
+    renderPass.renderToScreen = true;
     composer.addPass(blendPass);
+    blendPass.renderToScreen = true;
     composer.addPass(savePass);
+    savePass.renderToScreen = true;
     composer.addPass(outputPass);
+    outputPass.renderToScreen = true;
     composer.addPass(bokehPass);
+    bokehPass.renderToScreen = true;
     composer.addPass(bloomPass);
-    console.log(bloomPass);
+    bloomPass.renderToScreen = true;
+    console.log(composer);
     const geometryA = new THREE.BufferGeometry(), geometryB = new THREE.BufferGeometry(), geometryCA = new THREE.BufferGeometry(), geometryCB = new THREE.BufferGeometry();
     const verticesA = [], verticesB = [], verticesCA = [], verticesCB = [];
     const sprite = new THREE.TextureLoader().load('textures/sprites/disc.png');
 
-    for (let i = 0; i < Math.floor(1000 * (Math.random() + 0.1)); i++) {
+    for (let i = 0; i < Math.ceil(1000 * (Math.random() + 0.1)); i++) {
       const x = window.innerWidth * 4 * Math.random() - window.innerWidth;
       const y = window.innerHeight * Math.random() - window.innerHeight / 2;
       const z = window.innerWidth * 4 * Math.random() - window.innerWidth;
@@ -147,87 +128,95 @@
     const stats = new Stats();
     document.body.appendChild(stats.dom);
 
-    document.body.style.touchAction = 'none';
-    document.body.addEventListener('pointermove', onPointerMove);
     await document.body.appendChild(composer.renderer.domElement);
     animate();
 
     function onWindowResize() {
-
-      windowHalfX = window.innerWidth / 2;
-      windowHalfY = window.innerHeight / 2;
-
+      console.log('resize');
       camera.aspect = window.innerWidth / window.innerHeight;
       camera.updateProjectionMatrix();
 
       renderer.setSize(window.innerWidth, window.innerHeight);
       composer.setSize(window.innerWidth, window.innerHeight);
     }
-    onWindowResize();
-    window.addEventListener('resize', onWindowResize);
+    window.addEventListener('resize', function () {
+      onWindowResize();
+    });
+
     async function onPointerMove(event) {
       if (event.isPrimary === false) return;
 
-      mouseX = event.clientX - windowHalfX;
-      mouseY = event.clientY - windowHalfY;
+      mouseX = event.offsetX - (window.innerWidth / 2);
+      mouseY = event.offsetY - (window.innerHeight / 2);
 
-      //scene.rotation.y = (mouseX - camera.position.x) * 0.005;
       particlesCA.position.y = (- mouseY - scene.position.y) * 0.75;
       particlesCB.position.y = (- mouseY - scene.position.y) * 0.75;
       particlesCA.position.x = (mouseX + scene.position.x) * 0.75;
       particlesCB.position.x = (mouseX + scene.position.x) * 0.75;
-      particlesA.material.opacity < 0.65 && (particlesA.material.opacity += 0.0005);
-      particlesB.material.opacity < 0.65 && (particlesB.material.opacity += 0.0005);
-      particlesCA.material.opacity < 1 && (particlesCA.material.opacity += 0.001);
-      particlesCB.material.opacity < 0.75 && (particlesCB.material.opacity += 0.001);
-      blendPass.uniforms['mixRatio'].value < 0.8 && (blendPass.uniforms['mixRatio'].value += 0.001);
+      particlesA.material.opacity < 0.65 && (particlesA.material.opacity += 0.05);
+      particlesB.material.opacity < 0.65 && (particlesB.material.opacity += 0.05);
+      particlesCA.material.opacity < 1 && (particlesCA.material.opacity += 0.025);
+      particlesCB.material.opacity < 0.75 && (particlesCB.material.opacity += 0.025);
 
       if (CAArr.length < 32) {
-        CAArr.push(new THREE.Points(geometryCA, materialCA));
-        await scene.add(CAArr[CAArr.length - 1]);
+        await CAArr.push(new THREE.Points(geometryCA, materialCA));
         CAArr[CAArr.length - 1].position.y = particlesCA.position.y;
         CAArr[CAArr.length - 1].position.x = particlesCA.position.x;
         CAArr[CAArr.length - 1].rotation.y = particlesCA.rotation.y;
+        await scene.add(await CAArr[CAArr.length - 1]);
+        //console.log(CAArr);
       }
       if (CBArr.length < 32) {
-        CBArr.push(new THREE.Points(geometryCB, materialCB));
-        await scene.add(CBArr[CBArr.length - 1]);
+        await CBArr.push(new THREE.Points(geometryCB, materialCB));
         CBArr[CBArr.length - 1].position.y = particlesCB.position.y;
         CBArr[CBArr.length - 1].position.x = particlesCB.position.x;
         CBArr[CBArr.length - 1].rotation.y = particlesCB.rotation.y;
+        await scene.add(await CBArr[CBArr.length - 1]);
       }
+      blendPass.uniforms['mixRatio'].value < 0.8 && (blendPass.uniforms['mixRatio'].value += 0.001);
     }
+    window.addEventListener('pointermove', function (e) {
+      onPointerMove(e);
+    });
 
     async function animate() {
       requestAnimationFrame(animate);
-      stats.update();
-      composer.render();
       particlesA.rotation.y += 0.0075;
       particlesB.rotation.y += 0.0125;
       particlesCA.rotation.y += 0.025;
       particlesCB.rotation.y += 0.01875;
-      particlesA.material.opacity > 0.01 && (particlesA.material.opacity -= 0.0025);
-      particlesB.material.opacity > 0.01 && (particlesB.material.opacity -= 0.002);
-      particlesCA.material.opacity > 0 && (particlesCA.material.opacity -= 0.005);
-      particlesCB.material.opacity > 0 && (particlesCB.material.opacity -= 0.005);
-      blendPass.uniforms['mixRatio'].value > 0.75 && (blendPass.uniforms['mixRatio'].value -= 0.002);
+      particlesA.material.opacity > 0.01 && (particlesA.material.opacity -= 0.004);
+      particlesB.material.opacity > 0.01 && (particlesB.material.opacity -= 0.004);
+      particlesCA.material.opacity > 0 && (particlesCA.material.opacity -= 0.0075);
+      particlesCB.material.opacity > 0 && (particlesCB.material.opacity -= 0.0075);
 
-      if (CAArr.length > 0) {
-        CAArr.map(_particles => {
-          _particles.rotation.y += 0.025;
-        });
+      await CAArr.map(async (_particles, _i) => {
+        _particles.rotation.y += 0.025;
+      });
+      await CBArr.map(async (_particles, _i) => {
+        _particles.rotation.y += 0.01875;
+      });
+      if (!evenFrame) {
+        evenFrame = true;
+      } else {
+        blendPass.uniforms['mixRatio'].value > 0.75 && (blendPass.uniforms['mixRatio'].value -= 0.002);
         await scene.remove(CAArr[0]);
-        CAArr.splice(0, 1);
-      }
-      if (CBArr.length > 0) {
-        CBArr.map(_particles => {
-          _particles.rotation.y += 0.01875;
-        });
         await scene.remove(CBArr[0]);
-        CBArr.splice(0, 1);
+        await CAArr.splice(0, 1);
+        await CBArr.splice(0, 1);
+        evenFrame = false;
       }
+
+      stats.update();
+      composer.render();
     }
   </script>
+</head>
+
+
+
+<body style="position: absolute; top: 0px; left: 0px; width: 100%; height: 100%; overflow: hidden; margin: 0px;">
+
 </body>
 
 </html>
