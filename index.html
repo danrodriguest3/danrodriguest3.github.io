@@ -275,6 +275,11 @@
             xpStarted: false,
             isMobile: false,
         }
+        const hands = new Hands({
+            locateFile: (file) => {
+                return `https://cdn.jsdelivr.net/npm/@mediapipe/hands/${file}`
+            }
+        });
         document.addEventListener('DOMContentLoaded', () => {
             document.getElementById('confettiRL').object3D.visible = false;
             document.getElementById('confettiLR').object3D.visible = false;
@@ -287,17 +292,12 @@
             videoElement.pause();
             videoElement.play();
             state.isMobile = AFRAME.utils.device.isMobile();
-            const hands = new Hands({
-                locateFile: (file) => {
-                    return `https://cdn.jsdelivr.net/npm/@mediapipe/hands/${file}`
-                }
-            });
             hands.setOptions({
                 maxNumHands: 1,
                 modelComplexity: 1,
-                minDetectionConfidence: 0.5,
-                minTrackingConfidence: 0.5,
-                selfieMode: false
+                minDetectionConfidence: 0.9,
+                minTrackingConfidence: 0.9,
+                selfieMode: true
             });
 
             const camera = new Camera(videoElement, {
@@ -427,7 +427,7 @@
             state.running
                 && (msg.style.display = '', state.handDetected
                     && (finishedRunning = false, state.running = false, msg.style.display = 'none', checkAnim()));
-            if (finishedRunning && msg.style.display === '' && r.multiHandWorldLandmarks.length > 0 && r.multiHandedness[0].score > 0.95) {
+            if (finishedRunning && r.multiHandWorldLandmarks.length > 0 && r.multiHandedness[0].score > 0.95) {
                 finishedRunning = false;
                 if (!swipeLoaded) {
                     if (swipeArr.length < 3) {
@@ -461,10 +461,8 @@
                                     document.getElementById('confettiLR').object3D.visible = true;
                                     document.getElementById('confettiBL').object3D.visible = true;
                                     document.getElementById('confettiBR').object3D.visible = true;
-                                    document.getElementById('confettiBL').components['particle-system'].data.duration = 4;
-                                    document.getElementById('confettiBR').components['particle-system'].data.duration = 4;
-                                    console.log(document.getElementById('confettiBR').components['particle-system']);
-                                    console.log('SWIPE', document.getElementById('confettiRL').object3D, document.getElementById('confettiLR').object3D);
+                                    document.getElementById('confettiBL').setAttribute('particle-system', 'color: #EFaa22,#44CC00; velocityValue: 6 12 -9; particleCount: 350; size: 0.35; duration: 4;');
+                                    document.getElementById('confettiBR').setAttribute('particle-system', 'color: #EF0000,#EFaa22; velocityValue: -6 12 -9; particleCount: 350; size: 0.35; duration: 4;');
                                 } else {
                                     finishedRunning = true;
                                 }
@@ -477,10 +475,8 @@
                                     document.getElementById('confettiLR').object3D.visible = true;
                                     document.getElementById('confettiBL').object3D.visible = true;
                                     document.getElementById('confettiBR').object3D.visible = true;
-                                    document.getElementById('confettiBL').components['particle-system'].data.duration = 4;
-                                    document.getElementById('confettiBR').components['particle-system'].data.duration = 4;
-                                    console.log(document.getElementById('confettiBR').components['particle-system']);
-                                    console.log('SWIPE', document.getElementById('confettiRL').object3D, document.getElementById('confettiLR').object3D);
+                                    document.getElementById('confettiBL').setAttribute('particle-system', 'color: #EFaa22,#44CC00; velocityValue: 6 12 -9; particleCount: 350; size: 0.35; duration: 4;');
+                                    document.getElementById('confettiBR').setAttribute('particle-system', 'color: #EF0000,#EFaa22; velocityValue: -6 12 -9; particleCount: 350; size: 0.35; duration: 4;');
                                 } else {
                                     finishedRunning = true;
                                 }
@@ -494,10 +490,8 @@
                                 document.getElementById('confettiLR').object3D.visible = true;
                                 document.getElementById('confettiBL').object3D.visible = true;
                                 document.getElementById('confettiBR').object3D.visible = true;
-                                document.getElementById('confettiBL').components['particle-system'].data.duration = 4;
-                                document.getElementById('confettiBR').components['particle-system'].data.duration = 4;
-                                console.log(document.getElementById('confettiBR').components['particle-system']);
-                                console.log('SWIPE', document.getElementById('confettiRL').object3D, document.getElementById('confettiLR').object3D);
+                                document.getElementById('confettiBL').setAttribute('particle-system', 'color: #EFaa22,#44CC00; velocityValue: 6 12 -9; particleCount: 350; size: 0.35; duration: 4;');
+                                document.getElementById('confettiBR').setAttribute('particle-system', 'color: #EF0000,#EFaa22; velocityValue: -6 12 -9; particleCount: 350; size: 0.35; duration: 4;');
                             } else {
                                 finishedRunning = true;
                             }
@@ -554,21 +548,19 @@
             <a-asset-item id="model" src="models/t3cake.glb"></a-asset-item>
         </a-assets>
         <a-entity id="capsule">
-            <a-entity id="textEntity" position="0 80 -2">
+            <a-entity id="textEntity" position="0 80 -4">
             </a-entity>
             <a-entity id="confettiRL"
-                particle-system="accelerationSpread: 20 0 20; color: white; particleCount: 300; opacity: 1; preset: default; size: 0.25; velocityValue: 0 15 0"
+                particle-system="accelerationSpread: 20 0 20; color: #EFaa22; particleCount: 600; opacity: 1; preset: default; size: 0.75; velocityValue: 0 15 0"
                 position="5.584 1.250 -1.4">
             </a-entity>
             <a-entity id="confettiLR"
-                particle-system="accelerationSpread: 20 0 20; color: white; particleCount: 300; opacity: 1; preset: default; size: 0.25; velocityValue: 0 15 0"
+                particle-system="accelerationSpread: 20 0 20; color: #EFaa22; particleCount: 600; opacity: 1; preset: default; size: 0.75; velocityValue: 0 15 0"
                 position="-5.584 1.250 -1.4">
             </a-entity>
-            <a-entity id="confettiBL" position="-1 0 -2"
-                particle-system="color: #EF0000,#44CC00; velocityValue: 6 12 -9; particleCount: 400; size: 0.25">
+            <a-entity id="confettiBL" position="-1 0 -2">
             </a-entity>
-            <a-entity id="confettiBR" position="1 0 -2"
-                particle-system="color: #EF0000,#44CC00; velocityValue: -6 12 -9; particleCount: 400; size: 0.25">
+            <a-entity id="confettiBR" position="1 0 -2">
             </a-entity>
             <a-entity id="3d-object" gltf-model="#model" animation-mixer class="clickable" autoscale
                 material="color: red" position="0 -.1675 0" scale=".125 .125 .125"
