@@ -281,6 +281,13 @@
             }
         });
         document.addEventListener('DOMContentLoaded', () => {
+            const videoElement = document.querySelector('#input-video');
+            window.navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } }).then(stream => {
+                videoElement.srcObject = stream;
+                videoElement.onloadeddata = (e) => {
+                    videoElement.play();
+                }
+            }).catch(() => alert('You have give browser the permission to access your camera'));
             document.getElementById('confettiRL').object3D.visible = false;
             document.getElementById('confettiLR').object3D.visible = false;
             document.getElementById('confettiBL').object3D.visible = false;
@@ -288,9 +295,6 @@
             xpType = 'qrevent'; //_data.attributes[1].value;
             xpTitle = 't3cake'; //_data.attributes[2].value;
             document.addEventListener('loaded', [rdnTx()]);
-            const videoElement = document.querySelector('#input-video');
-            videoElement.pause();
-            videoElement.play();
             state.isMobile = AFRAME.utils.device.isMobile();
             hands.setOptions({
                 maxNumHands: 1,
@@ -539,7 +543,8 @@
 
 <body>
     <div style="position: absolute; top: 0; left: 0; width: 100%; height: 100%;">
-        <video id="input-video" width="100%" height="100%" muted autoplay playsinline></video>
+        <video id="input-video" width="100%" height="100%" muted autoplay playsinline
+            style="object-fit: cover;"></video>
     </div>
     <!-- AFRAME -->
     <a-scene id="scene" arjs embedded renderer="logarithmicDepthBuffer: true; antialias: true;"
