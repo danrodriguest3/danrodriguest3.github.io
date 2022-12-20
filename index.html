@@ -180,7 +180,7 @@
                     },
                     width: state.isMobile ? innerHeight : innerWidth,
                     height: state.isMobile ? innerWidth : innerHeight,
-                    facingMode: 'environment'
+                    facingMode: 'selfie'
                 });
                 hands.onResults(r => {
                     state.handDetected = r.multiHandLandmarks.length > 0;
@@ -292,7 +292,7 @@
         }
         document.addEventListener('DOMContentLoaded', async () => {
             videoElement = await document.getElementById('input-video');
-            await window.navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } }).then(stream => {
+            await window.navigator.mediaDevices.getUserMedia({ video: { facingMode: 'selfie' } }).then(stream => {
                 videoElement.srcObject = stream;
                 videoElement.onloadeddata = (e) => {
                     videoElement.play();
@@ -656,9 +656,9 @@
         </div>
     </div>
     <!-- TEMPORARY CANVAS USED TO BUILD FINAL IMAGE -->
-    <canvas style="position: relative; top: 0px; left: 0px;" id="canvas1">
+    <canvas style="position: relative; top: 0px; left: 0px; z-index: -1;" id="canvas1">
     </canvas>
-    <canvas style="position: relative; top: 0px; left: 0px;" id="canvas2">
+    <canvas style="position: relative; top: 0px; left: 0px; z-index: -1;" id="canvas2">
     </canvas>
     <!-- REVIEW VIEW -->
     <div id="review_modal" style="
