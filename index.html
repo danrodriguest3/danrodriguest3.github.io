@@ -46,20 +46,30 @@
         .inputLabel {
             color: white;
             font-family: 'Helvetica Neue';
-            font-weight: medium;
-            font-size: 4vw;
+            font-size: 5vw;
+            flex: 1;
+            align-items: center;
+            display: flex;
         }
 
         .mainInput {
             border: none;
             width: 100%;
+            height: 70%;
+            text-align: center;
+            font-size: 4.5vw;
+            align-items: flex-start;
+            display: flex;
         }
 
         .inputInstruction {
             color: white;
             font-family: 'Helvetica Neue';
-            font-weight: medium;
-            font-size: 3vw;
+            font-size: 4vw;
+            text-align: center;
+            align-self: center;
+            flex: 1;
+            display: flex;
         }
 
         .btnText {
@@ -70,7 +80,7 @@
         }
 
         .action-bar-container {
-            position: fixed;
+            position: absolute;
             padding: 10px;
             bottom: 0;
             left: 0;
@@ -86,7 +96,6 @@
         }
 
         .action-bar-buttons {
-            margin: auto;
             width: 95%;
             padding-top: 16px;
             padding-bottom: 16px;
@@ -107,7 +116,7 @@
             text-align: center;
             text-decoration: none;
             margin: auto;
-            font-size: 16px;
+            font-size: 14pt;
             width: 110px;
         }
 
@@ -127,6 +136,13 @@
             animation: spin 2s linear infinite;
             margin-inline: auto;
             margin-top: 100%;
+        }
+
+        .aframe-capsule {
+            position: absolute;
+            top: 0px;
+            width: inherit;
+            height: inherit;
         }
 
     </style>
@@ -527,132 +543,153 @@
 
 <body>
     <video autoplay="" muted="" playsinline="" id="input-video" width="100%" height="100%"
-        style="position: fixed; top: 0px; left: 0px; z-index: 0; object-fit: cover;"></video>
-    <div style="height: 78.5%;">
-        <!-- AFRAME -->
-        <a-scene id="scene" arjs embedded renderer="logarithmicDepthBuffer: true; antialias: true;"
-            vr-mode-ui="enabled: false" gltf-model="dracoDecoderPath: https://www.gstatic.com/draco/v1/decoders/;">
-            <a-assets timeout="15000">
-                <a-asset-item id="model" src="models/t3cake.glb"></a-asset-item>
-            </a-assets>
-            <a-entity id="capsule">
-                <a-entity id="textEntity" position="0 80 -4">
-                </a-entity>
-                <a-entity id="confettiRL"
-                    particle-system="accelerationSpread: 20 0 20; color: #EFaa22; particleCount: 600; opacity: 1; preset: default; size: 0.75; velocityValue: 0 15 0"
-                    position="5.584 1.250 -1.4">
-                </a-entity>
-                <a-entity id="confettiLR"
-                    particle-system="accelerationSpread: 20 0 20; color: #EFaa22; particleCount: 600; opacity: 1; preset: default; size: 0.75; velocityValue: 0 15 0"
-                    position="-5.584 1.250 -1.4">
-                </a-entity>
-                <a-entity id="confettiBL" position="-1 0 -2">
-                </a-entity>
-                <a-entity id="confettiBR" position="1 0 -2">
-                </a-entity>
-                <a-entity id="3d-object" gltf-model="#model" animation-mixer class="clickable" autoscale
-                    material="color: red" position="0 -.1675 0" scale=".125 .125 .125"
-                    animation__1="property: position; from: 0 1 -4; to: 0 0.5 -4; dur: 4000; startEvents: startAnim, animationcomplete__2"
-                    animation__2="property: position; from: 0 0.5 -4; to: 0 1 -4; dur: 4000; startEvents: animationcomplete__1"
-                    animation__3="property: rotation; from: 0 0 0; to: 0 360 0; dur: 8000; loop: true; easing: linear">
-                </a-entity>
-            </a-entity>
-            <a-entity cursor="fuse: false;" raycaster="objects: .clickable">
-            </a-entity>
-        </a-scene>
-    </div>
+        style="position: absolute; top: 0px; left: 0px; z-index: 0; object-fit: cover;"></video>
     <div id="customBar"
-        style="position: fixed; top: 30%; left: 16%; width: 68%; height: 40%; background-color: #0fb3ffd7; border-radius: 9pt; z-index: 1; display: none;">
+        style="position: absolute; top: 20%; left: 14%; width: 72%; height: 60%; background-color: #0fb3ffd7; border-radius: 9pt; z-index: 1; display: none;">
         <div style=" display: flex; flex-direction: column; width: 100%; height: 100%; justify-content: space-evenly">
-            <div style="flex: 1; display: flex">
-                <div style="margin: auto; width: 80%;">
+            <div style="flex: 1;">
+                <div
+                    style="margin: auto; width: 80%; height: 100%; display: flex; flex-direction: column; padding-block: 5%;">
                     <label for="sceneText" class="inputLabel">Enter Your Name</label>
-                    <input class="mainInput" type="text" id="sceneText" name="sceneText" placeholder="NAME"
-                        maxlength="24" onkeyup="this.value = this.value.toLocaleUpperCase()">
+                    <div style="flex: 1;">
+                        <input class="mainInput" type="text" id="sceneText" name="sceneText" placeholder="NAME"
+                            maxlength="24" onkeyup="this.value = this.value.toLocaleUpperCase()">
+                    </div>
                 </div>
             </div>
-            <div style="flex: 1; display: flex">
-                <div style="margin: auto; width: 80%;">
+            <div style="flex: 1;">
+                <div style="margin: auto; width: 80%; height: 100%; display: flex; flex-direction: column;">
                     <label for="ageText" class="inputLabel">Your Age</label>
-                    <input class="mainInput" type="text" id="ageText" name="ageText" placeholder="AGE" maxlength="3"
-                        onkeyup="this.value = this.value.toLocaleUpperCase()">
+                    <div style="flex: 1;">
+                        <input class="mainInput" type="text" id="ageText" name="ageText" placeholder="AGE" maxlength="3"
+                            onkeyup="this.value = this.value.toLocaleUpperCase()">
+                    </div>
                 </div>
             </div>
-            <div style="flex: 1; display: flex">
-                <div style="margin: auto; width: 80%;">
+            <div style="flex: 1;">
+                <div style="margin: auto; width: 80%; height: 100%; display: flex;">
                     <p class="inputInstruction">
                         Please turn up audio for the best experience.
                     </p>
                 </div>
             </div>
-            <div style="flex: 2; display: flex; flex-direction: column; justify-content: center">
+            <div style="flex: 1;">
                 <div onclick="setVisible(), updateText(), loadHandDetection()"
-                    style="display: flex; margin: auto; width: 50%; height: 30%; background-color: #FF006E; color: white;">
+                    style="display: flex; margin: auto; width: 50%; height: 60%; background-color: #FF006E; color: white;">
                     <p class="btnText">SUBMIT</p>
                 </div>
             </div>
         </div>
     </div>
     <div id="showHands"
-        style="position: fixed; bottom: 150px; left: 20%; width: 60%; background-color: #0FB5FF; color:#f3f3f3; text-align: center; display: none; border-radius: 9pt; z-index: 1;">
+        style="position: absolute; bottom: 150px; left: 20%; width: 60%; background-color: #0FB5FF; color:#f3f3f3; text-align: center; display: none; border-radius: 9pt; z-index: 1;">
         <h3>To begin hold a single hand up in front of your phones back camera.</h3>
         <img src="img/icon_hand.svg" />
     </div>
-    <div id="frameDiv"
-        style="position: fixed; top: 0px; width: 100%; height: 78.5%; background-color: transparent; z-index: 0;">
-        <div style="position: absolute; top: 0px; width: 100%; height: 2vw; background: #0FB5FF;"></div>
-        <div style="position: absolute; bottom: 0px; width: 100%; height: 2vw; background: #0FB5FF;"></div>
-        <div style="position: absolute; top: 0px; left: 0px; width: 2vw; height: 100%; background: #0FB5FF;"></div>
-        <div style="position: absolute; top: 0px; right: 0px; width: 2vw; height: 100%; background: #0FB5FF;"></div>
-        <img src="img/icon_flags.svg" width="100%" style="position: fixed; top: 0%; left: 0%; object-fit: fill;" />
-        <div style="position: absolute; top: 0px; left: 40.035%; width: 19.2307%; height: 7.109%; background: #0FB5FF;">
+    <div style="position: absolute; top: 0px; width: 100%; height: 100%; background-color: transparent; z-index: 0;">
+        <div style="width: 100%; height: 80%">
+            <div class='aframe-capsule'>
+                <!-- AFRAME -->
+                <a-scene id="scene" arjs embedded renderer="logarithmicDepthBuffer: true; antialias: true;"
+                    vr-mode-ui="enabled: false"
+                    gltf-model="dracoDecoderPath: https://www.gstatic.com/draco/v1/decoders/;">
+                    <a-assets timeout="15000">
+                        <a-asset-item id="model" src="models/t3cake.glb"></a-asset-item>
+                    </a-assets>
+                    <a-entity id="capsule">
+                        <a-entity id="textEntity" position="0 80 -4">
+                        </a-entity>
+                        <a-entity id="confettiRL"
+                            particle-system="accelerationSpread: 20 0 20; color: #EFaa22; particleCount: 600; opacity: 1; preset: default; size: 0.75; velocityValue: 0 15 0"
+                            position="5.584 1.250 -1.4">
+                        </a-entity>
+                        <a-entity id="confettiLR"
+                            particle-system="accelerationSpread: 20 0 20; color: #EFaa22; particleCount: 600; opacity: 1; preset: default; size: 0.75; velocityValue: 0 15 0"
+                            position="-5.584 1.250 -1.4">
+                        </a-entity>
+                        <a-entity id="confettiBL" position="-1 0 -2">
+                        </a-entity>
+                        <a-entity id="confettiBR" position="1 0 -2">
+                        </a-entity>
+                        <a-entity id="3d-object" gltf-model="#model" animation-mixer class="clickable" autoscale
+                            material="color: red" position="0 -.1675 0" scale=".125 .125 .125"
+                            animation__1="property: position; from: 0 1 -4; to: 0 0.5 -4; dur: 4000; startEvents: startAnim, animationcomplete__2"
+                            animation__2="property: position; from: 0 0.5 -4; to: 0 1 -4; dur: 4000; startEvents: animationcomplete__1"
+                            animation__3="property: rotation; from: 0 0 0; to: 0 360 0; dur: 8000; loop: true; easing: linear">
+                        </a-entity>
+                    </a-entity>
+                    <a-entity cursor="fuse: false;" raycaster="objects: .clickable">
+                    </a-entity>
+                </a-scene>
+            </div>
+            <div id="frameDiv"
+                style="position: absolute; top: 0px; width: inherit; height: inherit; background-color: transparent;">
+                <!-- Frame -->
+                <div style="position: absolute; top: 0px; width: inherit; height: 2vw; background: #0FB5FF;"></div>
+                <div style="position: absolute; bottom: 0px; width: inherit; height: 2vw; background: #0FB5FF;">
+                </div>
+                <div style="position: absolute; top: 0px; left: 0px; width: 2vw; height: 100%; background: #0FB5FF;">
+                </div>
+                <div style="position: absolute; top: 0px; right: 0px; width: 2vw; height: 100%; background: #0FB5FF;">
+                </div>
+                <img src="img/icon_flags.svg" width="100%"
+                    style="position: absolute; top: 0%; left: 0%; object-fit: fill;" />
+                <div
+                    style="position: absolute; top: 0px; left: 40.035%; width: 19.2307%; height: 7.109%; background: #0FB5FF;">
+                </div>
+                <div style="position: absolute; right: 0%; bottom: 0px; width: 38.7179%;">
+                    <img src="img/icons_balloons_one.svg"
+                        style="background: transparent; object-fit: fill; width: 100%;" />
+                </div>
+                <div style="position: absolute; left: 0%; bottom: 0px; width: 38.7179%;">
+                    <img src="img/icon_ballons_two.svg"
+                        style="background: transparent; object-fit: fill; width: 100%;" />
+                </div>
+            </div>
         </div>
-        <img src="img/icons_balloons_one.svg" width="38.7179%"
-            style="position: absolute; right: 0%; bottom: 0px; object-fit: fill;" />
-        <img src="img/icon_ballons_two.svg" width="38.7179%"
-            style="position: absolute; left: 0%; bottom: 0px; background: transparent; object-fit: fill;" />
-    </div>
-    <!-- ACTION BAR -->
-    <div class="action-bar-container">
-        <div
-            style="width: 95%;margin: auto;display: flex;align-items: center;justify-content: center;padding: 15px 0 0px;">
-            <div class="detail-line"></div>
-        </div>
-        <div class="action-bar-buttons">
-            <button class="action-bar-button" onclick="resetPosition()">
-                <svg xmlns="http://www.w3.org/2000/svg" width="27.028" height="30.494" viewbox="0 0 27.028 30.494">
-                    <path id="icon_reset"
-                        d="M132.44,14h-9.373a8.843,8.843,0,0,0-8.827,8.827v7.7a1.284,1.284,0,1,0,2.568,0v-7.7a6.233,6.233,0,0,1,6.227-6.227h9.341a6.247,6.247,0,0,1,6.291,6.227v6.741A6.233,6.233,0,0,1,132.44,35.8H120.852l3.884-3.884a1.294,1.294,0,0,0-1.83-1.83l-6.1,6.1a1.279,1.279,0,0,0,0,1.83l6.1,6.1a1.285,1.285,0,0,0,.931.385,1.339,1.339,0,0,0,.931-.385,1.279,1.279,0,0,0,0-1.83L120.852,38.4H132.44a8.822,8.822,0,0,0,8.827-8.827V22.827A8.843,8.843,0,0,0,132.44,14Z"
-                        transform="translate(-114.24 -14)" fill="#f8f93a" />
-                </svg>
-                Reset
-            </button>
-            <button class="action-bar-button" onclick="takePhoto()">
-                <svg xmlns="http://www.w3.org/2000/svg" width="35" height="29" viewbox="0 0 35 29">
-                    <g id="icon_camera" transform="translate(-0.5 -3.5)">
-                        <path id="Path_2915" data-name="Path 2915"
-                            d="M34.5,28.5a3,3,0,0,1-3,3H4.5a3,3,0,0,1-3-3V12a3,3,0,0,1,3-3h6l3-4.5h9l3,4.5h6a3,3,0,0,1,3,3Z"
-                            fill="none" stroke="#ffe900" stroke-linecap="round" stroke-linejoin="round"
-                            stroke-width="2" />
-                        <path id="Path_2916" data-name="Path 2916" d="M24,19.5a6,6,0,1,1-6-6,6,6,0,0,1,6,6Z" fill="none"
-                            stroke="#0fb5ff" stroke-linecap="round" stroke-linejoin="round" stroke-width="1" />
-                    </g>
-                </svg>
-                Take A Photo
-            </button>
-            <button class="action-bar-button" onclick="openQrScanner('{{ url(` qrscanner`) }}')">
-                <svg xmlns="http://www.w3.org/2000/svg" width="28.885" height="28.884" viewbox="0 0 28.885 28.884">
-                    <g id="icon_scan_qr" transform="translate(-1370.614 -437.68)">
-                        <path id="Path_6533" data-name="Path 6533"
-                            d="M110.095,42.978a.963.963,0,0,0-.963-.963h-7.7a.962.962,0,0,0-.963.963v7.7a.963.963,0,0,0,.963.963h7.7a.963.963,0,0,0,.963-.963Zm11.554,0a.962.962,0,0,0-.963-.963h-7.7a.962.962,0,0,0-.963.963v7.7a.963.963,0,0,0,.963.963h7.7a.963.963,0,0,0,.963-.963Zm-13.48.963v5.777h-5.777V43.941Zm11.554,0v5.777h-5.777V43.941ZM110.1,31.424a.963.963,0,0,0-.963-.963h-7.7a.962.962,0,0,0-.963.963v7.7a.963.963,0,0,0,.963.963h7.7a.963.963,0,0,0,.963-.963Zm11.554,0a.963.963,0,0,0-.963-.963h-7.7a.962.962,0,0,0-.963.963v7.7a.963.963,0,0,0,.963.963h7.7a.963.963,0,0,0,.963-.963Zm-13.48.963v5.777h-5.777V32.387Zm11.554,0v5.777h-5.777V32.387Z"
-                            transform="translate(1273.998 411.07)" fill="#0fb5ff" fill-rule="evenodd" />
-                        <path id="Path_6534" data-name="Path 6534"
-                            d="M87.41,38.586v6.74a.963.963,0,0,0,.963.963h6.74a.963.963,0,0,0,0-1.925H89.336V38.586a.963.963,0,1,0-1.926,0Zm26.959,0v5.777h-5.777a.963.963,0,1,0,0,1.925h6.74a.962.962,0,0,0,.963-.963v-6.74a.963.963,0,1,0-1.925,0ZM89.336,25.107V19.33h5.777a.963.963,0,0,0,0-1.926h-6.74a.963.963,0,0,0-.963.963v6.74a.963.963,0,0,0,1.926,0Zm26.958,0v-6.74a.963.963,0,0,0-.963-.963h-6.74a.963.963,0,1,0,0,1.926h5.777v5.777a.963.963,0,1,0,1.925,0Z"
-                            transform="translate(1283.204 420.276)" fill="#ffe900" fill-rule="evenodd" />
-                    </g>
-                </svg>
-                Scan Another
-            </button>
+        <!-- ACTION BAR -->
+        <div class="action-bar-container">
+            <div
+                style="width: 95%;margin: auto;display: flex;align-items: center;justify-content: center;padding: 15px 0 0px;">
+                <div class="detail-line"></div>
+            </div>
+            <div class="action-bar-buttons">
+                <button class="action-bar-button" onclick="resetPosition()">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="27.028" height="30.494" viewbox="0 0 27.028 30.494">
+                        <path id="icon_reset"
+                            d="M132.44,14h-9.373a8.843,8.843,0,0,0-8.827,8.827v7.7a1.284,1.284,0,1,0,2.568,0v-7.7a6.233,6.233,0,0,1,6.227-6.227h9.341a6.247,6.247,0,0,1,6.291,6.227v6.741A6.233,6.233,0,0,1,132.44,35.8H120.852l3.884-3.884a1.294,1.294,0,0,0-1.83-1.83l-6.1,6.1a1.279,1.279,0,0,0,0,1.83l6.1,6.1a1.285,1.285,0,0,0,.931.385,1.339,1.339,0,0,0,.931-.385,1.279,1.279,0,0,0,0-1.83L120.852,38.4H132.44a8.822,8.822,0,0,0,8.827-8.827V22.827A8.843,8.843,0,0,0,132.44,14Z"
+                            transform="translate(-114.24 -14)" fill="#f8f93a" />
+                    </svg>
+                    Reset
+                </button>
+                <button class="action-bar-button" onclick="takePhoto()">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="35" height="29" viewbox="0 0 35 29">
+                        <g id="icon_camera" transform="translate(-0.5 -3.5)">
+                            <path id="Path_2915" data-name="Path 2915"
+                                d="M34.5,28.5a3,3,0,0,1-3,3H4.5a3,3,0,0,1-3-3V12a3,3,0,0,1,3-3h6l3-4.5h9l3,4.5h6a3,3,0,0,1,3,3Z"
+                                fill="none" stroke="#ffe900" stroke-linecap="round" stroke-linejoin="round"
+                                stroke-width="2" />
+                            <path id="Path_2916" data-name="Path 2916" d="M24,19.5a6,6,0,1,1-6-6,6,6,0,0,1,6,6Z"
+                                fill="none" stroke="#0fb5ff" stroke-linecap="round" stroke-linejoin="round"
+                                stroke-width="1" />
+                        </g>
+                    </svg>
+                    Take A Photo
+                </button>
+                <button class="action-bar-button" onclick="openQrScanner('{{ url(` qrscanner`) }}')">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="28.885" height="28.884" viewbox="0 0 28.885 28.884">
+                        <g id="icon_scan_qr" transform="translate(-1370.614 -437.68)">
+                            <path id="Path_6533" data-name="Path 6533"
+                                d="M110.095,42.978a.963.963,0,0,0-.963-.963h-7.7a.962.962,0,0,0-.963.963v7.7a.963.963,0,0,0,.963.963h7.7a.963.963,0,0,0,.963-.963Zm11.554,0a.962.962,0,0,0-.963-.963h-7.7a.962.962,0,0,0-.963.963v7.7a.963.963,0,0,0,.963.963h7.7a.963.963,0,0,0,.963-.963Zm-13.48.963v5.777h-5.777V43.941Zm11.554,0v5.777h-5.777V43.941ZM110.1,31.424a.963.963,0,0,0-.963-.963h-7.7a.962.962,0,0,0-.963.963v7.7a.963.963,0,0,0,.963.963h7.7a.963.963,0,0,0,.963-.963Zm11.554,0a.963.963,0,0,0-.963-.963h-7.7a.962.962,0,0,0-.963.963v7.7a.963.963,0,0,0,.963.963h7.7a.963.963,0,0,0,.963-.963Zm-13.48.963v5.777h-5.777V32.387Zm11.554,0v5.777h-5.777V32.387Z"
+                                transform="translate(1273.998 411.07)" fill="#0fb5ff" fill-rule="evenodd" />
+                            <path id="Path_6534" data-name="Path 6534"
+                                d="M87.41,38.586v6.74a.963.963,0,0,0,.963.963h6.74a.963.963,0,0,0,0-1.925H89.336V38.586a.963.963,0,1,0-1.926,0Zm26.959,0v5.777h-5.777a.963.963,0,1,0,0,1.925h6.74a.962.962,0,0,0,.963-.963v-6.74a.963.963,0,1,0-1.925,0ZM89.336,25.107V19.33h5.777a.963.963,0,0,0,0-1.926h-6.74a.963.963,0,0,0-.963.963v6.74a.963.963,0,0,0,1.926,0Zm26.958,0v-6.74a.963.963,0,0,0-.963-.963h-6.74a.963.963,0,1,0,0,1.926h5.777v5.777a.963.963,0,1,0,1.925,0Z"
+                                transform="translate(1283.204 420.276)" fill="#ffe900" fill-rule="evenodd" />
+                        </g>
+                    </svg>
+                    Scan Another
+                </button>
+            </div>
         </div>
     </div>
     <!-- TEMPORARY CANVAS USED TO BUILD FINAL IMAGE -->
@@ -662,7 +699,7 @@
     </canvas>
     <!-- REVIEW VIEW -->
     <div id="review_modal" style="
-		position: fixed; 
+		position: absolute; 
 		top: 0px; 
 		left: 0px; 
 		width: 100%; 
@@ -686,7 +723,7 @@
         </div>
         <div style="width: 100%;">
             <div id="loader" style="
-				position: fixed; 
+				position: absolute; 
 				top: 25%; 
 				z-index: -1;
 				left: 50%;
@@ -705,7 +742,7 @@
         </div>
     </div>
     <div id="t3-loader"
-        style="position: fixed; width: 100%; height: 100%; z-index: 3; background: #0fb3ffd2; top: 0px; left: 0px; backdrop-filter: blur(4px); opacity: 1;">
+        style="position: absolute; width: 100%; height: 100%; z-index: 3; background: #0fb3ffd2; top: 0px; left: 0px; backdrop-filter: blur(4px); opacity: 1;">
         <div id="t3-spinner" class="spinner"></div>
     </div>
 </body>
