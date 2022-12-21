@@ -50,16 +50,19 @@
             flex: 1;
             align-items: center;
             display: flex;
+            width: 80%;
+            margin: auto;
         }
 
         .mainInput {
             border: none;
-            width: 100%;
-            height: 70%;
+            width: 80%;
+            height: 90%;
             text-align: center;
             font-size: 4.5vw;
             align-items: flex-start;
             display: flex;
+            margin: auto;
         }
 
         .inputInstruction {
@@ -67,7 +70,7 @@
             font-family: 'Helvetica Neue';
             font-size: 4vw;
             text-align: center;
-            align-self: center;
+            align-self: self-end;
             flex: 1;
             display: flex;
         }
@@ -81,12 +84,13 @@
 
         .action-bar-container {
             position: absolute;
-            padding: 10px;
+            padding-inline: 10pt;
             bottom: 0;
             left: 0;
             width: 100%;
+            height: 20%;
             background: #000000;
-            z-index: 0;
+            z-index: -1;
         }
 
         .detail-line {
@@ -97,8 +101,7 @@
 
         .action-bar-buttons {
             width: 95%;
-            padding-top: 16px;
-            padding-bottom: 16px;
+            height: 70%;
             display: flex;
             justify-content: center;
         }
@@ -109,20 +112,17 @@
             flex-direction: column;
             align-items: center;
             align-content: center;
-
             background-color: rgba(0, 0, 0, 0.6);
             color: rgb(230, 230, 230);
-            padding: 8px 4px;
             text-align: center;
             text-decoration: none;
-            margin: auto;
             font-size: 14pt;
-            width: 110px;
+            flex: 1;
         }
 
         .action-bar-button svg {
-            margin-bottom: 15px;
-            height: 32px;
+            margin-bottom: 4pt;
+            height: 32pt;
         }
 
         .spinner {
@@ -321,7 +321,7 @@
             const genMat = [];
             var obj = document.getElementById('3d-object');
             await obj.addEventListener('model-loaded', async (e) => {
-                var _obj = obj.getObject3D('mesh');
+                var _obj = await obj.getObject3D('mesh');
                 let _index = 0;
                 await _obj.traverse(async function (node) {
                     if (node.isMesh)
@@ -530,6 +530,17 @@
                     state.running = false;
                 } else alert('You forgot to enter your name');
         }
+        function handleInputState(el, value) {
+            console.log(value.length > 0);
+            const _subBtn = document.getElementById('subBtn');
+            if (value.length > 0) {
+                _subBtn.removeAttribute('disabled');
+                _subBtn.style.backgroundColor = 'FF006E';
+            } else {
+                _subBtn.setAttribute('disabled', 'true');
+                _subBtn.style.backgroundColor = '633946';
+            }
+        }
     </script>
 </head>
 
@@ -539,18 +550,18 @@
     <div id="customBar"
         style="position: absolute; top: 20%; left: 14%; width: 72%; height: 60%; background-color: #0fb3ffd7; border-radius: 9pt; z-index: 1; display: none;">
         <div style=" display: flex; flex-direction: column; width: 100%; height: 100%; justify-content: space-evenly">
-            <div style="flex: 1;">
-                <div
-                    style="margin: auto; width: 80%; height: 100%; display: flex; flex-direction: column; padding-block: 5%;">
+            <div style="flex: 1; display: flex;">
+                <div style="width: 80%; flex: 1; display: flex; flex-direction: column; padding-top: 10%;">
                     <label for="sceneText" class="inputLabel">Enter Your Name</label>
                     <div style="flex: 1;">
                         <input class="mainInput" type="text" id="sceneText" name="sceneText" placeholder="NAME"
-                            maxlength="24" onkeyup="this.value = this.value.toLocaleUpperCase()">
+                            maxlength="24"
+                            onkeyup="this.value = this.value.toLocaleUpperCase(), handleInputState(this, this.value)">
                     </div>
                 </div>
             </div>
-            <div style="flex: 1;">
-                <div style="margin: auto; width: 80%; height: 100%; display: flex; flex-direction: column;">
+            <div style="flex: 1; display: flex;">
+                <div style="width: 80%; flex: 1; display: flex; flex-direction: column; padding-top: 10%;">
                     <label for="ageText" class="inputLabel">Your Age</label>
                     <div style="flex: 1;">
                         <input class="mainInput" type="text" id="ageText" name="ageText" placeholder="AGE" maxlength="3"
@@ -558,18 +569,18 @@
                     </div>
                 </div>
             </div>
-            <div style="flex: 1;">
-                <div style="margin: auto; width: 80%; height: 100%; display: flex;">
+            <div style="flex: 1; display: flex;">
+                <div style="width: 80%; flex: 1; display: flex; height: inherit;">
                     <p class="inputInstruction">
                         Please turn up audio for the best experience.
                     </p>
                 </div>
             </div>
             <div style="flex: 1;">
-                <div onclick="setVisible(), updateText(), loadHandDetection()"
-                    style="display: flex; margin: auto; width: 50%; height: 60%; background-color: #FF006E; color: white;">
+                <button id="subBtn" disabled="true" onclick="setVisible(), updateText(), loadHandDetection()"
+                    style="display: flex; margin: auto; width: 50%; height: inherit; background-color: #633946; color: white; padding-block: 10pt;">
                     <p class="btnText">SUBMIT</p>
-                </div>
+                </button>
             </div>
         </div>
     </div>
@@ -604,7 +615,7 @@
                         <a-entity id="confettiBR" position="1 0 -2">
                         </a-entity>
                         <a-entity id="3d-object" gltf-model="#model" animation-mixer class="clickable" autoscale
-                            material="color: red" position="0 -.1675 0" scale=".125 .125 .125"
+                            material="color: red" position="0 40 0" scale=".125 .125 .125"
                             animation__1="property: position; from: 0 1 -4; to: 0 0.5 -4; dur: 4000; startEvents: startAnim, animationcomplete__2"
                             animation__2="property: position; from: 0 0.5 -4; to: 0 1 -4; dur: 4000; startEvents: animationcomplete__1"
                             animation__3="property: rotation; from: 0 0 0; to: 0 360 0; dur: 8000; loop: true; easing: linear">
@@ -618,8 +629,7 @@
                 style="position: absolute; top: 0px; width: inherit; height: inherit; background-color: transparent;">
                 <!-- Frame -->
                 <div style="position: absolute; top: 0px; width: inherit; height: 2vw; background: #0FB5FF;"></div>
-                <div style="position: absolute; bottom: 0px; width: inherit; height: 2vw; background: #0FB5FF;">
-                </div>
+                <div style="position: absolute; bottom: 0px; width: inherit; height: 2vw; background: #0FB5FF;"></div>
                 <div style="position: absolute; top: 0px; left: 0px; width: 2vw; height: 100%; background: #0FB5FF;">
                 </div>
                 <div style="position: absolute; top: 0px; right: 0px; width: 2vw; height: 100%; background: #0FB5FF;">
@@ -642,7 +652,7 @@
         <!-- ACTION BAR -->
         <div class="action-bar-container">
             <div
-                style="width: 95%;margin: auto;display: flex;align-items: center;justify-content: center;padding: 15px 0 0px;">
+                style="width: 95%; height: 20%; margin: auto; display: flex; align-items: center; justify-content: center;">
                 <div class="detail-line"></div>
             </div>
             <div class="action-bar-buttons">
