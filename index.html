@@ -258,35 +258,24 @@
                 var canvas_objects = document.querySelector('[arjs]').components.screenshot.getCanvas('perspective').toDataURL();
                 // ===================== Building composite canvas ====================== //
                 var _canvas1 = document.getElementById('canvas1');
-                if (/iPad|iPhone|iPod/.test(navigator.userAgent)) {
-                    _canvas1.height = canvas.height * 1.1;
-                    _canvas1.width = canvas.width * 1.1;
-                } else {
-                    _canvas1.height = canvas.height;
-                    _canvas1.width = canvas.width;
-                }
+                _canvas1.height = canvas.height;
+                _canvas1.width = canvas.width;
                 var _ctx1 = _canvas1.getContext('2d');
                 // Draw video background
                 var img = new Image;
                 img.onload = function () {
                     _ctx1.clearRect(0, 0, _canvas1.width, _canvas1.height);
-                    if (/iPad|iPhone|iPod/.test(navigator.userAgent)) {
-                        _ctx1.drawImage(img, 0, 0, _canvas1.width * 1.1, _canvas1.height * 1.1, 0, 0, _canvas1.width * 1.21, _canvas1.height * 1.21);
-                    } else {
-                        _ctx1.drawImage(img, 0, 0, _canvas1.width, _canvas1.height, 0, 0, _canvas1.width, _canvas1.height);
-                    }
+                    _ctx1.drawImage(img, 0, 0, _canvas1.width, _canvas1.height, 0, 0, _canvas1.width, _canvas1.height);
                 };
                 img.src = canvas_video;
                 // Draw 3d elements
                 var ovr = new Image;
                 ovr.onload = function () {
-                    if (canvas.width > canvas.height) {
-                        _ctx1.drawImage(ovr, 0, 0, ovr.width, ovr.height, 0, 0, img.width, img.height);
-                    } else {
-                        _ctx1.drawImage(ovr, 2048 - (_canvas1.height / 2), 1024 - (_canvas1.width / 2), _canvas1.height, _canvas1.width, 0, -80, _canvas1.width, _canvas1.height);
-                    }
+                    _ctx1.drawImage(ovr, 0, 0, ovr.width, ovr.height, 0, 0, img.width, img.height);
                 }
                 ovr.src = canvas_objects;
+                // Draw Frame
+
                 // Get data from new canvas
                 setTimeout(() => {
                     var _image = _canvas1.toDataURL("image/png");
@@ -390,23 +379,33 @@
                 mesh.scale.z = .0005;
                 mesh.castShadow = true;
                 const at = document.getElementById('ageText');
-                const ageometry = new THREE.TextGeometry(at.value.length > 0 ? at.value : 'AGE', {
-                    font: font,
-                    size: 80,
-                    curveSegments: 16,
-                    bevelEnabled: false,
-                });
-                const amaterial = new THREE.MeshBasicMaterial({ color: '#' + (Math.random() * 0xFFFFFF << 0).toString(16).padStart(6, '0') });
-                const amesh = new THREE.Mesh(ageometry, amaterial);
-                amesh.name = 'agenText';
-                amesh.position.x = -0.5;
-                const apn = Math.random();
-                amesh.position.y = 0;
-                amesh.position.z = 0;
-                amesh.scale.x = .0025;
-                amesh.scale.y = .0025;
-                amesh.scale.z = .0005;
-                amesh.castShadow = true;
+                if (at.value.length > 0) {
+                    const ageometry = new THREE.TextGeometry(at.value, {
+                        font: font,
+                        size: 80,
+                        curveSegments: 16,
+                        bevelEnabled: false,
+                    });
+                    const amaterial = new THREE.MeshBasicMaterial({ color: '#' + (Math.random() * 0xFFFFFF << 0).toString(16).padStart(6, '0') });
+                    const amesh = new THREE.Mesh(ageometry, amaterial);
+                    amesh.name = 'agenText';
+                    amesh.position.x = -0.5;
+                    const apn = Math.random();
+                    amesh.position.y = 0;
+                    amesh.position.z = 0;
+                    amesh.scale.x = .0025;
+                    amesh.scale.y = .0025;
+                    amesh.scale.z = .0005;
+                    amesh.castShadow = true;
+                    const aoldT = ob.children.find(function (el) {
+                        return el.name == 'agenText';
+                    });
+                    if (aoldT) {
+                        ob.remove(aoldT);
+                    }
+                    ob.add(amesh);
+
+                }
                 // Add new 3d text to scene
                 const sc = document.getElementById('textEntity');
                 const ob = sc.object3D;
@@ -417,13 +416,6 @@
                     ob.remove(oldT);
                 }
                 ob.add(mesh);
-                const aoldT = ob.children.find(function (el) {
-                    return el.name == 'agenText';
-                });
-                if (aoldT) {
-                    ob.remove(aoldT);
-                }
-                ob.add(amesh);
             });
         }
         const swipeArr = [], senseY = 3, senseX = 2;
@@ -542,8 +534,8 @@
 </head>
 
 <body>
-    <video autoplay="" muted="" playsinline="" id="input-video" width="100%" height="100%"
-        style="position: absolute; top: 0px; left: 0px; z-index: 0; object-fit: cover;"></video>
+    <video autoplay="" muted="" playsinline="" id="input-video" width="100%" height="80%"
+        style="position: absolute; top: 0px; left: 0px; z-index: 0; object-fit: fill;"></video>
     <div id="customBar"
         style="position: absolute; top: 20%; left: 14%; width: 72%; height: 60%; background-color: #0fb3ffd7; border-radius: 9pt; z-index: 1; display: none;">
         <div style=" display: flex; flex-direction: column; width: 100%; height: 100%; justify-content: space-evenly">
