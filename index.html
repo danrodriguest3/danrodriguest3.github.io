@@ -177,7 +177,7 @@
                 return `https://cdn.jsdelivr.net/npm/@mediapipe/hands/${file}`
             }
         });
-        let videoElement;
+        let videoElement, msg = document.getElementById('showHands');
         async function loadHandDetection() {
             if (!state.handDetectionLoaded) {
                 document.getElementById('t3-spinner').style.display = 'block';
@@ -251,6 +251,7 @@
             myImgElem.src = '';
             myImgElem.style.display = 'none';
             const canvas = document.getElementById('input-video');
+            const frame = document.getElementById('frameDiv');
             html2canvas(canvas).then(function (canvas) {
                 // Getting video and object as canvases
                 var canvas_video = canvas.toDataURL();
@@ -264,23 +265,40 @@
                 var img = new Image;
                 img.onload = function () {
                     _ctx1.clearRect(0, 0, _canvas1.width, _canvas1.height);
-                    _ctx1.drawImage(img, 0, 0, _canvas1.width, _canvas1.height, 0, 0, _canvas1.width, _canvas1.height);
+                    _ctx1.drawImage(img, 0, 0, _canvas1.width, _canvas1.height);
                 };
                 img.src = canvas_video;
                 // Draw 3d elements
                 var ovr = new Image;
                 ovr.onload = function () {
-                    _ctx1.drawImage(ovr, 0, 0, ovr.width, ovr.height, 0, 0, img.width, img.height);
+                    _ctx1.drawImage(ovr, 0, 0, _canvas1.width, _canvas1.height);
                 }
                 ovr.src = canvas_objects;
                 // Draw Frame
-
+                if (Array.from(frame.children).length) {
+                    html2canvas(frame, { backgroundColor: null }).then(function (frame) {
+                        console.log(frame);
+                        var canvas_frame = frame.toDataURL();
+                        var frm = new Image;
+                        frm.onload = function () {
+                            _ctx1.drawImage(frm, 0, 0, _canvas1.width, _canvas1.height);
+                        }
+                        frm.src = canvas_frame;
+                        setTimeout(() => {
+                            var _image = _canvas1.toDataURL("image/png");
+                            myImgElem.src = _image;
+                            document.getElementById('review-img').style.display = 'inline';
+                        }, 250);
+                    });
+                } else {
+                    setTimeout(() => {
+                        var _image = _canvas1.toDataURL("image/png");
+                        myImgElem.src = _image;
+                        document.getElementById('review-img').style.display = 'inline';
+                    }, 250);
+                }
+                console.log(frame.children);
                 // Get data from new canvas
-                setTimeout(() => {
-                    var _image = _canvas1.toDataURL("image/png");
-                    myImgElem.src = _image;
-                    document.getElementById('review-img').style.display = 'inline';
-                }, 250);
             });
         }
         function resetPosition() {
@@ -295,6 +313,7 @@
             _obj.setAttribute('autoscale', 1);
         }
         document.addEventListener('DOMContentLoaded', async () => {
+            msg = await document.getElementById('showHands');
             videoElement = await document.getElementById('input-video');
             await window.navigator.mediaDevices.getUserMedia({ video: { facingMode: 'selfie' } }).then(stream => {
                 videoElement.srcObject = stream;
@@ -420,7 +439,6 @@
         const swipeArr = [], senseY = 3, senseX = 2;
         let swipeLoaded = false, finishedRunning = true;
         async function updateState(r) {
-            const msg = document.getElementById('showHands');
             const text = document.getElementById('textEntity');
             state.running
                 && (state.handDetected
@@ -452,44 +470,20 @@
                         if (swipeArr[index + 1]) {
                             if (swipeArr[index + 2]) {
                                 if (Math.abs(swipeArr[index + 1].r.multiHandWorldLandmarks[0][0].x - swipeArr[index + 2].r.multiHandWorldLandmarks[0][0].x) * 1000 > senseX || Math.abs(swipeArr[index + 1].r.multiHandWorldLandmarks[0][0].y - swipeArr[index + 2].r.multiHandWorldLandmarks[0][0].y) * 1000 > senseY) {
-                                    !msg.style.display && (msg.style.display = 'none');
-                                    await swipeArr.slice(0, 1);
-                                    await swipeArr.splice(0, 1, { r: null, active: false });
-                                    document.getElementById('confettiRL').object3D.visible = true;
-                                    document.getElementById('confettiLR').object3D.visible = true;
-                                    document.getElementById('confettiBL').object3D.visible = true;
-                                    document.getElementById('confettiBR').object3D.visible = true;
-                                    document.getElementById('confettiBL').setAttribute('particle-system', 'color: #EFaa22,#44CC00; velocityValue: 6 12 -9; particleCount: 350; size: 0.35; duration: 4;');
-                                    document.getElementById('confettiBR').setAttribute('particle-system', 'color: #EF0000,#EFaa22; velocityValue: -6 12 -9; particleCount: 350; size: 0.35; duration: 4;');
+                                    confettiCannons();
                                 } else {
                                     finishedRunning = true;
                                 }
                             } else {
                                 if (Math.abs(swipeArr[index + 1].r.multiHandWorldLandmarks[0][0].x - swipeArr[0].r.multiHandWorldLandmarks[0][0].x) * 1000 > senseX || Math.abs(swipeArr[index + 1].r.multiHandWorldLandmarks[0][0].y - swipeArr[0].r.multiHandWorldLandmarks[0][0].y) * 1000 > senseY) {
-                                    !msg.style.display && (msg.style.display = 'none');
-                                    await swipeArr.slice(0, 1);
-                                    await swipeArr.splice(0, 1, { r: null, active: false });
-                                    document.getElementById('confettiRL').object3D.visible = true;
-                                    document.getElementById('confettiLR').object3D.visible = true;
-                                    document.getElementById('confettiBL').object3D.visible = true;
-                                    document.getElementById('confettiBR').object3D.visible = true;
-                                    document.getElementById('confettiBL').setAttribute('particle-system', 'color: #EFaa22,#44CC00; velocityValue: 6 12 -9; particleCount: 350; size: 0.35; duration: 4;');
-                                    document.getElementById('confettiBR').setAttribute('particle-system', 'color: #EF0000,#EFaa22; velocityValue: -6 12 -9; particleCount: 350; size: 0.35; duration: 4;');
+                                    confettiCannons();
                                 } else {
                                     finishedRunning = true;
                                 }
                             }
                         } else {
                             if (Math.abs(swipeArr[0].r.multiHandWorldLandmarks[0][0].x - swipeArr[swipeArr.length - 1].r.multiHandWorldLandmarks[0][0].x) * 1000 > senseX || Math.abs(swipeArr[0].r.multiHandWorldLandmarks[0][0].y - swipeArr[swipeArr.length - 1].r.multiHandWorldLandmarks[0][0].y) * 1000 > senseY) {
-                                !msg.style.display && (msg.style.display = 'none');
-                                await swipeArr.slice(0, 1);
-                                await swipeArr.splice(0, 1, { r: null, active: false });
-                                document.getElementById('confettiRL').object3D.visible = true;
-                                document.getElementById('confettiLR').object3D.visible = true;
-                                document.getElementById('confettiBL').object3D.visible = true;
-                                document.getElementById('confettiBR').object3D.visible = true;
-                                document.getElementById('confettiBL').setAttribute('particle-system', 'color: #EFaa22,#44CC00; velocityValue: 6 12 -9; particleCount: 350; size: 0.35; duration: 4;');
-                                document.getElementById('confettiBR').setAttribute('particle-system', 'color: #EF0000,#EFaa22; velocityValue: -6 12 -9; particleCount: 350; size: 0.35; duration: 4;');
+                                confettiCannons();
                             } else {
                                 finishedRunning = true;
                             }
@@ -499,6 +493,17 @@
                     }
                 });
             }
+        }
+        async function confettiCannons() {
+            !msg.style.display && (msg.style.display = 'none');
+            await swipeArr.slice(0, 1);
+            await swipeArr.splice(0, 1, { r: null, active: false });
+            document.getElementById('confettiRL').object3D.visible = true;
+            document.getElementById('confettiLR').object3D.visible = true;
+            document.getElementById('confettiBL').object3D.visible = true;
+            document.getElementById('confettiBR').object3D.visible = true;
+            document.getElementById('confettiBL').setAttribute('particle-system', 'color: #EFaa22; velocityValue: 6 12 -9; particleCount: 450; size: 0.35; duration: 4;');
+            document.getElementById('confettiBR').setAttribute('particle-system', 'color: #EFaa22; velocityValue: -6 12 -9; particleCount: 450; size: 0.35; duration: 4;');
         }
         function checkAnim() {
             state.xpStarted = true;
@@ -510,7 +515,6 @@
             document.getElementById('t3-loader').style.zIndex = -1;
             console.log(state.xpStarted, state);
             setTimeout(() => {
-                const msg = document.getElementById('showHands');
                 msg.style.display = '';
                 msg.children.item(0).innerHTML = 'Swipe your hand in front of you to get a surprise! Make a wish!';
                 finishedRunning = true;
@@ -602,16 +606,16 @@
                         <a-entity id="textEntity" position="0 80 -4">
                         </a-entity>
                         <a-entity id="confettiRL"
-                            particle-system="accelerationSpread: 20 0 20; color: #EFaa22; particleCount: 600; opacity: 1; preset: default; size: 0.75; velocityValue: 0 15 0"
-                            position="5.584 1.250 -1.4">
+                            particle-system="accelerationSpread: 10 0 10; color: #fff; particleCount: 1000; opacity: 1; preset: default; size: 0.75; velocityValue: 0 15 0"
+                            position="5.584 1.250 1">
                         </a-entity>
                         <a-entity id="confettiLR"
-                            particle-system="accelerationSpread: 20 0 20; color: #EFaa22; particleCount: 600; opacity: 1; preset: default; size: 0.75; velocityValue: 0 15 0"
-                            position="-5.584 1.250 -1.4">
+                            particle-system="accelerationSpread: 10 0 10; color: #fff; particleCount: 1000; opacity: 1; preset: default; size: 0.75; velocityValue: 0 15 0"
+                            position="-5.584 1.250 1">
                         </a-entity>
-                        <a-entity id="confettiBL" position="-1 0 -2">
+                        <a-entity id="confettiBL" position="-1 0 0">
                         </a-entity>
-                        <a-entity id="confettiBR" position="1 0 -2">
+                        <a-entity id="confettiBR" position="1 0 0">
                         </a-entity>
                         <a-entity id="3d-object" gltf-model="#model" animation-mixer class="clickable" autoscale
                             material="color: red" position="0 40 0" scale=".125 .125 .125"
