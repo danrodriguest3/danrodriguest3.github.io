@@ -329,6 +329,7 @@
             document.getElementById('confettiBR').object3D.visible = false;
             document.addEventListener('loaded', [rdnTx()]);
             state.isMobile = AFRAME.utils.device.isMobile();
+            //alert('isMobile: ' + state.isMobile + ' | objectFit: ' + document.getElementById('input-video').style.objectFit);
             document.getElementById('t3-loader').style.zIndex = 0;
             document.getElementById('t3-spinner').style.display = 'none';
             document.getElementById('customBar').style.display === 'none' && (document.getElementById('customBar').style.display = 'block');
@@ -757,7 +758,7 @@
         <div id="t3-spinner" class="spinner"></div>
     </div>
     <video autoplay="" muted="" playsinline="" id="input-video" width="100%" height="80%"
-        style="position: absolute; top: 0px; left: 0px; z-index: -2; object-fit: cover;"></video>
+        style="position: absolute; top: 0px; left: 0px; z-index: -2; object-fit: fill;"></video>
 </body>
 
 </html>
