@@ -8,9 +8,18 @@
         content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no" />
     <meta name="referrer" content="origin-when-cross-origin" />
     <style>
+        html,
+        body,
+        #root {
+            height: 100%;
+            width: 100%;
+        }
+
         body {
-            margin: 0;
+            margin: 0px;
+            border: 0px;
             overflow: hidden;
+            background-color: #000000;
         }
 
         @-webkit-keyframes spin {
@@ -57,7 +66,7 @@
         .mainInput {
             border: none;
             width: 80%;
-            height: 90%;
+            height: 80%;
             text-align: center;
             font-size: 4.5vw;
             align-items: flex-start;
@@ -181,6 +190,7 @@
         async function loadHandDetection() {
             if (!state.handDetectionLoaded) {
                 document.getElementById('t3-spinner').style.display = 'block';
+                const _feed = document.getElementById('input-video');
                 await hands.setOptions({
                     maxNumHands: 1,
                     modelComplexity: 0,
@@ -193,8 +203,8 @@
                     onFrame: async () => {
                         await hands.send({ image: videoElement })
                     },
-                    width: state.isMobile ? innerHeight : innerWidth,
-                    height: state.isMobile ? innerWidth : innerHeight,
+                    width: _feed.width * 3,
+                    height: _feed.height * 3,
                     facingMode: 'selfie'
                 });
                 hands.onResults(r => {
@@ -246,7 +256,7 @@
             }
         });
         function takePhoto() {
-            document.getElementById('review_modal').style.display = 'block';
+            document.getElementById('review_modal').style.display = 'inline';
             const myImgElem = document.getElementById('review-img');
             myImgElem.src = '';
             myImgElem.style.display = 'none';
@@ -265,19 +275,18 @@
                 var img = new Image;
                 img.onload = function () {
                     _ctx1.clearRect(0, 0, _canvas1.width, _canvas1.height);
-                    _ctx1.drawImage(img, 0, 0, _canvas1.width, _canvas1.height);
+                    _ctx1.drawImage(img, 0, 0, _canvas1.width, _canvas1.height, 0, 0, _canvas1.width, _canvas1.height);
                 };
                 img.src = canvas_video;
                 // Draw 3d elements
                 var ovr = new Image;
                 ovr.onload = function () {
-                    _ctx1.drawImage(ovr, 0, 0, _canvas1.width, _canvas1.height);
+                    _ctx1.drawImage(ovr, 0, 0, ovr.width, ovr.height, 0, 0, img.width, img.height);
                 }
                 ovr.src = canvas_objects;
                 // Draw Frame
                 if (Array.from(frame.children).length) {
                     html2canvas(frame, { backgroundColor: null }).then(function (frame) {
-                        console.log(frame);
                         var canvas_frame = frame.toDataURL();
                         var frm = new Image;
                         frm.onload = function () {
@@ -297,17 +306,16 @@
                         document.getElementById('review-img').style.display = 'inline';
                     }, 250);
                 }
-                console.log(frame.children);
                 // Get data from new canvas
             });
         }
         function resetPosition() {
-            const _old_camera = document.querySelector('a-camera');
+            const _old_camera = document.querySelector('[camera]');
             const _sceneEl = document.querySelector('a-scene');
             const _obj = document.getElementById('3d-object');
-            var _camera = document.createElement('a-camera');
+            var _camera = document.createElement('a-entity');
             _sceneEl.appendChild(_camera);
-            _camera.setAttribute('look-controls', 'enabled: false');
+            _camera.setAttribute('look-controls', 'enabled: true; selfieMode: true;');
             _camera.setAttribute('camera', 'active', true);
             _sceneEl.removeChild(_old_camera);
             _obj.setAttribute('autoscale', 1);
@@ -315,12 +323,6 @@
         document.addEventListener('DOMContentLoaded', async () => {
             msg = await document.getElementById('showHands');
             videoElement = await document.getElementById('input-video');
-            await window.navigator.mediaDevices.getUserMedia({ video: { facingMode: 'selfie' } }).then(stream => {
-                videoElement.srcObject = stream;
-                videoElement.onloadeddata = (e) => {
-                    videoElement.play();
-                }
-            }).catch(() => alert('You have give browser the permission to access your camera'));
             document.getElementById('confettiRL').object3D.visible = false;
             document.getElementById('confettiLR').object3D.visible = false;
             document.getElementById('confettiBL').object3D.visible = false;
@@ -330,9 +332,12 @@
             document.getElementById('t3-loader').style.zIndex = 0;
             document.getElementById('t3-spinner').style.display = 'none';
             document.getElementById('customBar').style.display === 'none' && (document.getElementById('customBar').style.display = 'block');
+            setTimeout(() => document.querySelector('[camera]').setAttribute('look-controls', 'enabled: true; selfieMode: true;'), 500);
         });
         function closeReview() {
             document.getElementById('review_modal').style.display = 'none';
+            document.getElementById('review-img').style.display = 'none';
+            document.body.scrollTo(0, 0);
         }
         async function rdnTx() {
             const knownMat = [];
@@ -524,6 +529,7 @@
         function setVisible() {
             const bar = document.getElementById('customBar');
             const name = document.getElementById('sceneText').value;
+            document.scrollingElement.scrollTo(0, -100);
             if (name)
                 if (bar.style.display !== 'none') {
                     bar.style.display = 'none';
@@ -534,7 +540,7 @@
                 } else alert('You forgot to enter your name');
         }
         function handleInputState(el, value) {
-            console.log(value.length > 0);
+            document.scrollingElement.scrollTo(0, -100);
             const _subBtn = document.getElementById('subBtn');
             if (value.length > 0) {
                 _subBtn.removeAttribute('disabled');
@@ -547,9 +553,7 @@
     </script>
 </head>
 
-<body>
-    <video autoplay="" muted="" playsinline="" id="input-video" width="100%" height="80%"
-        style="position: absolute; top: 0px; left: 0px; z-index: 0; object-fit: fill;"></video>
+<body draggable="false">
     <div id="customBar"
         style="position: absolute; top: 20%; left: 14%; width: 72%; height: 60%; background-color: #0fb3ffd7; border-radius: 9pt; z-index: 1; display: none;">
         <div style=" display: flex; flex-direction: column; width: 100%; height: 100%; justify-content: space-evenly">
@@ -558,7 +562,8 @@
                     <label for="sceneText" class="inputLabel">Enter Your Name</label>
                     <div style="flex: 1;">
                         <input class="mainInput" type="text" id="sceneText" name="sceneText" placeholder="NAME"
-                            maxlength="24"
+                            maxlength="24" onfocus="handleInputState(this, this.value)"
+                            onblur="handleInputState(this, this.value)"
                             onkeyup="this.value = this.value.toLocaleUpperCase(), handleInputState(this, this.value)">
                     </div>
                 </div>
@@ -568,6 +573,7 @@
                     <label for="ageText" class="inputLabel">Your Age</label>
                     <div style="flex: 1;">
                         <input class="mainInput" type="text" id="ageText" name="ageText" placeholder="AGE" maxlength="3"
+                            onfocus="handleInputState(this, this.value)" onblur="handleInputState(this, this.value)"
                             onkeyup="this.value = this.value.toLocaleUpperCase()">
                     </div>
                 </div>
@@ -593,7 +599,7 @@
         <img src="img/icon_hand.svg" />
     </div>
     <div style="position: absolute; top: 0px; width: 100%; height: 100%; background-color: transparent; z-index: 0;">
-        <div style="width: 100%; height: 80%">
+        <div style="width: 100%; height: 80%; margin: 0">
             <div class='aframe-capsule'>
                 <!-- AFRAME -->
                 <a-scene id="scene" arjs embedded renderer="logarithmicDepthBuffer: true; antialias: true;"
@@ -638,14 +644,14 @@
                 </div>
                 <div style="position: absolute; top: 0px; right: 0px; width: 2vw; height: 100%; background: #0FB5FF;">
                 </div>
-                <div
+                <div id="logoBG"
                     style="position: absolute; top: 0px; left: 40.035%; width: 19.2307%; height: 7.109%; background: #0FB5FF;">
                 </div>
-                <div style="position: absolute; right: 0%; bottom: 0px; width: 38.7179%;">
+                <div style="position: absolute; right: 0px; bottom: -20px; width: 30%; z-index: -1">
                     <img src="img/icons_balloons_one.svg"
                         style="background: transparent; object-fit: fill; width: 100%;" />
                 </div>
-                <div style="position: absolute; left: 0%; bottom: 0px; width: 38.7179%;">
+                <div style="position: absolute; left: 0px; bottom: -30px; width: 30%; z-index: -1">
                     <img src="img/icon_ballons_two.svg"
                         style="background: transparent; object-fit: fill; width: 100%;" />
                 </div>
@@ -655,7 +661,7 @@
         <!-- ACTION BAR -->
         <div class="action-bar-container">
             <div
-                style="width: 95%; height: 20%; margin: auto; display: flex; align-items: center; justify-content: center;">
+                style="width: 95%; height: 20%; margin: 0; display: flex; align-items: center; justify-content: center;">
                 <div class="detail-line"></div>
             </div>
             <div class="action-bar-buttons">
@@ -698,9 +704,9 @@
         </div>
     </div>
     <!-- TEMPORARY CANVAS USED TO BUILD FINAL IMAGE -->
-    <canvas style="position: relative; top: 0px; left: 0px; z-index: -1;" id="canvas1">
+    <canvas style="position: relative; top: 0px; left: 0px; z-index: -3;" id="canvas1">
     </canvas>
-    <canvas style="position: relative; top: 0px; left: 0px; z-index: -1;" id="canvas2">
+    <canvas style="position: relative; top: 0px; left: 0px; z-index: -3; width: 100%; height: 100%;" id="canvas2">
     </canvas>
     <!-- REVIEW VIEW -->
     <div id="review_modal" style="
@@ -750,6 +756,8 @@
         style="position: absolute; width: 100%; height: 100%; z-index: 3; background: #0fb3ffd2; top: 0px; left: 0px; backdrop-filter: blur(4px); opacity: 1;">
         <div id="t3-spinner" class="spinner"></div>
     </div>
+    <video autoplay="" muted="" playsinline="" id="input-video" width="100%" height="80%"
+        style="position: absolute; top: 0px; left: 0px; z-index: -2; object-fit: cover;"></video>
 </body>
 
 </html>
