@@ -5,7 +5,7 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <title>Happy Birthday AR</title>
     <meta name="viewport"
-        content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no" />
+        content="width=device-width, height=device-height, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no" />
     <meta name="referrer" content="origin-when-cross-origin" />
     <style>
         html,
@@ -212,7 +212,6 @@
                     updateState(r);
                 });
                 await camera.start();
-                console.log(hands.g.B);
             } else {
                 document.getElementById('t3-spinner').style.display = 'none';
             }
@@ -228,7 +227,6 @@
                     _t3Loader.style.opacity = 1;
                     clearInterval(_loader);
                 }
-                console.dir(hands.g, document.getElementById('t3-loader').style.opacity);
             }, 33.3);
         }
         AFRAME.registerComponent('autoscale', {
@@ -382,21 +380,25 @@
             });
         }
         async function updateText() {
+            const sc = await document.getElementById('textEntity');
+            const ob = await sc.object3D;
             const st = document.getElementById('sceneText');
             const loader = new THREE.FontLoader();
-            loader.load('fonts/helvetiker_regular.typeface.json', function (font) {
+            await loader.load('fonts/helvetiker_regular.typeface.json', async function (font) {
                 const geometry = new THREE.TextGeometry(st.value.length > 0 ? st.value : 'NAME', {
                     font: font,
                     size: 80,
                     curveSegments: 16,
                     bevelEnabled: false
                 });
+                await geometry.computeBoundingBox();
+                await geometry.computeVertexNormals();
                 const material = new THREE.MeshBasicMaterial({ color: '#' + (Math.random() * 0xFFFFFF << 0).toString(16).padStart(6, '0') });
                 const mesh = new THREE.Mesh(geometry, material);
                 mesh.name = 'genText';
-                mesh.position.x = -0.5;
+                mesh.position.x = 0;
                 const pn = Math.random();
-                mesh.position.y = 0.25;
+                mesh.position.y = 0;
                 mesh.position.z = 0;
                 mesh.scale.x = .0025;
                 mesh.scale.y = .0025;
@@ -410,36 +412,40 @@
                         curveSegments: 16,
                         bevelEnabled: false,
                     });
+                    await ageometry.computeBoundingBox();
+                    await ageometry.computeVertexNormals();
                     const amaterial = new THREE.MeshBasicMaterial({ color: '#' + (Math.random() * 0xFFFFFF << 0).toString(16).padStart(6, '0') });
                     const amesh = new THREE.Mesh(ageometry, amaterial);
                     amesh.name = 'agenText';
-                    amesh.position.x = -0.5;
+                    amesh.position.x = 0;
                     const apn = Math.random();
-                    amesh.position.y = 0;
+                    amesh.position.y = -0.25;
                     amesh.position.z = 0;
                     amesh.scale.x = .0025;
                     amesh.scale.y = .0025;
                     amesh.scale.z = .0005;
                     amesh.castShadow = true;
-                    const aoldT = ob.children.find(function (el) {
+                    const aoldT = await ob.children.find(function (el) {
                         return el.name == 'agenText';
                     });
                     if (aoldT) {
                         ob.remove(aoldT);
                     }
+                    const atxtBounds = ageometry.boundingBox;
+                    amesh.position.x = await -((atxtBounds.max.x - atxtBounds.min.x) * amesh.scale.x / 2);
                     ob.add(amesh);
 
                 }
                 // Add new 3d text to scene
-                const sc = document.getElementById('textEntity');
-                const ob = sc.object3D;
                 const oldT = ob.children.find(function (el) {
                     return el.name == 'genText';
                 });
                 if (oldT) {
-                    ob.remove(oldT);
+                    await ob.remove(oldT);
                 }
-                ob.add(mesh);
+                const txtBounds = geometry.boundingBox;
+                mesh.position.x = await -((txtBounds.max.x - txtBounds.min.x) * mesh.scale.x / 2);
+                await ob.add(mesh);
             });
         }
         const swipeArr = [], senseY = 3, senseX = 2;
@@ -517,7 +523,7 @@
             const text = document.getElementById('textEntity');
             cake.dispatchEvent(new Event('startAnim'));
             text.dispatchEvent(new Event('startAnim'));
-            text.setAttribute('position', '0 1.6 -2');
+            text.setAttribute('position', '0 2 -3');
             document.getElementById('t3-loader').style.zIndex = -1;
             console.log(state.xpStarted, state);
             setTimeout(() => {
@@ -554,7 +560,7 @@
     </script>
 </head>
 
-<body draggable="false">
+<body>
     <div id="customBar"
         style="position: absolute; top: 20%; left: 14%; width: 72%; height: 60%; background-color: #0fb3ffd7; border-radius: 9pt; z-index: 1; display: none;">
         <div style=" display: flex; flex-direction: column; width: 100%; height: 100%; justify-content: space-evenly">
