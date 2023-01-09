@@ -1,6 +1,5 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="390" height="645" viewBox="0 0 390 645">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 379 634">
   <g id="blue_frame" fill="none" stroke="#0fb5ff" stroke-width="11">
-    <rect width="390" height="645" stroke="none"/>
     <rect x="5.5" y="5.5" width="379" height="634" fill="none"/>
   </g>
 </svg>

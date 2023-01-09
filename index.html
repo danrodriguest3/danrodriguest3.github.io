@@ -377,6 +377,14 @@
                             });
                         }
                 });
+                for (let _i = 0; _i < 4; _i++) {
+                    const _candleGeo = new THREE.CylinderGeometry(0.125, 0.125, 2.5, 5, 1);
+                    const _candleMat = new THREE.MeshBasicMaterial({ color: '0xffff00' });
+                    const _candleObj = new THREE.Mesh(_candleGeo, _candleMat);
+                    _candleObj.position.y = 6.5;
+                    _candleObj.position.x = _i - 2;
+                    _obj.add(_candleObj);
+                }
             });
         }
         async function updateText() {
@@ -652,7 +660,9 @@
                 <div style="position: absolute; top: 0px; right: 0px; width: 2vw; height: 100%; background: #0FB5FF;">
                 </div>
                 <div id="logoBG"
-                    style="position: absolute; top: 0px; left: 40.035%; width: 19.2307%; height: 7.109%; background: #0FB5FF;">
+                    style="position: absolute; top: 0px; left: 41.25%; width: 17.5%; height: 7.109%; background: #0FB5FF;">
+                    <img src="/img/logo.png" width="100%" height="80%"
+                        style="object-fit: scale-down; margin-top: 7.5%;" />
                 </div>
                 <div style="position: absolute; right: 0px; bottom: -20px; width: 30%; z-index: -1">
                     <img src="img/icons_balloons_one.svg"
@@ -693,19 +703,6 @@
                         </g>
                     </svg>
                     Take A Photo
-                </button>
-                <button class="action-bar-button" onclick="openQrScanner('{{ url(` qrscanner`) }}')">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="28.885" height="28.884" viewbox="0 0 28.885 28.884">
-                        <g id="icon_scan_qr" transform="translate(-1370.614 -437.68)">
-                            <path id="Path_6533" data-name="Path 6533"
-                                d="M110.095,42.978a.963.963,0,0,0-.963-.963h-7.7a.962.962,0,0,0-.963.963v7.7a.963.963,0,0,0,.963.963h7.7a.963.963,0,0,0,.963-.963Zm11.554,0a.962.962,0,0,0-.963-.963h-7.7a.962.962,0,0,0-.963.963v7.7a.963.963,0,0,0,.963.963h7.7a.963.963,0,0,0,.963-.963Zm-13.48.963v5.777h-5.777V43.941Zm11.554,0v5.777h-5.777V43.941ZM110.1,31.424a.963.963,0,0,0-.963-.963h-7.7a.962.962,0,0,0-.963.963v7.7a.963.963,0,0,0,.963.963h7.7a.963.963,0,0,0,.963-.963Zm11.554,0a.963.963,0,0,0-.963-.963h-7.7a.962.962,0,0,0-.963.963v7.7a.963.963,0,0,0,.963.963h7.7a.963.963,0,0,0,.963-.963Zm-13.48.963v5.777h-5.777V32.387Zm11.554,0v5.777h-5.777V32.387Z"
-                                transform="translate(1273.998 411.07)" fill="#0fb5ff" fill-rule="evenodd" />
-                            <path id="Path_6534" data-name="Path 6534"
-                                d="M87.41,38.586v6.74a.963.963,0,0,0,.963.963h6.74a.963.963,0,0,0,0-1.925H89.336V38.586a.963.963,0,1,0-1.926,0Zm26.959,0v5.777h-5.777a.963.963,0,1,0,0,1.925h6.74a.962.962,0,0,0,.963-.963v-6.74a.963.963,0,1,0-1.925,0ZM89.336,25.107V19.33h5.777a.963.963,0,0,0,0-1.926h-6.74a.963.963,0,0,0-.963.963v6.74a.963.963,0,0,0,1.926,0Zm26.958,0v-6.74a.963.963,0,0,0-.963-.963h-6.74a.963.963,0,1,0,0,1.926h5.777v5.777a.963.963,0,1,0,1.925,0Z"
-                                transform="translate(1283.204 420.276)" fill="#ffe900" fill-rule="evenodd" />
-                        </g>
-                    </svg>
-                    Scan Another
                 </button>
             </div>
         </div>
