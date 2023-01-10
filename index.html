@@ -384,6 +384,11 @@
                     _candleObj.position.y = 6.5;
                     _candleObj.position.x = _i - 2;
                     _obj.add(_candleObj);
+                    const _candleFlame = document.createElement('a-entity');
+                    _candleFlame.id = 'flame' + _i;
+                    _candleFlame.setAttribute('particle-system', 'color: #EFaa22; velocityValue: 0 12 0; particleCount: 200; size: 0.1; maxAge: 1; velocitySpread: 4 6 4;');
+                    _candleFlame.setAttribute('position', _i - 2 + ' 7 0');
+                    obj.append(_candleFlame);
                 }
             });
         }
@@ -406,44 +411,41 @@
                 mesh.name = 'genText';
                 mesh.position.x = 0;
                 const pn = Math.random();
-                mesh.position.y = 0;
+                mesh.position.y = 1;
                 mesh.position.z = 0;
                 mesh.scale.x = .0025;
                 mesh.scale.y = .0025;
                 mesh.scale.z = .0005;
                 mesh.castShadow = true;
                 const at = document.getElementById('ageText');
-                if (at.value.length > 0) {
-                    const ageometry = new THREE.TextGeometry(at.value, {
-                        font: font,
-                        size: 80,
-                        curveSegments: 16,
-                        bevelEnabled: false,
-                    });
-                    await ageometry.computeBoundingBox();
-                    await ageometry.computeVertexNormals();
-                    const amaterial = new THREE.MeshBasicMaterial({ color: '#' + (Math.random() * 0xFFFFFF << 0).toString(16).padStart(6, '0') });
-                    const amesh = new THREE.Mesh(ageometry, amaterial);
-                    amesh.name = 'agenText';
-                    amesh.position.x = 0;
-                    const apn = Math.random();
-                    amesh.position.y = -0.25;
-                    amesh.position.z = 0;
-                    amesh.scale.x = .0025;
-                    amesh.scale.y = .0025;
-                    amesh.scale.z = .0005;
-                    amesh.castShadow = true;
-                    const aoldT = await ob.children.find(function (el) {
-                        return el.name == 'agenText';
-                    });
-                    if (aoldT) {
-                        ob.remove(aoldT);
-                    }
-                    const atxtBounds = ageometry.boundingBox;
-                    amesh.position.x = await -((atxtBounds.max.x - atxtBounds.min.x) * amesh.scale.x / 2);
-                    ob.add(amesh);
-
+                const ageometry = new THREE.TextGeometry('Happy ' + at.value + ' Birthday!', {
+                    font: font,
+                    size: 80,
+                    curveSegments: 16,
+                    bevelEnabled: false,
+                });
+                await ageometry.computeBoundingBox();
+                await ageometry.computeVertexNormals();
+                const amaterial = new THREE.MeshBasicMaterial({ color: '#' + (Math.random() * 0xFFFFFF << 0).toString(16).padStart(6, '0') });
+                const amesh = new THREE.Mesh(ageometry, amaterial);
+                amesh.name = 'agenText';
+                amesh.position.x = 0;
+                const apn = Math.random();
+                amesh.position.y = .5;
+                amesh.position.z = 0;
+                amesh.scale.x = .0025;
+                amesh.scale.y = .0025;
+                amesh.scale.z = .0005;
+                amesh.castShadow = true;
+                const aoldT = await ob.children.find(function (el) {
+                    return el.name == 'agenText';
+                });
+                if (aoldT) {
+                    ob.remove(aoldT);
                 }
+                const atxtBounds = ageometry.boundingBox;
+                amesh.position.x = await -((atxtBounds.max.x - atxtBounds.min.x) * amesh.scale.x / 2);
+                ob.add(amesh);
                 // Add new 3d text to scene
                 const oldT = ob.children.find(function (el) {
                     return el.name == 'genText';
@@ -524,6 +526,11 @@
             document.getElementById('confettiBR').object3D.visible = true;
             document.getElementById('confettiBL').setAttribute('particle-system', 'color: #EFaa22; velocityValue: 6 12 -9; particleCount: 450; size: 0.35; duration: 4;');
             document.getElementById('confettiBR').setAttribute('particle-system', 'color: #EFaa22; velocityValue: -6 12 -9; particleCount: 450; size: 0.35; duration: 4;');
+            const _obj = document.getElementById('3d-object');
+            for (let _i = 0; _i < 4; _i++) {
+                const _flame = document.getElementById('flame' + _i);
+                _flame && _obj.removeChild(_flame);
+            }
         }
         function checkAnim() {
             state.xpStarted = true;
