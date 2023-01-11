@@ -87,8 +87,8 @@
         .btnText {
             margin: auto;
             font-family: 'Helvetica Neue Light';
-            font-weight: bold;
-            letter-spacing: .25vw;
+            font-weight: bolder;
+            letter-spacing: .3vw;
         }
 
         .action-bar-container {
@@ -392,6 +392,24 @@
                 }
             });
         }
+        function ordinal_suffix_of(i) {
+            if (i) {
+                var j = i % 10,
+                    k = i % 100;
+                if (j == 1 && k != 11) {
+                    return ' ' + i + 'st ';
+                }
+                if (j == 2 && k != 12) {
+                    return ' ' + i + 'nd ';
+                }
+                if (j == 3 && k != 13) {
+                    return ' ' + i + 'rd ';
+                }
+                return ' ' + i + 'th ';
+            } else {
+                return ' ';
+            }
+        }
         async function updateText() {
             const sc = await document.getElementById('textEntity');
             const ob = await sc.object3D;
@@ -406,19 +424,26 @@
                 });
                 await geometry.computeBoundingBox();
                 await geometry.computeVertexNormals();
-                const material = new THREE.MeshBasicMaterial({ color: '#' + (Math.random() * 0xFFFFFF << 0).toString(16).padStart(6, '0') });
+                const material = new THREE.MeshBasicMaterial({ color: '#FFFFFF' });
                 const mesh = new THREE.Mesh(geometry, material);
                 mesh.name = 'genText';
                 mesh.position.x = 0;
                 const pn = Math.random();
-                mesh.position.y = 1;
+                mesh.position.y = .5;
                 mesh.position.z = 0;
                 mesh.scale.x = .0025;
                 mesh.scale.y = .0025;
                 mesh.scale.z = .0005;
                 mesh.castShadow = true;
+                // background
+                const background = document.createElement('a-plane');
+                background.setAttribute('color', '#0FB5FF');
+                background.setAttribute('width', (geometry.boundingBox.max.x - geometry.boundingBox.min.x) * mesh.scale.x * 1.1);
+                background.setAttribute('height', '.5');
+                background.setAttribute('position', '0 .625 0');
+                sc.append(background);
                 const at = document.getElementById('ageText');
-                const ageometry = new THREE.TextGeometry('Happy ' + at.value + ' Birthday!', {
+                const ageometry = new THREE.TextGeometry('Happy' + ordinal_suffix_of(at.value) + 'Birthday!', {
                     font: font,
                     size: 80,
                     curveSegments: 16,
@@ -426,12 +451,12 @@
                 });
                 await ageometry.computeBoundingBox();
                 await ageometry.computeVertexNormals();
-                const amaterial = new THREE.MeshBasicMaterial({ color: '#' + (Math.random() * 0xFFFFFF << 0).toString(16).padStart(6, '0') });
+                const amaterial = new THREE.MeshBasicMaterial({ color: '#FFFFFF' });
                 const amesh = new THREE.Mesh(ageometry, amaterial);
                 amesh.name = 'agenText';
                 amesh.position.x = 0;
                 const apn = Math.random();
-                amesh.position.y = .5;
+                amesh.position.y = 1;
                 amesh.position.z = 0;
                 amesh.scale.x = .0025;
                 amesh.scale.y = .0025;
