@@ -597,6 +597,28 @@
                 _subBtn.style.backgroundColor = '633946';
             }
         }
+        function updateRequests() {
+            if (typeof (DeviceMotionEvent) !== "undefined" && typeof (DeviceMotionEvent.requestPermission) === "function") {
+                // (optional) Do something before API request prompt.
+                DeviceMotionEvent.requestPermission()
+                    .then(response => {
+                        // (optional) Do something after API prompt dismissed.
+                        if (response == "granted") {
+                            /**
+                            window.addEventListener("devicemotion", (e) => {
+                                
+                            });
+                            **/
+                            setVisible();
+                            updateText();
+                            loadHandDetection();
+                        }
+                    })
+                    .catch(console.error)
+            } else {
+                alert("DeviceMotionEvent is not defined");
+            }
+        }
     </script>
 </head>
 
@@ -633,7 +655,7 @@
                 </div>
             </div>
             <div style="flex: 1;">
-                <button id="subBtn" disabled="true" onclick="setVisible(), updateText(), loadHandDetection()"
+                <button id="subBtn" disabled="true" onclick="updateRequests()"
                     style="display: flex; margin: auto; width: 50%; height: inherit; background-color: #633946; color: white; padding-block: 10pt;">
                     <p class="btnText">SUBMIT</p>
                 </button>
@@ -649,8 +671,8 @@
         <div style="width: 100%; height: 80%; margin: 0">
             <div class='aframe-capsule'>
                 <!-- AFRAME -->
-                <a-scene id="scene" arjs embedded renderer="logarithmicDepthBuffer: true; antialias: true;"
-                    vr-mode-ui="enabled: false"
+                <a-scene id="scene" device-orientation-permission-ui="enabled: false" arjs embedded
+                    renderer="logarithmicDepthBuffer: true; antialias: true;" vr-mode-ui="enabled: false"
                     gltf-model="dracoDecoderPath: https://www.gstatic.com/draco/v1/decoders/;">
                     <a-assets timeout="15000">
                         <a-asset-item id="model" src="models/t3cake.glb"></a-asset-item>
