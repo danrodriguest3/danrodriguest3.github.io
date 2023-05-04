@@ -2,38 +2,41 @@
     <script src="https://aframe.io/releases/1.4.0/aframe.min.js"></script>
     <script src="https://cdn.jsdelivr.net/gh/donmccurdy/aframe-extras@v6.1.1/dist/aframe-extras.min.js"></script>
     <script>
+        const parsedModels = [];
         AFRAME.registerComponent('play-on-load', {
             init: function () {
                 var el = this.el;
                 var modelsLoaded = 0;
                 var totalModels = 0;
                 // Get all the models in the scene
-                el.sceneEl.querySelectorAll('a-gltf-model').forEach(function (modelEl) {
-                    totalModels++;
-                    modelEl.addEventListener('model-loaded', async function (e) {
-                        const _anim = await document.getElementById('cr_animation').object3D.children[0];
-                        const _object = await this.getObject3D('mesh');
-                        modelsLoaded++;
-                        // If all the models have loaded
-                        if (modelsLoaded === totalModels) {
-                            // Character Model
-                            var mesh = await el.getObject3D('mesh');
-                            if (!mesh) { return; }
+                el.querySelectorAll('a-gltf-model').forEach(function (modelEl) {
+                    if (modelEl.id.slice(0, 8) === 'cr_model' && parsedModels.every(en => en !== modelEl.id)) {
+                        totalModels++;
+                        parsedModels.push(modelEl.id);
+                        console.log(modelEl.id + ' found', modelEl);
+                        modelEl.addEventListener('model-loaded', async function (e) {
+                            console.log(modelEl.id + ' loaded');
+                            const _anim = await document.getElementById('cr_animation' + modelEl.id.slice(8)).object3D.children[0];
+                            console.log(modelEl.id + ' animations:', _anim);
+                            const _object = await modelEl.getObject3D('mesh');
+                            console.log(modelEl.id + ' object:', _object);
+                            modelsLoaded++;
+                            // If all the models have loaded
                             // Create Animation Mixer for the Character Model
-                            var mixer = await new THREE.AnimationMixer(mesh);
+                            var mixer = await new THREE.AnimationMixer(_object);
+                            console.log(_object, _anim, modelEl.id.slice(8));
                             // Making sure we don't run twice
-                            if (!_object.animations.length) {
-                                await _anim.animations.map(async (_track, _i) => {
-                                    // Push animations to the file structure
-                                    await _object.animations.push(_track);
-                                    // Push animations to the mixer as well
-                                    await mixer.clipAction(_anim.animations[_i].name, mesh);
-                                });
-                            }
+                            await _object.animations.splice(0);
+                            await _anim.animations.map(async (_track, _i) => {
+                                // Push animations to the file structure
+                                await _object.animations.push(_track);
+                                // Push animations to the mixer as well
+                                await mixer.clipAction(_anim.animations[_i].name, _object);
+                            });
                             // Play the first or only animation
-                            el.setAttribute('animation-mixer', 'clip: ' + mixer._actions[0]._clip.name);
-                        }
-                    });
+                            modelEl.setAttribute('animation-mixer', 'clip: ' + mixer._actions[0]._clip.name);
+                        });
+                    }
                 });
             }
         });
@@ -41,17 +44,23 @@
 </head>
 
 <body>
-    <a-scene id="scene">
+    <a-scene id="scene" play-on-load>
         <a-assets>
-            <a-asset-item id="cr_model_fox" src="models/fox_without_NLAtracks.glb"
+            <a-asset-item id="cr_fox_model" src="models/fox_without_NLAtracks.glb"
                 crossorigin="anonymous"></a-asset-item>
-            <a-asset-item id="cr_animations_legacy" src="models/armature_with_NLAtracks.glb"
+            <a-asset-item id="cr_legacy_animations" src="models/armature_with_NLAtracks.glb"
                 crossorigin="anonymous"></a-asset-item>
             <a-asset-item id="sign_model" src="https://assets.codepen.io/8724203/pr_poster_model.glb"
                 crossorigin="anonymous"></a-asset-item>
+            <a-asset-item id="cr_penguin_model" src="models/cr_penguin_model.glb"
+                crossorigin="anonymous"></a-asset-item>
+            <a-asset-item id="cr_takedown_animation" src="models/0.glb" crossorigin="anonymous"></a-asset-item>
         </a-assets>
-        <a-gltf-model id="cr_model" position="0 0 -8" gltf-model="#cr_model_fox" play-on-load></a-gltf-model>
-        <a-gltf-model id="cr_animation" position="0 20 0" gltf-model="#cr_animations_legacy"
+        <a-gltf-model id="cr_model0" position="-1 0 -8" gltf-model="#cr_fox_model"></a-gltf-model>
+        <a-gltf-model id="cr_animation0" position="-1 0 -8" gltf-model="#cr_legacy_animations"
+            animation-mixer></a-gltf-model>
+        <a-gltf-model id="cr_model1" position="1 0 -8" gltf-model="#cr_penguin_model"></a-gltf-model>
+        <a-gltf-model id="cr_animation1" position="1 0 -8" gltf-model="#cr_takedown_animation"
             animation-mixer></a-gltf-model>
         <a-gltf-model id="sign" position="1.5251 0 -8.19441" gltf-model="#sign_model" animation-mixer></a-gltf-model>
         <a-plane position="0 0 -5" rotation="-90 0 0" width="4" height="4" color="#ff0000"></a-plane>
