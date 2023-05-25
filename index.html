@@ -454,8 +454,8 @@
             <a-assets timeout="15000">
                 <a-asset-item id="main_model" src="models/ufo.glb" crossorigin="anonymous"></a-asset-item>
             </a-assets>
-            <a-entity id="mainPlane" gesture-handler animation="property: rotation; to: 0 360 0; loop: true; dur: 1000" animation__2="property: position; from: 0 0 0; to: 0 2 0; loop: false; dur: 1000;" animation__3="property: position; from: 0 2 0; to: 0 0 0; loop: false; dur: 1000; delay: 1000;">
-                <a-gltf-model id="cr_model0" position="0 0 -8" scale="8 8 8" gltf-model="#main_model"></a-gltf-model>
+            <a-entity id="mainPlane" gesture-handler>
+                <a-gltf-model id="cr_model0" position="0 0 -8" scale="8 8 8" gltf-model="#main_model" animation="property: rotation; to: 0 360 0; loop: true; dur: 1000" animation__2="property: position; from: 0 0 0; to: 0 2 0; loop: false; dur: 1000;" animation__3="property: position; from: 0 2 0; to: 0 0 0; loop: false; dur: 1000; delay: 1000;"></a-gltf-model>
             </a-entity>
             <a-camera id="camera"></a-camera>
         </a-scene>
