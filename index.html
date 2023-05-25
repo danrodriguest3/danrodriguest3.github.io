@@ -1,70 +1,535 @@
 <head>
-    <script src="https://aframe.io/releases/1.4.0/aframe.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/gh/donmccurdy/aframe-extras@v6.1.1/dist/aframe-extras.min.js"></script>
-    <script>
-        const parsedModels = [];
-        AFRAME.registerComponent('play-on-load', {
-            init: function () {
-                var el = this.el;
-                var modelsLoaded = 0;
-                var totalModels = 0;
-                // Get all the models in the scene
-                el.querySelectorAll('a-gltf-model').forEach(function (modelEl) {
-                    if (modelEl.id.slice(0, 8) === 'cr_model' && parsedModels.every(en => en !== modelEl.id)) {
-                        totalModels++;
-                        parsedModels.push(modelEl.id);
-                        console.log(modelEl.id + ' found', modelEl);
-                        modelEl.addEventListener('model-loaded', async function (e) {
-                            console.log(modelEl.id + ' loaded');
-                            const _anim = await document.getElementById('cr_animation' + modelEl.id.slice(8)).object3D.children[0];
-                            console.log(modelEl.id + ' animations:', _anim);
-                            const _object = await modelEl.getObject3D('mesh');
-                            console.log(modelEl.id + ' object:', _object);
-                            modelsLoaded++;
-                            // If all the models have loaded
-                            // Create Animation Mixer for the Character Model
-                            var mixer = await new THREE.AnimationMixer(_object);
-                            console.log(_object, _anim, modelEl.id.slice(8));
-                            // Making sure we don't run twice
-                            await _object.animations.splice(0);
-                            await _anim.animations.map(async (_track, _i) => {
-                                // Push animations to the file structure
-                                await _object.animations.push(_track);
-                                // Push animations to the mixer as well
-                                await mixer.clipAction(_anim.animations[_i].name, _object);
-                            });
-                            // Play the first or only animation
-                            modelEl.setAttribute('animation-mixer', 'clip: ' + mixer._actions[0]._clip.name);
-                        });
-                    }
-                });
-            }
-        });
+    <meta name="referrer" content="origin-when-cross-origin" />
+    <script src="js/aframe.min.js"></script>
+    <script src="js/shaders/CopyShader.js"></script>
+    <script src="js/shaders/BlendShader.js"></script>
+    <script src="js/postprocessing/Pass.js"></script>
+    <script src="js/postprocessing/RenderPass.js"></script>
+    <script src="js/postprocessing/SavePass.js"></script>
+    <script src="js/postprocessing/ShaderPass.js"></script>
+    <script src="js/shaders/LuminosityHighPassShader.js"></script>
+    <script src="js/postprocessing/UnrealBloomPass.js"></script>
+    <script src="js/shaders/BokehShader.js"></script>
+    <script src="js/postprocessing/BokehPass.js"></script>
+    <script src="js/postprocessing/EffectComposer.js"></script>
+    <script type="x-shader/x-vertex" id="vertexshader">
+        varying vec2 vUv;
+        void main() {
+
+            vUv = uv;
+
+            gl_Position = projectionMatrix * modelViewMatrix * vec4( position, 1.0 );
+        }
     </script>
+    <script type="x-shader/x-fragment" id="fragmentshader">
+        uniform sampler2D baseTexture;
+        uniform sampler2D bloomTexture;
+        varying vec2 vUv;
+        void main() {
+            gl_FragColor = ( texture2D( baseTexture, vUv ) + vec4( 1.0 ) * texture2D( bloomTexture, vUv ) );
+        }
+    </script>
+    <script type="module">
+        import Stats from './jsm/libs/stats.module.js';
+        import { GUI } from './jsm/libs/lil-gui.module.min.js';
+
+        let mouseX = 0, mouseY = 0, evenFrame = false;
+
+        const CAArr = [], CBArr = [];
+        const scene = await new THREE.Scene();
+        const camera = await new THREE.PerspectiveCamera(55, window.innerWidth / window.innerHeight, 2, 2000);
+        camera.position.z = 1000;
+        scene.add(camera);
+
+        const renderer = await new THREE.WebGLRenderer();
+        renderer.setPixelRatio(window.devicePixelRatio);
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        const composer = await new THREE.EffectComposer(renderer);
+        const renderPass = await new THREE.RenderPass(scene, camera);
+        const savePass = new THREE.SavePass(new THREE.WebGLRenderTarget(renderer.getRenderTarget()));
+        const blendPass = new THREE.ShaderPass(THREE.BlendShader, 'tDiffuse1');
+        blendPass.uniforms['tDiffuse2'].value = savePass.renderTarget.texture;
+        blendPass.uniforms['mixRatio'].value = 0.75;
+        const outputPass = new THREE.ShaderPass(THREE.CopyShader);
+        const darkMaterial = new THREE.MeshBasicMaterial({ color: 'black' });
+        const materials = {};
+
+        const bloomPass = new THREE.UnrealBloomPass(new THREE.Vector2(window.innerWidth, window.innerHeight), 1.5, 0.4, 0.85);
+        bloomPass.exposure = 1;
+        bloomPass.threshold = 0;
+        bloomPass.strength = 6;
+        bloomPass.radius = 0;
+
+        const bokehPass = new THREE.BokehPass(scene, camera, { focus: 1.0, aspect: camera.aspect, aperture: 0.025, maxblur: 128 });
+
+        composer.addPass(renderPass);
+        renderPass.renderToScreen = true;
+        composer.addPass(blendPass);
+        blendPass.renderToScreen = true;
+        composer.addPass(savePass);
+        savePass.renderToScreen = true;
+        composer.addPass(outputPass);
+        outputPass.renderToScreen = true;
+        composer.addPass(bokehPass);
+        bokehPass.renderToScreen = true;
+        composer.addPass(bloomPass);
+        bloomPass.renderToScreen = true;
+        const geometryA = new THREE.BufferGeometry(), geometryB = new THREE.BufferGeometry(), geometryCA = new THREE.BufferGeometry(), geometryCB = new THREE.BufferGeometry();
+        const verticesA = [], verticesB = [], verticesCA = [], verticesCB = [];
+        const sprite = new THREE.TextureLoader().load('/disc.png');
+
+        for (let i = 0; i < Math.ceil(1000 * (Math.random() + 0.1)); i++) {
+            const x = window.innerWidth * 4 * Math.random() - window.innerWidth;
+            const y = window.innerHeight * Math.random() - window.innerHeight / 2;
+            const z = window.innerWidth * 4 * Math.random() - window.innerWidth;
+            if (i % 2) {
+                verticesA.push(x, y, z);
+            } else {
+                verticesB.push(x, y, z);
+            }
+            if (i % 10) {
+                if (Math.random() > 0.5) {
+                    verticesCA.push(window.innerWidth / 4 * Math.random() - window.innerWidth / 8, window.innerHeight / 7 * Math.random() - window.innerHeight / 14, window.innerWidth / 4 * Math.random() - window.innerWidth / 8);
+                } else {
+                    verticesCB.push(window.innerWidth / 2 * Math.random() - window.innerWidth / 4, window.innerHeight / 8 * Math.random() - window.innerHeight / 16, window.innerWidth / 2 * Math.random() - window.innerWidth / 4);
+                }
+            }
+        }
+        geometryA.setAttribute('position', new THREE.Float32BufferAttribute(verticesA, 3));
+        geometryB.setAttribute('position', new THREE.Float32BufferAttribute(verticesB, 3));
+        geometryCA.setAttribute('position', new THREE.Float32BufferAttribute(verticesCA, 3));
+        geometryCB.setAttribute('position', new THREE.Float32BufferAttribute(verticesCB, 3));
+
+        const materialA = new THREE.PointsMaterial({ size: 35, sizeAttenuation: true, map: sprite, alphaTest: 0, transparent: true });
+        materialA.color.set('rgb(255, 140, 33)');
+        materialA.opacity = Math.random() * 0.65;
+        const materialB = new THREE.PointsMaterial({ size: 35, sizeAttenuation: true, map: sprite, alphaTest: 0, transparent: true });
+        materialB.color.set('rgb(255, 140, 33)');
+        materialB.opacity = Math.random() * 0.65;
+        const materialCA = new THREE.PointsMaterial({ size: 15, sizeAttenuation: true, map: sprite, alphaTest: 0, transparent: true });
+        materialCA.color.set('rgb(255, 140, 33)');
+        materialCA.opacity = 1;
+        const materialCB = new THREE.PointsMaterial({ size: 10, sizeAttenuation: true, map: sprite, alphaTest: 0, transparent: true });
+        materialCB.color.set('rgb(255, 140, 33)');
+        materialCB.opacity = 0.75;
+        const particlesA = new THREE.Points(geometryA, materialA), particlesB = new THREE.Points(geometryB, materialB), particlesCA = new THREE.Points(geometryCA, materialCA), particlesCB = new THREE.Points(geometryCB, materialCB);
+        await scene.add(particlesA, particlesB, particlesCA, particlesCB);
+        const t3Loader = document.querySelector('.t3-loader');
+        await t3Loader.appendChild(composer.renderer.domElement);
+        const stats = new Stats();
+        //t3Loader.appendChild(stats);
+        animate();
+
+        function onWindowResize() {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            composer.setSize(window.innerWidth, window.innerHeight);
+        }
+        window.addEventListener('resize', function () {
+            onWindowResize();
+        });
+
+        async function onPointerMove(event) {
+            if (event.isPrimary === false) return;
+
+            mouseX = event.offsetX - (window.innerWidth / 2);
+            mouseY = event.offsetY - (window.innerHeight / 2);
+
+            particlesCA.position.y = (- mouseY - scene.position.y) * 1.1;
+            particlesCB.position.y = (- mouseY - scene.position.y) * 1.1;
+            particlesCA.position.x = (mouseX + scene.position.x);
+            particlesCB.position.x = (mouseX + scene.position.x);
+            particlesA.material.opacity < 0.65 && (particlesA.material.opacity += 0.05);
+            particlesB.material.opacity < 0.65 && (particlesB.material.opacity += 0.05);
+            particlesCA.material.opacity < 1 && (particlesCA.material.opacity += 0.025);
+            particlesCB.material.opacity < 0.75 && (particlesCB.material.opacity += 0.025);
+
+            if (CAArr.length < 32) {
+                await CAArr.push(new THREE.Points(geometryCA, materialCA));
+                CAArr[CAArr.length - 1].position.y = particlesCA.position.y;
+                CAArr[CAArr.length - 1].position.x = particlesCA.position.x;
+                CAArr[CAArr.length - 1].rotation.y = particlesCA.rotation.y;
+                await scene.add(await CAArr[CAArr.length - 1]);
+            }
+            if (CBArr.length < 32) {
+                await CBArr.push(new THREE.Points(geometryCB, materialCB));
+                CBArr[CBArr.length - 1].position.y = particlesCB.position.y;
+                CBArr[CBArr.length - 1].position.x = particlesCB.position.x;
+                CBArr[CBArr.length - 1].rotation.y = particlesCB.rotation.y;
+                await scene.add(await CBArr[CBArr.length - 1]);
+            }
+            blendPass.uniforms['mixRatio'].value < 0.8 && (blendPass.uniforms['mixRatio'].value += 0.001);
+        }
+        window.addEventListener('pointermove', function (e) {
+            onPointerMove(e);
+        });
+
+        async function animate() {
+            requestAnimationFrame(animate);
+            particlesA.rotation.y += 0.0075;
+            particlesB.rotation.y += 0.0125;
+            particlesCA.rotation.y += 0.025;
+            particlesCB.rotation.y += 0.01875;
+            particlesA.material.opacity > 0.01 && (particlesA.material.opacity -= 0.004);
+            particlesB.material.opacity > 0.01 && (particlesB.material.opacity -= 0.004);
+            particlesCA.material.opacity > 0 && (particlesCA.material.opacity -= 0.0075);
+            particlesCB.material.opacity > 0 && (particlesCB.material.opacity -= 0.0075);
+
+            await CAArr.map(async (_particles, _i) => {
+                _particles.rotation.y += 0.025;
+            });
+            await CBArr.map(async (_particles, _i) => {
+                _particles.rotation.y += 0.01875;
+            });
+            if (!evenFrame) {
+                evenFrame = true;
+            } else {
+                blendPass.uniforms['mixRatio'].value > 0.75 && (blendPass.uniforms['mixRatio'].value -= 0.002);
+                await scene.remove(CAArr[0]);
+                await scene.remove(CBArr[0]);
+                await CAArr.splice(0, 1);
+                await CBArr.splice(0, 1);
+                evenFrame = false;
+            }
+
+            stats.update();
+            composer.render();
+        }
+    </script>
+    <script src="https://cdn.jsdelivr.net/gh/donmccurdy/aframe-extras@v6.1.1/dist/aframe-extras.min.js"></script>
+    <script src="js/gesture-detector.js"></script>
+    <script src="js/gesture-handler.js"></script>
+    <script xmlns="http://www.w3.org/1999/xhtml" async=""
+        src="https://cdn.rawgit.com/eligrey/FileSaver.js/5ed507ef8aa53d8ecfea96d96bc7214cd2476fd2/FileSaver.min.js"></script>
+    <script src="https://html2canvas.hertzen.com/dist/html2canvas.js"></script>
+    <style>
+        body {
+            margin: 0;
+            overflow: hidden;
+            background-color: #000000;
+        }
+
+        @-webkit-keyframes spin {
+            0% {
+                -webkit-transform: rotate(0deg);
+            }
+
+            100% {
+                -webkit-transform: rotate(360deg);
+            }
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        .action-bar-container {
+            position: fixed;
+            display: none;
+            padding: 10px;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            background: #000000;
+        }
+
+        .detail-line {
+            background: #FF086E;
+            width: 120px;
+            height: 2px;
+        }
+
+        .action-bar-buttons {
+            margin: auto;
+            width: 95%;
+            padding-top: 16px;
+            padding-bottom: 16px;
+            display: flex;
+            justify-content: center;
+        }
+
+        .action-bar-button {
+            display: flex;
+            justify-content: center;
+            flex-direction: column;
+            align-items: center;
+            align-content: center;
+
+            background-color: rgba(0, 0, 0, 0.6);
+            color: rgb(230, 230, 230);
+            padding: 8px 4px;
+            text-align: center;
+            text-decoration: none;
+            margin: auto;
+            font-size: 16px;
+            width: 110px;
+        }
+
+        .action-bar-button svg {
+            margin-bottom: 15px;
+            height: 32px;
+        }
+
+        .review-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgb(255, 255, 255);
+            display: none;
+            z-index: 3;
+        }
+
+        .review-modal-close-btn-container {
+            width: 100%;
+            padding-top: 16px;
+            padding-bottom: 16px;
+            padding-left: 8px;
+            background-color: rgba(0, 0, 0, 0.6);
+            pointer-events: none;
+        }
+
+        .review-modal-close-btn {
+            background-color: rgba(0, 0, 0, 0.6);
+            border: solid;
+            border-radius: 12px;
+            border-width: 1px;
+            color: rgb(230, 230, 230);
+            padding: 8px;
+            text-align: center;
+            text-decoration: none;
+            font-size: 12px;
+            pointer-events: auto;
+        }
+
+        .review-modal-loader {
+            position: fixed;
+            top: 25%;
+            z-index: -1;
+            left: 50%;
+            margin-left: -40px;
+            border: 10px solid #f3f3f3;
+            border-radius: 50%;
+            border-top: 10px solid #00ff00;
+            width: 80px;
+            height: 80px;
+            -webkit-animation: spin 2s linear infinite;
+            /* Safari */
+            animation: spin 2s linear infinite;
+        }
+
+        .t3-loader {
+            position: absolute;
+            top: 0px;
+            left: 0px;
+            width: 100%;
+            height: 100%;
+            z-index: 10;
+        }
+    </style>
 </head>
 
 <body>
-    <a-scene id="scene" play-on-load>
-        <a-assets>
-            <a-asset-item id="cr_fox_model" src="models/fox_without_NLAtracks.glb"
-                crossorigin="anonymous"></a-asset-item>
-            <a-asset-item id="cr_legacy_animations" src="models/armature_with_NLAtracks.glb"
-                crossorigin="anonymous"></a-asset-item>
-            <a-asset-item id="sign_model" src="https://assets.codepen.io/8724203/pr_poster_model.glb"
-                crossorigin="anonymous"></a-asset-item>
-            <a-asset-item id="cr_penguin_model" src="models/cr_penguin_model.glb"
-                crossorigin="anonymous"></a-asset-item>
-            <a-asset-item id="cr_takedown_animation" src="models/0.glb" crossorigin="anonymous"></a-asset-item>
-        </a-assets>
-        <a-gltf-model id="cr_model0" position="-1 0 -8" gltf-model="#cr_fox_model"></a-gltf-model>
-        <a-gltf-model id="cr_animation0" position="-1 0 -8" gltf-model="#cr_legacy_animations"
-            animation-mixer></a-gltf-model>
-        <a-gltf-model id="cr_model1" position="1 0 -8" gltf-model="#cr_penguin_model"></a-gltf-model>
-        <a-gltf-model id="cr_animation1" position="1 0 -8" gltf-model="#cr_takedown_animation"
-            animation-mixer></a-gltf-model>
-        <a-gltf-model id="sign" position="1.5251 0 -8.19441" gltf-model="#sign_model" animation-mixer></a-gltf-model>
-        <a-plane position="0 0 -5" rotation="-90 0 0" width="4" height="4" color="#ff0000"></a-plane>
-        <a-sky color="#ECECEC"></a-sky>
-        <a-camera id="camera"></a-camera>
-    </a-scene>
+    <script defer>
+        function openQrScanner(url) {
+            window.location.href = url;
+        }
+        function takePhoto() {
+            document.getElementById('review_modal').style.display = 'block';
+            const myImgElem = document.getElementById('review-img');
+            myImgElem.src = '';
+            myImgElem.style.display = 'none';
+            var _frame = document.getElementById('photo-frame'),
+                _logo = document.getElementById('event-logo');
+            html2canvas(document.getElementById('arjs-video')).then(function (canvas) {
+                var canvas_video = canvas.toDataURL();
+                var canvas_objects = document.querySelector('[arjs]').components.screenshot.getCanvas('perspective').toDataURL();
+                // ===================== Building composite canvas ====================== //
+                var _canvas1 = document.getElementById('canvas1');
+                _canvas1.height = canvas.height;
+                _canvas1.width = canvas.width;
+                var _ctx1 = _canvas1.getContext('2d');
+                // Draw video background
+                var img = new Image;
+                img.onload = function () {
+                    _ctx1.clearRect(0, 0, _canvas1.width, _canvas1.height);
+                    _ctx1.drawImage(img, 0, 0, _canvas1.width, _canvas1.height, 0, 0, _canvas1.width, _canvas1.height);
+                };
+                img.src = canvas_video;
+                // Draw 3d elements
+                var ovr = new Image;
+                ovr.onload = function () {
+                    _ctx1.drawImage(ovr, 0, 0, ovr.width, ovr.height, 0, 0, img.width, img.height);
+                    if (_frame)
+                        _ctx1.drawImage(_frame, 0, 0, _frame.width + 100, _frame.height, 0, 0, _frame.width * (_canvas1.width / 380) + 100 * (_canvas1.width / 380), _frame.height * (_canvas1.height / 527));
+                    if (_logo)
+                        _ctx1.drawImage(_logo, 0, 0, _logo.width, _logo.height, _canvas1.width / 2 - _logo.width * (_canvas1.height / 527) / 2, 0, _logo.width * (_canvas1.height / 527), _logo.height * (_canvas1.height / 527));
+                }
+                ovr.src = canvas_objects;
+                // Get data from new canvas
+                setTimeout(() => {
+                    var _image = _canvas1.toDataURL("image/png");
+                    myImgElem.src = _image;
+                    document.getElementById('review-img').style.display = 'inline';
+                }, 250);
+            });
+        }
+        async function resetPosition() {
+            const _old_camera = document.querySelector('[camera]');
+            const _sceneEl = document.querySelector('a-scene');
+            const _obj = await document.getElementById('mainPlane');
+            _obj.setAttribute('rotation', '0 0 0');
+            _obj.setAttribute('scale', '1 1 1');
+            var _camera = document.createElement('a-entity');
+            await _sceneEl.appendChild(_camera);
+            _camera.setAttribute('id', 'main_camera');
+            _camera.setAttribute('position', '0 1.6 4');
+            _camera.setAttribute('rotation', '0 0 0');
+            _camera.setAttribute('look-controls', 'touchEnabled', 'false');
+            _camera.setAttribute('look-controls', 'mouseEnabled', 'false');
+            _camera.setAttribute('camera', 'fov', '100');
+            _camera.setAttribute('camera', 'active', true);
+            await _sceneEl.removeChild(_old_camera);
+        }
+        function closeReview() {
+            document.getElementById('review_modal').style.display = 'none';
+        }
+        async function startScene() {
+            const camera_feed = document.getElementById('arjs-video');
+            window.navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } }).then(stream => {
+                camera_feed.srcObject = stream;
+                camera_feed.onloadeddata = (e) => {
+                    camera_feed.play();
+                }
+            }).catch(() => alert('You have give browser the permission to access your camera'));
+            document.querySelector('.t3-loader').style.display = 'none';
+            document.querySelector('.action-bar-container').style.display = 'block';
+        }
+        document.addEventListener('DOMContentLoaded', async () => {
+            let assetCount = 0;
+            const loadProg = [];
+            const assets = await document.querySelectorAll('a-asset-item');
+            const assArr = await Array.from(assets);
+            await assArr.map(async (_asset, _i) => {
+                console.log(_asset.dataset);
+                await loadProg.push(0);
+                _asset.addEventListener('progress', function (event) {
+                    loadProg.splice(_i, 1, event.detail.loadedBytes / event.detail.totalBytes);
+                    let _loadProg = 0;
+                    loadProg.map((status, i) => {
+                        _loadProg += status;
+                    });
+                    document.getElementById('loadedPercentage').innerHTML = (_loadProg / loadProg.length * 100).toString().slice(0, 2) + '% Downloaded';
+                    document.getElementById('loadedBar').style.width = _loadProg / loadProg.length * 100 + '%';
+                });
+                _asset.addEventListener('loaded', function (event) {
+                    assetCount++;
+                    if (assetCount === assArr.length || Array.from(document.querySelector('a-assets').children).every(_ch => _ch.hasLoaded)) {
+                        startScene();
+                    }
+                });
+                _asset.addEventListener('error', function (error) {
+                    console.log(error);
+                });
+                if (Array.from(document.querySelector('a-assets').children).every(_ch => _ch.hasLoaded)) {
+                    startScene();
+                }
+            });
+        });
+    </script>
+    <div id="xp-container" style="display: block">
+        <a-scene id="scene" loading-screen="enabled: false;" arjs embedded
+            renderer="logarithmicDepthBuffer: true; antialias: true; colorManagement: true; physicallyCorrectLights: true;"
+            vr-mode-ui="enabled: false" gltf-model="dracoDecoderPath: https://www.gstatic.com/draco/v1/decoders/;"
+            gesture-detector>
+            <a-assets timeout="15000">
+                <a-asset-item id="main_model" src="models/fox_without_NLAtracks.glb"
+                    crossorigin="anonymous"></a-asset-item>
+            </a-assets>
+            <a-entity id="mainPlane" gesture-handler>
+                <a-gltf-model id="cr_model0" position="0 0 -8" gltf-model="#main_model"></a-gltf-model>
+            </a-entity>
+            <a-sky color="#ECECEC"></a-sky>
+            <a-camera id="camera"></a-camera>
+        </a-scene>
+    </div>
+    <div class="action-bar-container">
+        <div
+            style="width: 95%;margin: auto;display: flex;align-items: center;justify-content: center;padding: 15px 0 0px;">
+            <div class="detail-line"></div>
+        </div>
+        <div class="action-bar-buttons">
+            <button class="action-bar-button" onclick="resetPosition()">
+                <svg xmlns="http://www.w3.org/2000/svg" width="27.028" height="30.494" viewbox="0 0 27.028 30.494">
+                    <path id="icon_reset"
+                        d="M132.44,14h-9.373a8.843,8.843,0,0,0-8.827,8.827v7.7a1.284,1.284,0,1,0,2.568,0v-7.7a6.233,6.233,0,0,1,6.227-6.227h9.341a6.247,6.247,0,0,1,6.291,6.227v6.741A6.233,6.233,0,0,1,132.44,35.8H120.852l3.884-3.884a1.294,1.294,0,0,0-1.83-1.83l-6.1,6.1a1.279,1.279,0,0,0,0,1.83l6.1,6.1a1.285,1.285,0,0,0,.931.385,1.339,1.339,0,0,0,.931-.385,1.279,1.279,0,0,0,0-1.83L120.852,38.4H132.44a8.822,8.822,0,0,0,8.827-8.827V22.827A8.843,8.843,0,0,0,132.44,14Z"
+                        transform="translate(-114.24 -14)" fill="#f8f93a" />
+                </svg>
+                Reset
+            </button>
+            <button class="action-bar-button" onclick="takePhoto()">
+                <svg xmlns="http://www.w3.org/2000/svg" width="35" height="29" viewbox="0 0 35 29">
+                    <g id="icon_camera" transform="translate(-0.5 -3.5)">
+                        <path id="Path_2915" data-name="Path 2915"
+                            d="M34.5,28.5a3,3,0,0,1-3,3H4.5a3,3,0,0,1-3-3V12a3,3,0,0,1,3-3h6l3-4.5h9l3,4.5h6a3,3,0,0,1,3,3Z"
+                            fill="none" stroke="#ffe900" stroke-linecap="round" stroke-linejoin="round"
+                            stroke-width="2" />
+                        <path id="Path_2916" data-name="Path 2916" d="M24,19.5a6,6,0,1,1-6-6,6,6,0,0,1,6,6Z" fill="none"
+                            stroke="#0fb5ff" stroke-linecap="round" stroke-linejoin="round" stroke-width="1" />
+                    </g>
+                </svg>
+                Take A Photo
+            </button>
+            <button class="action-bar-button" onclick="openQrScanner('{{ url(`qrscanner`) }}')">
+                <svg xmlns="http://www.w3.org/2000/svg" width="28.885" height="28.884" viewbox="0 0 28.885 28.884">
+                    <g id="icon_scan_qr" transform="translate(-1370.614 -437.68)">
+                        <path id="Path_6533" data-name="Path 6533"
+                            d="M110.095,42.978a.963.963,0,0,0-.963-.963h-7.7a.962.962,0,0,0-.963.963v7.7a.963.963,0,0,0,.963.963h7.7a.963.963,0,0,0,.963-.963Zm11.554,0a.962.962,0,0,0-.963-.963h-7.7a.962.962,0,0,0-.963.963v7.7a.963.963,0,0,0,.963.963h7.7a.963.963,0,0,0,.963-.963Zm-13.48.963v5.777h-5.777V43.941Zm11.554,0v5.777h-5.777V43.941ZM110.1,31.424a.963.963,0,0,0-.963-.963h-7.7a.962.962,0,0,0-.963.963v7.7a.963.963,0,0,0,.963.963h7.7a.963.963,0,0,0,.963-.963Zm11.554,0a.963.963,0,0,0-.963-.963h-7.7a.962.962,0,0,0-.963.963v7.7a.963.963,0,0,0,.963.963h7.7a.963.963,0,0,0,.963-.963Zm-13.48.963v5.777h-5.777V32.387Zm11.554,0v5.777h-5.777V32.387Z"
+                            transform="translate(1273.998 411.07)" fill="#0fb5ff" fill-rule="evenodd" />
+                        <path id="Path_6534" data-name="Path 6534"
+                            d="M87.41,38.586v6.74a.963.963,0,0,0,.963.963h6.74a.963.963,0,0,0,0-1.925H89.336V38.586a.963.963,0,1,0-1.926,0Zm26.959,0v5.777h-5.777a.963.963,0,1,0,0,1.925h6.74a.962.962,0,0,0,.963-.963v-6.74a.963.963,0,1,0-1.925,0ZM89.336,25.107V19.33h5.777a.963.963,0,0,0,0-1.926h-6.74a.963.963,0,0,0-.963.963v6.74a.963.963,0,0,0,1.926,0Zm26.958,0v-6.74a.963.963,0,0,0-.963-.963h-6.74a.963.963,0,1,0,0,1.926h5.777v5.777a.963.963,0,1,0,1.925,0Z"
+                            transform="translate(1283.204 420.276)" fill="#ffe900" fill-rule="evenodd" />
+                    </g>
+                </svg>
+                Scan Another
+            </button>
+        </div>
+    </div>
+    <canvas style="position: relative; top: 0; left: 0;" id="canvas1"></canvas>
+    <div class="review-modal" id="review_modal">
+        <div class="review-modal-close-btn-container">
+            <button class="review-modal-close-btn" onclick="closeReview()">Back</button>
+        </div>
+        <div style="width: 100%;">
+            <div class="review-modal-loader" id="loader"></div>
+            <img id="review-img" style="width: 100%; pointer-events: auto;" />
+            <div style="width: 90%; margin: auto; pointer-events: none;">
+                <p style="text-align: center;">Tap and hold on the image to save to your photos or share</p>
+            </div>
+        </div>
+    </div>
+    <div class='t3-loader'>
+        <div style="position: fixed; top: 0px; left: 0px; width: 100%; height: 10%; z-index: 11;">
+            <div id="loadedBar" style="position: fixed; top: 0px; margin: auto; height: 1.5%; background-color: white;">
+            </div>
+            <img src="/img/logo.png" style="position: fixed; top: 2.25%; margin-inline: 40%; width: 20%">
+            <p id="loadedPercentage" style="margin-inline: auto; margin-top: 22.75%; color: white; text-align: center;">
+                0%
+                Downloaded</p>
+            <p style="margin-inline: 5%; color: yellow; text-align: center;">Now downloading your experience.</br>Drag
+                your
+                finger around on the screen while you wait.</p>
+        </div>
+    </div>
+    <video autoplay="" muted="" playsinline="" id="arjs-video" width="100%" height="100%"
+        style="position: absolute; top: 0px; left: 0px; z-index: -2; object-fit: cover;"></video>
 </body>
