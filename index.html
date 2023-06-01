@@ -405,15 +405,33 @@
         function closeReview() {
             document.getElementById('review_modal').style.display = 'none';
         }
+        function updateAudioState() {
+            const audio_feed = document.getElementById('bgm');
+            const audio_btn = document.getElementById('bgm_ctrl');
+            if (audio_btn.innerHTML === 'Mute') {
+                audio_feed.pause();
+                audio_feed.removeAttribute('autoplay');
+                audio_btn.innerHTML = 'Unmute';
+            } else {
+                audio_feed.play();
+                audio_feed.setAttribute('autoplay', '');
+                audio_btn.innerHTML = 'Mute';
+            }
+        }
         async function startScene() {
             const camera_feed = document.getElementById('arjs-video');
             const audio_feed = document.getElementById('bgm');
+            const audio_btn = document.getElementById('bgm_ctrl');
             window.navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } }).then(stream => {
                 camera_feed.srcObject = stream;
                 camera_feed.onloadeddata = (e) => {
                     if (window.audioAccess) {
                         camera_feed.play();
-                        audio_feed.play();
+                        if (audio_feed.children[0]) {
+                            audio_feed.play();
+                            audio_feed.setAttribute('autoplay', '');
+                            audio_btn.style.display = 'block';
+                        }
                         document.querySelector('.t3-loader').style.display = 'none';
                         document.querySelector('.action-bar-container').style.display = 'block';
                     } else {
@@ -550,4 +568,6 @@
     <audio id="bgm">
         <source src="bgm.mp3" type="audio/mpeg">
     </audio>
+    <button id="bgm_ctrl" style="display: none; position: absolute; top: 20%; right: 10%;"
+        onclick="updateAudioState()">Mute</button>
 </body>
