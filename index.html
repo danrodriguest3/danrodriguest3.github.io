@@ -165,7 +165,9 @@
         window.addEventListener('pointermove', function (e) {
             onPointerMove(e);
         });
-
+        document.querySelector('.t3-loader').addEventListener('click', function (e) {
+            window.audioAccess = true;
+        });
         async function animate() {
             requestAnimationFrame(animate);
             particlesA.rotation.y += 0.0075;
@@ -405,14 +407,27 @@
         }
         async function startScene() {
             const camera_feed = document.getElementById('arjs-video');
+            const audio_feed = document.getElementById('bgm');
             window.navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } }).then(stream => {
                 camera_feed.srcObject = stream;
                 camera_feed.onloadeddata = (e) => {
-                    camera_feed.play();
+                    if (window.audioAccess) {
+                        camera_feed.play();
+                        audio_feed.play();
+                        document.querySelector('.t3-loader').style.display = 'none';
+                        document.querySelector('.action-bar-container').style.display = 'block';
+                    } else {
+                        const _btnStart = document.createElement('button');
+                        _btnStart.innerHTML = 'Start';
+                        _btnStart.style.width = '-webkit-fill-available';
+                        _btnStart.onclick = function () {
+                            window.audioAccess = true;
+                            startScene();
+                        };
+                        document.querySelector('.t3-loader').children[0].appendChild(_btnStart);
+                    }
                 }
             }).catch(() => alert('You have give browser the permission to access your camera'));
-            document.querySelector('.t3-loader').style.display = 'none';
-            document.querySelector('.action-bar-container').style.display = 'block';
         }
         document.addEventListener('DOMContentLoaded', async () => {
             let assetCount = 0;
@@ -455,7 +470,9 @@
                 <a-asset-item id="main_model" src="models/ufo.glb" crossorigin="anonymous"></a-asset-item>
             </a-assets>
             <a-entity id="mainPlane" gesture-handler>
-                <a-gltf-model id="cr_model0" position="0 0 -8" scale="8 8 8" gltf-model="#main_model" animation="property: rotation; to: 0 360 0; loop: true; dur: 1000" animation__2="property: position; from: 0 0 -8; to: 0 1 -8; loop: true; dur: 500;"></a-gltf-model>
+                <a-gltf-model id="cr_model0" position="0 0 -8" scale="8 8 8" gltf-model="#main_model"
+                    animation="property: rotation; to: 0 360 0; loop: true; dur: 1000"
+                    animation__2="property: position; from: 0 0 -8; to: 0 1 -8; loop: true; dur: 500;"></a-gltf-model>
             </a-entity>
             <a-camera id="camera"></a-camera>
         </a-scene>
@@ -530,4 +547,7 @@
     </div>
     <video autoplay="" muted="" playsinline="" id="arjs-video" width="100%" height="100%"
         style="position: absolute; top: 0px; left: 0px; z-index: -2; object-fit: cover;"></video>
+    <audio id="bgm">
+        <source src="bgm.mp3" type="audio/mpeg">
+    </audio>
 </body>
