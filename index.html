@@ -428,9 +428,12 @@
                     if (window.audioAccess) {
                         camera_feed.play();
                         if (audio_feed.children[0]) {
-                            audio_feed.play();
+                            audio_feed.play().catch(err => {
+                                audio_btn.click();
+                            });
                             audio_feed.setAttribute('autoplay', '');
                             audio_btn.style.display = 'block';
+                            audio_btn.click();
                         }
                         document.querySelector('.t3-loader').style.display = 'none';
                         document.querySelector('.action-bar-container').style.display = 'block';
@@ -568,6 +571,15 @@
     <audio id="bgm">
         <source src="bgm.mp3" type="audio/mpeg">
     </audio>
+    <button id="bgm_ctrl" style="display: none; position: absolute; top: 20%; right: 10%;" onclick="updateAudioState()">
+        Unmute
+    </button>
+    </div>
+    </div>
+    <video autoplay="" muted="" playsinline="" id="arjs-video" width="100%" height="100%"
+        style="position: absolute; top: 0px; left: 0px; z-index: -2; object-fit: cover;"></video>
+    <audio id="bgm">
+        <source src="bgm.mp3" type="audio/mpeg">
+    </audio>
     <button id="bgm_ctrl" style="display: none; position: absolute; top: 20%; right: 10%;"
         onclick="updateAudioState()">Mute</button>
-</body>
