@@ -329,6 +329,27 @@
             animation: spin 2s linear infinite;
         }
 
+        .welcome-popup {
+            position: absolute;
+            top: 0px;
+            left: 0px;
+            width: 100%;
+            height: 100%;
+            background: white;
+            z-index: 10;
+            flex-direction: column;
+        }
+
+        .call-to-action {
+            position: absolute;
+            top: 20%;
+            left: 5%;
+            width: 90%;
+            height: 10%;
+            background: white;
+            z-index: 10;
+        }
+
         .t3-loader {
             position: absolute;
             top: 0px;
@@ -352,7 +373,7 @@
             myImgElem.style.display = 'none';
             var _frame = document.getElementById('photo-frame'),
                 _logo = document.getElementById('event-logo');
-            html2canvas(document.getElementById('arjs-video')).then(function (canvas) {
+            html2canvas(document.getElementById('arjs-video')).then(async function (canvas) {
                 var canvas_video = canvas.toDataURL();
                 var canvas_objects = document.querySelector('[arjs]').components.screenshot.getCanvas('perspective').toDataURL();
                 // ===================== Building composite canvas ====================== //
@@ -362,27 +383,30 @@
                 var _ctx1 = _canvas1.getContext('2d');
                 // Draw video background
                 var img = new Image;
-                img.onload = function () {
-                    _ctx1.clearRect(0, 0, _canvas1.width, _canvas1.height);
-                    _ctx1.drawImage(img, 0, 0, _canvas1.width, _canvas1.height, 0, 0, _canvas1.width, _canvas1.height);
+                img.onload = await async function () {
+                    await _ctx1.clearRect(0, 0, _canvas1.width, _canvas1.height);
+                    await _ctx1.drawImage(img, 0, 0, _canvas1.width, _canvas1.height, 0, 0, _canvas1.width, _canvas1.height);
                 };
                 img.src = canvas_video;
                 // Draw 3d elements
                 var ovr = new Image;
-                ovr.onload = function () {
-                    _ctx1.drawImage(ovr, 0, 0, ovr.width, ovr.height, 0, 0, img.width, img.height);
+                ovr.onload = await async function () {
+                    await _ctx1.drawImage(ovr, 0, 0, ovr.width, ovr.height, 0, 0, img.width, img.height);
                     if (_frame)
-                        _ctx1.drawImage(_frame, 0, 0, _frame.width + 100, _frame.height, 0, 0, _frame.width * (_canvas1.width / 380) + 100 * (_canvas1.width / 380), _frame.height * (_canvas1.height / 527));
+                        await _ctx1.drawImage(_frame, 0, 0, _frame.width + 100, _frame.height, 0, 0, _frame.width * (_canvas1.width / 380) + 100 * (_canvas1.width / 380), _frame.height * (_canvas1.height / 527));
                     if (_logo)
-                        _ctx1.drawImage(_logo, 0, 0, _logo.width, _logo.height, _canvas1.width / 2 - _logo.width * (_canvas1.height / 527) / 2, 0, _logo.width * (_canvas1.height / 527), _logo.height * (_canvas1.height / 527));
-                }
-                ovr.src = canvas_objects;
-                // Get data from new canvas
-                setTimeout(() => {
-                    var _image = _canvas1.toDataURL("image/png");
+                        await _ctx1.drawImage(_logo, 0, 0, _logo.width, _logo.height, _canvas1.width / 2 - _logo.width * (_canvas1.height / 527) / 2, 0, _logo.width * (_canvas1.height / 527), _logo.height * (_canvas1.height / 527));
+                    // Get data from new canvas
+                    var _image = await _canvas1.toDataURL("image/png");
                     myImgElem.src = _image;
                     document.getElementById('review-img').style.display = 'inline';
-                }, 250);
+                    const _imgBlob = await fetch(_image);
+                    const _imgFile = await new File([await _imgBlob.blob()], Date.now().toString() + '.png', { type: "image/png", lastModified: Date.now() });
+                    if (navigator.canShare({ files: [_imgFile] })) {
+                        await navigator.share({ files: [_imgFile], type: "image/png" });
+                    }
+                }
+                ovr.src = canvas_objects;
             });
         }
         async function resetPosition() {
@@ -418,44 +442,134 @@
                 audio_btn.innerHTML = 'Mute';
             }
         }
-        async function startScene() {
-            const camera_feed = document.getElementById('arjs-video');
-            const audio_feed = document.getElementById('bgm');
-            const audio_btn = document.getElementById('bgm_ctrl');
-            window.navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } }).then(stream => {
-                camera_feed.srcObject = stream;
-                camera_feed.onloadeddata = (e) => {
-                    if (window.audioAccess) {
-                        camera_feed.play();
-                        if (audio_feed.children[0]) {
-                            audio_feed.play().catch(err => {
-                                audio_btn.click();
-                            });
-                            audio_feed.setAttribute('autoplay', '');
-                            audio_btn.style.display = 'block';
-                            audio_btn.click();
-                        }
-                        document.querySelector('.t3-loader').style.display = 'none';
-                        document.querySelector('.action-bar-container').style.display = 'block';
+        var fps = 30, now, then = Date.now(), interval = 1000 / fps, delta;
+        var looped = false, shoot = false, shooting = false;
+        async function animate() {
+            requestAnimationFrame(animate);
+            now = Date.now();
+            delta = now - then;
+            if (delta > interval) {
+                then = now - (delta % interval);
+                const _ent = await document.getElementById('cr_model0');
+                const _model = await _ent.object3D;
+                _model.rotation.y -= 0.1125;
+                if (!shoot) {
+                    if (_model.position.y < 8 && !looped) {
+                        _model.position.y += 0.01;
                     } else {
-                        const _btnStart = document.createElement('button');
-                        _btnStart.innerHTML = 'Start';
-                        _btnStart.style.position = 'absolute';
-                        _btnStart.style.top = '50%';
-                        _btnStart.style.left = '25%';
-                        _btnStart.style.width = '50%';
-                        _btnStart.style.height = '20%';
-                        _btnStart.onclick = function () {
-                            window.audioAccess = true;
-                            startScene();
-                        };
-                        document.querySelector('.t3-loader').children[0].appendChild(_btnStart);
+                        looped = true;
+                        _model.position.y -= 0.01;
+                        if (_model.position.y <= 3) {
+                            looped = false;
+                        }
+                    }
+                } else {
+                    const _mainPlane = await document.getElementById('mainPlane');
+                    const _height = _model.position.y;
+                    if (Array.from(_mainPlane.children).every(_en => _en.id !== 'cone')) {
+                        const _cone = await document.createElement('a-entity');
+                        _cone.id = 'cone';
+                        await _mainPlane.appendChild(_cone);
+                        await _cone.setAttribute('geometry', 'primitive: cone; radiusBottom: 1; radiusTop: 0.5; height: ' + _height + ';');
+                        await _cone.setAttribute('material', 'side: double; opacity: 0.5;');
+                        _cone.object3D.position.x = _model.position.x;
+                        _cone.object3D.position.y = _model.position.y - (_height / 2);
+                        _cone.object3D.position.z = _model.position.z;
+                    } else {
+                        const _cone = await document.getElementById('cone');
+                        const _pOb = await _cone.object3D;
+                        _pOb.rotation.y = _model.rotation.y;
+                        const _radiusBottom = await _cone.getAttribute('geometry').radiusBottom;
+                        _pOb.children[0].material.opacity -= 0.005;
+                        _pOb.children[0].material.needsUpdate = true;
+                        if (_radiusBottom > 0.001)
+                            await _cone.setAttribute('geometry', 'radiusBottom', _radiusBottom - 0.0166);
+                        console.log(_pOb.children[0].material.opacity);
+                    }
+                    if (!shooting) {
+                        shooting = true;
+                        await setTimeout(async () => {
+                            const _cone = await document.getElementById('cone');
+                            if (_cone)
+                                await _mainPlane.removeChild(_cone);
+                            shoot = false;
+                            shooting = false;
+                        }, 1750);
                     }
                 }
+            }
+        }
+        function showPrompt() {
+            document.querySelector('.t3-loader').style.display = 'none';
+            document.querySelector('.welcome-popup').style.display = 'flex';
+        }
+        function bringShips() {
+            document.getElementById('animTrigger').style.display = 'block';
+            document.getElementById('cr_model0').setAttribute('position', '0 3 -8');
+            animate();
+        }
+        function advance() {
+            window.navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } }).then(stream => {
+                const camera_feed = document.getElementById('arjs-video');
+                const audio_feed = document.getElementById('bgm');
+                const audio_btn = document.getElementById('bgm_ctrl');
+                camera_feed.srcObject = stream;
+                camera_feed.onloadeddata = (e) => {
+                    startScene();
+                }
+                const _welcome = document.querySelector('.welcome-popup');
+                const _call = document.querySelector('.call-to-action');
+                _welcome.style.display = 'none';
+                _call.style.display = 'flex';
+                let _ctr = false;
+                console.log(window.navigator.userAgentData.mobile);
+                if (!window.navigator.userAgentData.mobile) {
+                    const _trigger = document.createElement('button');
+                    _trigger.innerHTML = 'Manual Trigger';
+                    _trigger.onclick = () => {
+                        _call.style.display = 'none';
+                        document.querySelector('.action-bar-container').style.display = 'block';
+                        bringShips();
+                    }
+                    _call.appendChild(_trigger);
+                }
+                window.addEventListener('deviceorientation', async (ev) => {
+                    if (!_ctr && ev.beta > 100) {
+                        _ctr = true;
+                        _call.style.display = 'none';
+                        document.querySelector('.action-bar-container').style.display = 'block';
+                        bringShips();
+                    }
+                }, true);
             }).catch(() => alert('You have give browser the permission to access your camera'));
         }
+        async function startScene() {
+            if (window.audioAccess) {
+                if (audio_feed.children[0]) {
+                    audio_feed.play().catch(err => {
+                        audio_btn.click();
+                    });
+                    audio_feed.setAttribute('autoplay', '');
+                    audio_btn.style.display = 'block';
+                    audio_btn.click();
+                }
+            } else {
+                const _btnStart = document.createElement('button');
+                _btnStart.innerHTML = 'Start';
+                _btnStart.style.position = 'absolute';
+                _btnStart.style.top = '50%';
+                _btnStart.style.left = '25%';
+                _btnStart.style.width = '50%';
+                _btnStart.style.height = '20%';
+                _btnStart.onclick = function () {
+                    window.audioAccess = true;
+                    startScene();
+                };
+                document.querySelector('.t3-loader').children[0].appendChild(_btnStart);
+            }
+        }
         document.addEventListener('DOMContentLoaded', async () => {
-            let assetCount = 0;
+            let assetCount = 0, last = 0;
             const loadProg = [];
             const assets = await document.querySelectorAll('a-asset-item');
             const assArr = await Array.from(assets);
@@ -477,14 +591,14 @@
                 _asset.addEventListener('loaded', function (event) {
                     assetCount++;
                     if (assetCount === assArr.length || Array.from(document.querySelector('a-assets').children).every(_ch => _ch.hasLoaded)) {
-                        startScene();
+                        showPrompt();
                     }
                 });
                 _asset.addEventListener('error', function (error) {
                     console.log(error);
                 });
                 if (Array.from(document.querySelector('a-assets').children).every(_ch => _ch.hasLoaded)) {
-                    startScene();
+                    showPrompt();
                 }
             });
         });
@@ -498,11 +612,9 @@
                 <a-asset-item id="main_model" src="models/ufo.glb" crossorigin="anonymous"></a-asset-item>
             </a-assets>
             <a-entity id="mainPlane" gesture-handler>
-                <a-gltf-model id="cr_model0" position="0 0 -8" scale="8 8 8" gltf-model="#main_model"
-                    animation="property: rotation; to: 0 360 0; loop: true; dur: 1000"
-                    animation__2="property: position; from: 0 0 -8; to: 0 1 -8; loop: true; dur: 500;"></a-gltf-model>
+                <a-gltf-model id="cr_model0" position="0 20 -8" scale="8 8 8" gltf-model="#main_model"></a-gltf-model>
             </a-entity>
-            <a-camera id="camera"></a-camera>
+            <a-camera id="camera" position="0 1.6 0"></a-camera>
         </a-scene>
     </div>
     <div class="action-bar-container">
@@ -532,22 +644,9 @@
                 </svg>
                 Take A Photo
             </button>
-            <button class="action-bar-button" onclick="openQrScanner('{{ url(`qrscanner`) }}')">
-                <svg xmlns="http://www.w3.org/2000/svg" width="28.885" height="28.884" viewbox="0 0 28.885 28.884">
-                    <g id="icon_scan_qr" transform="translate(-1370.614 -437.68)">
-                        <path id="Path_6533" data-name="Path 6533"
-                            d="M110.095,42.978a.963.963,0,0,0-.963-.963h-7.7a.962.962,0,0,0-.963.963v7.7a.963.963,0,0,0,.963.963h7.7a.963.963,0,0,0,.963-.963Zm11.554,0a.962.962,0,0,0-.963-.963h-7.7a.962.962,0,0,0-.963.963v7.7a.963.963,0,0,0,.963.963h7.7a.963.963,0,0,0,.963-.963Zm-13.48.963v5.777h-5.777V43.941Zm11.554,0v5.777h-5.777V43.941ZM110.1,31.424a.963.963,0,0,0-.963-.963h-7.7a.962.962,0,0,0-.963.963v7.7a.963.963,0,0,0,.963.963h7.7a.963.963,0,0,0,.963-.963Zm11.554,0a.963.963,0,0,0-.963-.963h-7.7a.962.962,0,0,0-.963.963v7.7a.963.963,0,0,0,.963.963h7.7a.963.963,0,0,0,.963-.963Zm-13.48.963v5.777h-5.777V32.387Zm11.554,0v5.777h-5.777V32.387Z"
-                            transform="translate(1273.998 411.07)" fill="#0fb5ff" fill-rule="evenodd" />
-                        <path id="Path_6534" data-name="Path 6534"
-                            d="M87.41,38.586v6.74a.963.963,0,0,0,.963.963h6.74a.963.963,0,0,0,0-1.925H89.336V38.586a.963.963,0,1,0-1.926,0Zm26.959,0v5.777h-5.777a.963.963,0,1,0,0,1.925h6.74a.962.962,0,0,0,.963-.963v-6.74a.963.963,0,1,0-1.925,0ZM89.336,25.107V19.33h5.777a.963.963,0,0,0,0-1.926h-6.74a.963.963,0,0,0-.963.963v6.74a.963.963,0,0,0,1.926,0Zm26.958,0v-6.74a.963.963,0,0,0-.963-.963h-6.74a.963.963,0,1,0,0,1.926h5.777v5.777a.963.963,0,1,0,1.925,0Z"
-                            transform="translate(1283.204 420.276)" fill="#ffe900" fill-rule="evenodd" />
-                    </g>
-                </svg>
-                Scan Another
-            </button>
         </div>
     </div>
-    <canvas style="position: relative; top: 0; left: 0;" id="canvas1"></canvas>
+    <canvas style="position: relative; top: 0; left: 0; pointer-events: none;" id="canvas1"></canvas>
     <div class="review-modal" id="review_modal">
         <div class="review-modal-close-btn-container">
             <button class="review-modal-close-btn" onclick="closeReview()">Back</button>
@@ -559,6 +658,13 @@
                 <p style="text-align: center;">Tap and hold on the image to save to your photos or share</p>
             </div>
         </div>
+    </div>
+    <div class="welcome-popup" style="display: none;">
+        <p style="margin: auto;">Text</p>
+        <button style="margin: auto;" onclick="advance()">Start</button>
+    </div>
+    <div class="call-to-action" style="display: none;">
+        <p style="margin: auto;">What's that noise coming from above?</p>
     </div>
     <div class='t3-loader'>
         <div style="position: fixed; top: 0px; left: 0px; width: 100%; z-index: 11;">
@@ -580,6 +686,9 @@
     </audio>
     <button id="bgm_ctrl" style="display: none; position: absolute; top: 20%; right: 10%;" onclick="updateAudioState()">
         Unmute
+    </button>
+    <button id="animTrigger" style="display: none; position: absolute; bottom: 30%; right: 10%;" onclick="shoot = true">
+        Abduct
     </button>
     </div>
     </div>
