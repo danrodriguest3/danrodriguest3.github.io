@@ -33,18 +33,21 @@
         import Stats from './jsm/libs/stats.module.js';
         import { GUI } from './jsm/libs/lil-gui.module.min.js';
 
+        const t3Loader = document.querySelector('.t3-loader');
         let mouseX = 0, mouseY = 0, evenFrame = false;
-
         const CAArr = [], CBArr = [];
         const scene = await new THREE.Scene();
-        const camera = await new THREE.PerspectiveCamera(55, window.innerWidth / window.innerHeight, 2, 2000);
+        const camera = await new THREE.PerspectiveCamera(55, t3Loader.clientWidth / t3Loader.clientHeight, 2, 2000);
+        camera.aspect = t3Loader.clientWidth / t3Loader.clientHeight;
+        camera.updateProjectionMatrix();
         camera.position.z = 1000;
         scene.add(camera);
 
         const renderer = await new THREE.WebGLRenderer();
         renderer.setPixelRatio(window.devicePixelRatio);
-        renderer.setSize(window.innerWidth, window.innerHeight);
+        renderer.setSize(t3Loader.clientWidth, t3Loader.clientHeight);
         const composer = await new THREE.EffectComposer(renderer);
+        composer.setSize(t3Loader.clientWidth, t3Loader.clientHeight);
         const renderPass = await new THREE.RenderPass(scene, camera);
         const savePass = new THREE.SavePass(new THREE.WebGLRenderTarget(renderer.getRenderTarget()));
         const blendPass = new THREE.ShaderPass(THREE.BlendShader, 'tDiffuse1');
@@ -54,7 +57,7 @@
         const darkMaterial = new THREE.MeshBasicMaterial({ color: 'black' });
         const materials = {};
 
-        const bloomPass = new THREE.UnrealBloomPass(new THREE.Vector2(window.innerWidth, window.innerHeight), 1.5, 0.4, 0.85);
+        const bloomPass = new THREE.UnrealBloomPass(new THREE.Vector2(t3Loader.clientWidth, t3Loader.clientHeight), 1.5, 0.4, 0.85);
         bloomPass.exposure = 1;
         bloomPass.threshold = 0;
         bloomPass.strength = 6;
@@ -79,9 +82,9 @@
         const sprite = new THREE.TextureLoader().load('/disc.png');
 
         for (let i = 0; i < Math.ceil(1000 * (Math.random() + 0.1)); i++) {
-            const x = window.innerWidth * 4 * Math.random() - window.innerWidth;
-            const y = window.innerHeight * Math.random() - window.innerHeight / 2;
-            const z = window.innerWidth * 4 * Math.random() - window.innerWidth;
+            const x = t3Loader.clientWidth * 4 * Math.random() - t3Loader.clientWidth;
+            const y = t3Loader.clientHeight * Math.random() - t3Loader.clientHeight / 2;
+            const z = t3Loader.clientWidth * 4 * Math.random() - t3Loader.clientWidth;
             if (i % 2) {
                 verticesA.push(x, y, z);
             } else {
@@ -89,9 +92,9 @@
             }
             if (i % 10) {
                 if (Math.random() > 0.5) {
-                    verticesCA.push(window.innerWidth / 4 * Math.random() - window.innerWidth / 8, window.innerHeight / 7 * Math.random() - window.innerHeight / 14, window.innerWidth / 4 * Math.random() - window.innerWidth / 8);
+                    verticesCA.push(t3Loader.clientWidth / 4 * Math.random() - t3Loader.clientWidth / 8, t3Loader.clientHeight / 7 * Math.random() - t3Loader.clientHeight / 14, t3Loader.clientWidth / 4 * Math.random() - t3Loader.clientWidth / 8);
                 } else {
-                    verticesCB.push(window.innerWidth / 2 * Math.random() - window.innerWidth / 4, window.innerHeight / 8 * Math.random() - window.innerHeight / 16, window.innerWidth / 2 * Math.random() - window.innerWidth / 4);
+                    verticesCB.push(t3Loader.clientWidth / 2 * Math.random() - t3Loader.clientWidth / 4, t3Loader.clientHeight / 8 * Math.random() - t3Loader.clientHeight / 16, t3Loader.clientWidth / 2 * Math.random() - t3Loader.clientWidth / 4);
                 }
             }
         }
@@ -114,28 +117,30 @@
         materialCB.opacity = 0.75;
         const particlesA = new THREE.Points(geometryA, materialA), particlesB = new THREE.Points(geometryB, materialB), particlesCA = new THREE.Points(geometryCA, materialCA), particlesCB = new THREE.Points(geometryCB, materialCB);
         await scene.add(particlesA, particlesB, particlesCA, particlesCB);
-        const t3Loader = document.querySelector('.t3-loader');
         await t3Loader.appendChild(composer.renderer.domElement);
         const stats = new Stats();
         //t3Loader.appendChild(stats);
         animate();
 
         function onWindowResize() {
-            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.aspect = t3Loader.clientWidth / t3Loader.clientHeight;
             camera.updateProjectionMatrix();
 
-            renderer.setSize(window.innerWidth, window.innerHeight);
-            composer.setSize(window.innerWidth, window.innerHeight);
+            renderer.setSize(t3Loader.clientWidth, t3Loader.clientHeight);
+            composer.setSize(t3Loader.clientWidth, t3Loader.clientHeight);
         }
         window.addEventListener('resize', function () {
             onWindowResize();
         });
 
         async function onPointerMove(event) {
-            if (event.isPrimary === false) return;
-
-            mouseX = event.offsetX - (window.innerWidth / 2);
-            mouseY = event.offsetY - (window.innerHeight / 2);
+            if (window.navigator.userAgent.includes('iPhone')) {
+                mouseX = event.offsetX - t3Loader.clientWidth;
+                mouseY = event.offsetY - t3Loader.clientHeight;
+            } else {
+                mouseX = event.offsetX - t3Loader.clientWidth / 2;
+                mouseY = event.offsetY - t3Loader.clientHeight / 2;
+            }
 
             particlesCA.position.y = (- mouseY - scene.position.y) * 1.1;
             particlesCB.position.y = (- mouseY - scene.position.y) * 1.1;
@@ -508,22 +513,16 @@
             document.getElementById('cr_model0').setAttribute('position', '0 3 -8');
             animate();
         }
-        function advance() {
-            window.navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } }).then(stream => {
+        function openCamera() {
+            window.navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } }, e => console.log(e)).then(stream => {
                 const camera_feed = document.getElementById('arjs-video');
-                const audio_feed = document.getElementById('bgm');
-                const audio_btn = document.getElementById('bgm_ctrl');
                 camera_feed.srcObject = stream;
-                camera_feed.onloadeddata = (e) => {
-                    startScene();
-                }
                 const _welcome = document.querySelector('.welcome-popup');
                 const _call = document.querySelector('.call-to-action');
                 _welcome.style.display = 'none';
                 _call.style.display = 'flex';
-                let _ctr = false;
-                console.log(window.navigator.userAgentData.mobile);
-                if (!window.navigator.userAgentData.mobile) {
+                console.log(window);
+                if (!window.navigator.userAgent.includes('iPhone') && !window.navigator.userAgent.includes('Android')) {
                     const _trigger = document.createElement('button');
                     _trigger.innerHTML = 'Manual Trigger';
                     _trigger.onclick = () => {
@@ -533,34 +532,45 @@
                     }
                     _call.appendChild(_trigger);
                 }
-                window.addEventListener('deviceorientation', async (ev) => {
-                    if (!_ctr && ev.beta > 100) {
-                        _ctr = true;
+                let _listener = window.addEventListener('deviceorientation', async (ev) => {
+                    _call.firstChild.innerHTML = ev.beta;
+                    if (ev.beta > 100) {
                         _call.style.display = 'none';
                         document.querySelector('.action-bar-container').style.display = 'block';
                         bringShips();
+                        window.removeEventListener('deviceorientation', _listener);
                     }
                 }, true);
-            }).catch(() => alert('You have give browser the permission to access your camera'));
+            }).catch((e) => {
+                alert(e);
+                console.log(e);
+            });
+        }
+        function advance() {
+            const audio_feed = document.getElementById('bgm');
+            const audio_btn = document.getElementById('bgm_ctrl');
+            if (audio_feed.children[0]) {
+                audio_feed.play();
+                audio_feed.setAttribute('autoplay', '');
+                audio_btn.style.display = 'block';
+            }
+
+            window.navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } }).then((e) => e.onactive = openCamera()).catch((e) => {
+                alert(e);
+                console.log(e);
+            });
         }
         async function startScene() {
             if (window.audioAccess) {
-                if (audio_feed.children[0]) {
-                    audio_feed.play().catch(err => {
-                        audio_btn.click();
-                    });
-                    audio_feed.setAttribute('autoplay', '');
-                    audio_btn.style.display = 'block';
-                    audio_btn.click();
-                }
+                showPrompt();
             } else {
                 const _btnStart = document.createElement('button');
                 _btnStart.innerHTML = 'Start';
-                _btnStart.style.position = 'absolute';
+                _btnStart.style.position = 'fixed';
                 _btnStart.style.top = '50%';
                 _btnStart.style.left = '25%';
                 _btnStart.style.width = '50%';
-                _btnStart.style.height = '20%';
+                _btnStart.style.height = '10%';
                 _btnStart.onclick = function () {
                     window.audioAccess = true;
                     startScene();
@@ -591,14 +601,14 @@
                 _asset.addEventListener('loaded', function (event) {
                     assetCount++;
                     if (assetCount === assArr.length || Array.from(document.querySelector('a-assets').children).every(_ch => _ch.hasLoaded)) {
-                        showPrompt();
+                        startScene();
                     }
                 });
                 _asset.addEventListener('error', function (error) {
                     console.log(error);
                 });
                 if (Array.from(document.querySelector('a-assets').children).every(_ch => _ch.hasLoaded)) {
-                    showPrompt();
+                    startScene();
                 }
             });
         });
@@ -684,9 +694,8 @@
     <audio id="bgm">
         <source src="bgm.mp3" type="audio/mpeg">
     </audio>
-    <button id="bgm_ctrl" style="display: none; position: absolute; top: 20%; right: 10%;" onclick="updateAudioState()">
-        Unmute
-    </button>
+    <button id="bgm_ctrl" style="display: none; position: absolute; top: 20%; right: 10%;"
+        onclick="updateAudioState()">Mute</button>
     <button id="animTrigger" style="display: none; position: absolute; bottom: 30%; right: 10%;" onclick="shoot = true">
         Abduct
     </button>
@@ -694,8 +703,3 @@
     </div>
     <video autoplay="" muted="" playsinline="" id="arjs-video" width="100%" height="100%"
         style="position: absolute; top: 0px; left: 0px; z-index: -2; object-fit: cover;"></video>
-    <audio id="bgm">
-        <source src="bgm.mp3" type="audio/mpeg">
-    </audio>
-    <button id="bgm_ctrl" style="display: none; position: absolute; top: 20%; right: 10%;"
-        onclick="updateAudioState()">Mute</button>
