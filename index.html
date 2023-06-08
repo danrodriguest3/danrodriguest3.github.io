@@ -238,6 +238,114 @@
             }
         }
 
+        @-webkit-keyframes superspin {
+            0% {
+                opacity: 0.2;
+                -webkit-transform: scale(0.2) rotate(0deg);
+            }
+
+            15% {
+                opacity: 1;
+                -webkit-transform: scale(1) rotate(1090deg);
+            }
+
+            90% {
+                top: 25%;
+                opacity: 1;
+                -webkit-transform: scale(1) rotate(1090deg);
+            }
+
+            100% {
+                top: 100%;
+                opacity: 1;
+                -webkit-transform: scale(1) rotate(1090deg);
+            }
+        }
+
+        @keyframes superspin {
+            0% {
+                opacity: 0.2;
+                transform: scale(0.2) rotate(0deg);
+            }
+
+            15% {
+                opacity: 1;
+                transform: scale(1) rotate(1090deg);
+            }
+
+            90% {
+                top: 25%;
+                opacity: 1;
+                transform: scale(1) rotate(1090deg);
+            }
+
+            100% {
+                top: 100%;
+                opacity: 1;
+                transform: scale(1) rotate(1090deg);
+            }
+        }
+
+        @-webkit-keyframes lastspin {
+            0% {
+                opacity: 0.2;
+                -webkit-transform: scale(0.2) rotate(0deg);
+            }
+
+            15% {
+                opacity: 1;
+                -webkit-transform: scale(1) rotate(1090deg);
+            }
+
+            90% {
+                top: 25%;
+                opacity: 1;
+                -webkit-transform: scale(1) rotate(1090deg);
+            }
+
+            100% {
+                top: 15%;
+                opacity: 1;
+                -webkit-transform: scale(1) rotate(1090deg);
+            }
+        }
+
+        @keyframes lastspin {
+            0% {
+                top: 25%;
+                opacity: 0;
+                transform: scale(0.2) rotate(0deg);
+            }
+
+            15% {
+                opacity: 1;
+                transform: scale(1) rotate(1090deg);
+            }
+
+            90% {
+                opacity: 1;
+                transform: scale(1) rotate(1090deg);
+            }
+
+            100% {
+                top: 5%;
+                opacity: 1;
+                transform: scale(1) rotate(1090deg);
+            }
+        }
+
+        @-webkit-keyframes slidedown {
+            0% {
+                padding-top: 0%;
+                opacity: 0;
+            }
+
+            100% {
+                padding-top: 100%;
+                opacity: 1;
+            }
+        }
+
         .action-bar-container {
             position: fixed;
             display: none;
@@ -340,9 +448,56 @@
             left: 0px;
             width: 100%;
             height: 100%;
-            background: white;
+            background: transparent;
             z-index: 10;
             flex-direction: column;
+        }
+
+        .superspin {
+            position: fixed;
+            display: block !important;
+            width: 100%;
+            top: 25%;
+            object-fit: contain;
+
+            opacity: 0;
+
+            /* Configure the animation for Firefox */
+            -moz-animation-duration: 6s;
+            -moz-animation-name: superspin;
+            -moz-animation-timing-function: linear;
+
+            /* Configure it for Chrome and Safari */
+            -webkit-animation-duration: 6s;
+            -webkit-animation-name: superspin;
+            -webkit-animation-timing-function: cubic-bezier(0.075, 0.82, 0.165, 1);
+        }
+
+        .lastspin {
+            position: fixed;
+            display: block !important;
+            width: 100%;
+            top: 25%;
+            object-fit: contain;
+
+            /* Configure the animation for Firefox */
+            -moz-animation-duration: 6s;
+            -moz-animation-name: lastspin;
+            -moz-animation-timing-function: linear;
+
+            /* Configure it for Chrome and Safari */
+            -webkit-animation-duration: 6s;
+            -webkit-animation-name: lastspin;
+            -webkit-animation-timing-function: cubic-bezier(0.075, 0.82, 0.165, 1);
+        }
+
+        .slidedown {
+            -moz-animation-duration: 6s;
+            -moz-animation-name: slidedown;
+            -moz-animation-timing-function: linear;
+            -webkit-animation-duration: 6s;
+            -webkit-animation-name: slidedown;
+            -webkit-animation-timing-function: cubic-bezier(0.075, 0.82, 0.165, 1);
         }
 
         .call-to-action {
@@ -453,66 +608,146 @@
             requestAnimationFrame(animate);
             now = Date.now();
             delta = now - then;
-            if (delta > interval) {
-                then = now - (delta % interval);
-                const _ent = await document.getElementById('cr_model0');
-                const _model = await _ent.object3D;
-                _model.rotation.y -= 0.1125;
-                if (!shoot) {
-                    if (_model.position.y < 8 && !looped) {
-                        _model.position.y += 0.01;
-                    } else {
-                        looped = true;
-                        _model.position.y -= 0.01;
-                        if (_model.position.y <= 3) {
-                            looped = false;
+            for (let _i = 0; _i < loadedShips; _i++) {
+                if (delta > interval) {
+                    then = now - (delta % interval);
+                    const _ent = await document.getElementById('cr_model' + _i);
+                    const _model = await _ent.object3D;
+                    _model.rotation.y -= 0.1125;
+                    if (!shoot) {
+                        if (_model.position.y < 8 && !looped) {
+                            _model.position.y += 0.01;
+                        } else {
+                            looped = true;
+                            _model.position.y -= 0.01;
+                            if (_model.position.y <= 3) {
+                                looped = false;
+                            }
                         }
-                    }
-                } else {
-                    const _mainPlane = await document.getElementById('mainPlane');
-                    const _height = _model.position.y;
-                    if (Array.from(_mainPlane.children).every(_en => _en.id !== 'cone')) {
-                        const _cone = await document.createElement('a-entity');
-                        _cone.id = 'cone';
-                        await _mainPlane.appendChild(_cone);
-                        await _cone.setAttribute('geometry', 'primitive: cone; radiusBottom: 1; radiusTop: 0.5; height: ' + _height + ';');
-                        await _cone.setAttribute('material', 'side: double; opacity: 0.5;');
-                        _cone.object3D.position.x = _model.position.x;
-                        _cone.object3D.position.y = _model.position.y - (_height / 2);
-                        _cone.object3D.position.z = _model.position.z;
                     } else {
-                        const _cone = await document.getElementById('cone');
-                        const _pOb = await _cone.object3D;
-                        _pOb.rotation.y = _model.rotation.y;
-                        const _radiusBottom = await _cone.getAttribute('geometry').radiusBottom;
-                        _pOb.children[0].material.opacity -= 0.005;
-                        _pOb.children[0].material.needsUpdate = true;
-                        if (_radiusBottom > 0.001)
-                            await _cone.setAttribute('geometry', 'radiusBottom', _radiusBottom - 0.0166);
-                        console.log(_pOb.children[0].material.opacity);
-                    }
-                    if (!shooting) {
-                        shooting = true;
-                        await setTimeout(async () => {
+                        const _mainPlane = await document.getElementById('mainPlane');
+                        const _height = _model.position.y;
+                        if (Array.from(_mainPlane.children).every(_en => _en.id !== 'cone')) {
+                            const _cone = await document.createElement('a-entity');
+                            _cone.id = 'cone';
+                            await _mainPlane.appendChild(_cone);
+                            await _cone.setAttribute('geometry', 'primitive: cone; radiusBottom: 1; radiusTop: 0.5; height: ' + _height + ';');
+                            await _cone.setAttribute('material', 'side: double; opacity: 0.5;');
+                            _cone.object3D.position.x = _model.position.x;
+                            _cone.object3D.position.y = _model.position.y - (_height / 2);
+                            _cone.object3D.position.z = _model.position.z;
+                        } else {
                             const _cone = await document.getElementById('cone');
-                            if (_cone)
-                                await _mainPlane.removeChild(_cone);
-                            shoot = false;
-                            shooting = false;
-                        }, 1750);
+                            const _pOb = await _cone.object3D;
+                            _pOb.rotation.y = _model.rotation.y;
+                            const _radiusBottom = await _cone.getAttribute('geometry').radiusBottom;
+                            _pOb.children[0].material.opacity -= 0.005;
+                            _pOb.children[0].material.needsUpdate = true;
+                            if (_radiusBottom > 0.001)
+                                await _cone.setAttribute('geometry', 'radiusBottom', _radiusBottom - 0.0166);
+                            console.log(_pOb.children[0].material.opacity);
+                        }
+                        if (!shooting) {
+                            shooting = true;
+                            await setTimeout(async () => {
+                                const _cone = await document.getElementById('cone');
+                                if (_cone)
+                                    await _mainPlane.removeChild(_cone);
+                                shoot = false;
+                                shooting = false;
+                            }, 1750);
+                        }
                     }
                 }
             }
         }
         function showPrompt() {
+            const _paper = document.querySelector('.superspin');
+            const _startBtn = document.getElementById('startbtn');
             window.scrollTo(0, 0);
             document.querySelector('.t3-loader').style.display = 'none';
             document.querySelector('.welcome-popup').style.display = 'flex';
+            setTimeout(() => {
+                _paper.classList.remove('superspin');
+                setTimeout(() => {
+                    _paper.classList.add('superspin');
+                    setTimeout(() => {
+                        _paper.classList.remove('superspin');
+                        setTimeout(() => {
+                            _paper.classList.add('lastspin');
+                            _startBtn.classList.add('slidedown');
+                            setTimeout(() => {
+                                _startBtn.style = 'padding-top: 100%; opacity: 1; margin: auto; background: transparent; border: transparent;';
+                                _paper.style = '-webkit-transform: scale(1) rotate(1090deg); transform: scale(1) rotate(1090deg); top: 5%;'
+                            }, 6000);
+                        }, 50);
+                    }, 6000);
+                }, 50);
+            }, 6000);
         }
+        let loadedShips = 0, biggest = 0;
         function bringShips() {
             document.getElementById('animTrigger').style.display = 'block';
-            document.getElementById('cr_model0').setAttribute('position', '0 3 -8');
-            animate();
+            let scale = Math.random() * 8 + 4, speed = Math.random() + 0.1;
+            if (!scale < biggest) {
+                biggest = scale;
+            }
+            const _ent = document.getElementById('cr_model' + loadedShips);
+            const _obj = _ent.object3D;
+            let _finished = false, _animLength = Math.floor((scale / speed) * 2), _frameCount = 0;
+            _obj.traverse(node => {
+                if (node.isMesh) {
+                    node.material.opacity = 0;
+                    node.material.transparent = true;
+                    node.material.needsUpdate = true;
+                }
+            });
+            _obj.position.x = (Math.random() * 10) - 5;
+            _obj.position.y = Math.random() * 12 + 2;
+            let _loop = setInterval(() => {
+                if (_obj.scale.x <= scale) {
+                    _obj.scale.x += speed;
+                    _obj.scale.y += speed;
+                    _obj.scale.z += speed;
+                    _obj.rotation.y += 4;
+                    if (!_obj.rotation.z > 0) {
+                        _obj.rotation.z = .0125;
+                    } else {
+                        _obj.rotation.z = -.0125;
+                    }
+                    _obj.traverse(node => {
+                        if (node.isMesh) {
+                            console.log(node.material);
+                            node.material.opacity += speed / scale;
+                            node.material.needsUpdate = true;
+                        }
+                    });
+                } else {
+                    _obj.traverse(node => {
+                        if (node.isMesh) {
+                            console.log(node.material);
+                            node.material.opacity += speed / scale;
+                            node.material.needsUpdate = true;
+                        }
+                    });
+                    if (!_finished) {
+                        _obj.rotation.y += 3;
+                        _finished = !_finished;
+                    } else {
+                        _obj.rotation.y += 2;
+                    }
+                }
+                _frameCount++;
+                if (_frameCount >= _animLength) {
+                    _obj.rotation.z = .0125;
+                    _obj.scale.x = scale;
+                    _obj.scale.y = scale;
+                    _obj.scale.z = scale;
+                    animate();
+                    clearInterval(_loop);
+                }
+            }, interval);
+            loadedShips++;
         }
         function openCamera() {
             window.navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } }, e => console.log(e)).then(stream => {
@@ -529,6 +764,8 @@
                     _trigger.onclick = () => {
                         _call.style.display = 'none';
                         document.querySelector('.action-bar-container').style.display = 'block';
+                        bringShips();
+                        bringShips();
                         bringShips();
                     }
                     _call.appendChild(_trigger);
@@ -623,7 +860,9 @@
                 <a-asset-item id="main_model" src="models/ufo.glb" crossorigin="anonymous"></a-asset-item>
             </a-assets>
             <a-entity id="mainPlane" gesture-handler>
-                <a-gltf-model id="cr_model0" position="0 20 -8" scale="8 8 8" gltf-model="#main_model"></a-gltf-model>
+                <a-gltf-model id="cr_model0" position="0 3 -8" scale="0 0 0" gltf-model="#main_model"></a-gltf-model>
+                <a-gltf-model id="cr_model1" position="0 3 -8" scale="0 0 0" gltf-model="#main_model"></a-gltf-model>
+                <a-gltf-model id="cr_model2" position="0 3 -8" scale="0 0 0" gltf-model="#main_model"></a-gltf-model>
             </a-entity>
             <a-camera id="camera" position="0 1.6 0"></a-camera>
         </a-scene>
@@ -670,9 +909,10 @@
             </div>
         </div>
     </div>
-    <div class="welcome-popup" style="display: none;">
-        <p style="margin: auto;">Text</p>
-        <button style="margin: auto;" onclick="advance()">Start</button>
+    <div class="welcome-popup" style="display: none;"><button id="startbtn"
+            style="margin: auto; background: transparent; border: transparent; opacity: 0;" onclick="advance()"><img
+                src="start.png" /></button>
+        <img class="superspin" src="paper2.png" style="display: none;" />
     </div>
     <div class="call-to-action" style="display: none;">
         <p style="margin: auto;">What's that noise coming from above?</p>
