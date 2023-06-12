@@ -608,7 +608,6 @@
             const audio_feed = document.getElementById('bgm');
             const audio_btn = document.getElementById('bgm_ctrl');
             if (audio_btn.innerHTML === 'Mute') {
-                audio_feed.pause();
                 audio_feed.removeAttribute('autoplay');
                 audio_btn.innerHTML = 'Unmute';
             } else {
@@ -620,7 +619,6 @@
         var fps = 30, start, now, then = Date.now(), interval = 1000 / fps, delta;
         var looped = [], shoot = false, shooting = false, shot = false, endScene = false;
         async function animate() {
-            console.log('animate', start);
             if (start === undefined) {
                 start = Date.now();
             }
@@ -633,15 +631,17 @@
             let myReq = requestAnimationFrame(animate);
             now = Date.now();
             delta = now - then;
-            if (now - start >= 20000 && !shot) {
+            if (now - start >= 22500 && !shot) {
                 shoot = true;
                 shot = true;
                 setTimeout(() => {
                     endScene = true;
                 }, 10000);
             }
-            for (let _i = 0; _i <= loadedShips; _i++) {
+            console.log(loadedShips);
+            for (let _i = 0; _i < loadedShips; _i++) {
                 const _ent = await document.getElementById('cr_model' + _i);
+                console.log(_ent, _i);
                 if (delta > interval && _ent) {
                     then = now - (delta % interval);
                     const _model = await _ent.object3D;
@@ -743,6 +743,7 @@
             }
             const _ent = await document.createElement('a-gltf-model');
             _ent.id = 'cr_model' + loadedShips;
+            loadedShips++;
             await document.getElementById('mainPlane').appendChild(_ent);
             await _ent.setAttribute('gltf-model', '#main_model');
             await _ent.setAttribute('scale', '0 0 0');
@@ -756,17 +757,17 @@
             });
             let _pX = Math.floor((Math.random() * 10) - 5), _pY = Math.floor(Math.random() * 12 + 2), _pZ = Math.floor(Math.random() * (-12) - 4);
             do {
-                _pX = await Math.floor((Math.random() * 10) - 5);
+                _pX = await Math.floor((Math.random() * 20) - 10);
             } while (xArr.includes(_pX));
             xArr.push(_pX);
             _obj.position.x = _pX;
             do {
-                _pY = await Math.floor(Math.random() * 12 + 2);
+                _pY = await Math.floor(Math.random() * 8 + 1);
             } while (yArr.includes(_pY));
             yArr.push(_pY);
             _obj.position.y = _pY;
             do {
-                _pZ = await Math.floor(Math.random() * (-12) - 6);
+                _pZ = await Math.floor(Math.random() * (-12) - 8);
             } while (zArr.includes(_pZ));
             zArr.push(_pZ);
             _obj.position.z = _pZ;
@@ -803,16 +804,16 @@
                 }
                 _frameCount++;
                 if (_frameCount >= _animLength) {
-                    loadedShips++;
                     _obj.rotation.z = .0125;
                     _obj.scale.x = scale;
                     _obj.scale.y = scale;
                     _obj.scale.z = scale;
                     if (!animLoop) {
-                        animate();
                         animLoop = true;
-                    }
-                    clearInterval(_loop);
+                        animate();
+                        clearInterval(_loop);
+                    } else
+                        clearInterval(_loop);
                 }
             }, interval);
         }
@@ -1016,11 +1017,11 @@
     </div>
     <video autoplay="" muted="" playsinline="" id="arjs-video" width="100%" height="100%"
         style="position: absolute; top: 0px; left: 0px; z-index: -2; object-fit: cover;"></video>
-    <audio id="bgm">
-        <source id="legacy_audio" src="bgm.mp3" type="audio/mpeg">
-        <source id="scene_audio" src="ufo.mp3" type="audio/mpeg">
-        <source id="voices_audio" src="alien_voices.mp3" type="audio/mpeg">
-        <source id="lookup_audio" src="look_up.mp3" type="audio/mpeg">
+    <audio id="bgm" preload="auto">
+        <source id="legacy_audio" src="bgm.mp3" type="audio/mpeg" preload="auto">
+        <source id="scene_audio" src="ufo.mp3" type="audio/mpeg" preload="auto">
+        <source id="voices_audio" src="alien_voices.mp3" type="audio/mpeg" preload="auto">
+        <source id="lookup_audio" src="look_up.mp3" type="audio/mpeg" preload="auto">
     </audio>
     <button id="bgm_ctrl" style="display: none; position: absolute; top: 20%; right: 10%;"
         onclick="updateAudioState()">Mute</button>
