@@ -622,11 +622,8 @@
             if (start === undefined) {
                 start = Date.now();
             }
-            if (looped.length !== loadedShips) {
-                await looped.splice(0);
-                for (let _i; _i <= loadedShips; _i++) {
-                    looped.push(false);
-                }
+            if (looped.length < loadedShips) {
+                looped.push(false);
             }
             let myReq = requestAnimationFrame(animate);
             now = Date.now();
@@ -638,10 +635,8 @@
                     endScene = true;
                 }, 10000);
             }
-            console.log(loadedShips);
             for (let _i = 0; _i < loadedShips; _i++) {
                 const _ent = await document.getElementById('cr_model' + _i);
-                console.log(_ent, _i);
                 if (delta > interval && _ent) {
                     then = now - (delta % interval);
                     const _model = await _ent.object3D;
@@ -737,7 +732,7 @@
         let loadedShips = 0, unloadedShips = 0, biggest = 0, xArr = [], yArr = [], zArr = [], animLoop = false;
         async function bringShips() {
             let _finished = false, _animLength = 60, _frameCount = 0;
-            let scale = Math.random() * 6 + 1, speed = scale / _animLength;
+            let scale = Math.random() * 4 + 0.5, speed = scale / _animLength;
             if (!scale < biggest) {
                 biggest = scale;
             }
