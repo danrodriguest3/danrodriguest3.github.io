@@ -617,66 +617,100 @@
                 audio_btn.innerHTML = 'Mute';
             }
         }
-        var fps = 30, now, then = Date.now(), interval = 1000 / fps, delta;
-        var looped = false, shoot = false, shooting = false;
+        var fps = 30, start, now, then = Date.now(), interval = 1000 / fps, delta;
+        var looped = [], shoot = false, shooting = false, shot = false, endScene = false;
         async function animate() {
-            requestAnimationFrame(animate);
+            console.log('animate', start);
+            if (start === undefined) {
+                start = Date.now();
+            }
+            if (looped.length !== loadedShips) {
+                await looped.splice(0);
+                for (let _i; _i <= loadedShips; _i++) {
+                    looped.push(false);
+                }
+            }
+            let myReq = requestAnimationFrame(animate);
             now = Date.now();
             delta = now - then;
-            for (let _i = 0; _i < loadedShips; _i++) {
-                if (delta > interval) {
+            if (now - start >= 20000 && !shot) {
+                shoot = true;
+                shot = true;
+                setTimeout(() => {
+                    endScene = true;
+                }, 10000);
+            }
+            for (let _i = 0; _i <= loadedShips; _i++) {
+                const _ent = await document.getElementById('cr_model' + _i);
+                if (delta > interval && _ent) {
                     then = now - (delta % interval);
-                    const _ent = await document.getElementById('cr_model' + _i);
                     const _model = await _ent.object3D;
                     _model.rotation.y -= 0.1125;
-                    if (!shoot) {
-                        if (_model.position.y < 8 && !looped) {
-                            _model.position.y += 0.01;
+                    if (loadedShips >= 3)
+                        if (!shoot) {
+                            if (!endScene) {
+                                if (_model.position.y < 14 && !looped[_i]) {
+                                    _model.position.y += 0.02;
+                                } else {
+                                    looped[_i] = true;
+                                    _model.position.y -= 0.02;
+                                    if (_model.position.y <= 4) {
+                                        looped[_i] = false;
+                                    }
+                                }
+                            } else {
+                                if (_model.scale.x > 0) {
+                                    _model.position.y += 0.02;
+                                    _model.scale.x -= 0.025;
+                                    _model.scale.y -= 0.025;
+                                    _model.scale.z -= 0.025;
+                                    if (_model.scale.x < 0) unloadedShips++;
+                                } else {
+                                    if (unloadedShips === loadedShips) {
+                                        cancelAnimationFrame(myReq);
+                                    }
+                                }
+                            }
                         } else {
-                            looped = true;
-                            _model.position.y -= 0.01;
-                            if (_model.position.y <= 3) {
-                                looped = false;
+                            const _mainPlane = await document.getElementById('mainPlane');
+                            const _height = _model.position.y;
+                            if (Array.from(_mainPlane.children).every(_en => _en.id !== 'cone')) {
+                                const _cone = await document.createElement('a-entity');
+                                _cone.id = 'cone';
+                                await _mainPlane.appendChild(_cone);
+                                await _cone.setAttribute('geometry', 'primitive: cone; radiusBottom: ' + _model.scale.x + '; radiusTop: ' + _model.scale.x / 2 + '; height: ' + _height + ';');
+                                await _cone.setAttribute('material', 'side: double; opacity: 0.5;');
+                                _cone.object3D.position.x = _model.position.x;
+                                _cone.object3D.position.y = (_height / 2) + 0.5;
+                                _cone.object3D.position.z = _model.position.z;
+                            } else {
+                                const _cone = await document.getElementById('cone');
+                                const _pOb = await _cone.object3D;
+                                _pOb.rotation.y = _model.rotation.y;
+                                const _radiusBottom = await _cone.getAttribute('geometry').radiusBottom;
+                                _pOb.children[0].material.opacity -= 1 / 1500;
+                                _pOb.children[0].material.needsUpdate = true;
+                                if (_radiusBottom > 0.001)
+                                    await _cone.setAttribute('geometry', 'radiusBottom', _radiusBottom - (_model.scale.x / 600));
+                            }
+                            if (!shooting) {
+                                shooting = true;
+                                await setTimeout(async () => {
+                                    const _cone = await document.getElementById('cone');
+                                    if (_cone)
+                                        await _mainPlane.removeChild(_cone);
+                                    shoot = false;
+                                    shooting = false;
+                                }, 10000);
                             }
                         }
-                    } else {
-                        const _mainPlane = await document.getElementById('mainPlane');
-                        const _height = _model.position.y;
-                        if (Array.from(_mainPlane.children).every(_en => _en.id !== 'cone')) {
-                            const _cone = await document.createElement('a-entity');
-                            _cone.id = 'cone';
-                            await _mainPlane.appendChild(_cone);
-                            await _cone.setAttribute('geometry', 'primitive: cone; radiusBottom: 1; radiusTop: 0.5; height: ' + _height + ';');
-                            await _cone.setAttribute('material', 'side: double; opacity: 0.5;');
-                            _cone.object3D.position.x = _model.position.x;
-                            _cone.object3D.position.y = _model.position.y - (_height / 2);
-                            _cone.object3D.position.z = _model.position.z;
-                        } else {
-                            const _cone = await document.getElementById('cone');
-                            const _pOb = await _cone.object3D;
-                            _pOb.rotation.y = _model.rotation.y;
-                            const _radiusBottom = await _cone.getAttribute('geometry').radiusBottom;
-                            _pOb.children[0].material.opacity -= 0.005;
-                            _pOb.children[0].material.needsUpdate = true;
-                            if (_radiusBottom > 0.001)
-                                await _cone.setAttribute('geometry', 'radiusBottom', _radiusBottom - 0.0166);
-                            console.log(_pOb.children[0].material.opacity);
-                        }
-                        if (!shooting) {
-                            shooting = true;
-                            await setTimeout(async () => {
-                                const _cone = await document.getElementById('cone');
-                                if (_cone)
-                                    await _mainPlane.removeChild(_cone);
-                                shoot = false;
-                                shooting = false;
-                            }, 1750);
-                        }
-                    }
                 }
             }
         }
         function showPrompt() {
+            const audio_feed = document.getElementById('bgm');
+            audio_feed.src = audio_feed.children.namedItem('voices_audio').src;
+            audio_feed.play();
             const _paper = document.querySelector('.superspin');
             const _startBtn = document.getElementById('startbtn');
             window.scrollTo(0, 0);
@@ -700,16 +734,19 @@
                 }, 50);
             }, 6000);
         }
-        let loadedShips = 0, biggest = 0;
-        function bringShips() {
-            document.getElementById('animTrigger').style.display = 'block';
-            let scale = Math.random() * 8 + 4, speed = Math.random() + 0.1;
+        let loadedShips = 0, unloadedShips = 0, biggest = 0, xArr = [], yArr = [], zArr = [], animLoop = false;
+        async function bringShips() {
+            let _finished = false, _animLength = 60, _frameCount = 0;
+            let scale = Math.random() * 6 + 1, speed = scale / _animLength;
             if (!scale < biggest) {
                 biggest = scale;
             }
-            const _ent = document.getElementById('cr_model' + loadedShips);
+            const _ent = await document.createElement('a-gltf-model');
+            _ent.id = 'cr_model' + loadedShips;
+            await document.getElementById('mainPlane').appendChild(_ent);
+            await _ent.setAttribute('gltf-model', '#main_model');
+            await _ent.setAttribute('scale', '0 0 0');
             const _obj = _ent.object3D;
-            let _finished = false, _animLength = Math.floor((scale / speed) * 2), _frameCount = 0;
             _obj.traverse(node => {
                 if (node.isMesh) {
                     node.material.opacity = 0;
@@ -717,8 +754,22 @@
                     node.material.needsUpdate = true;
                 }
             });
-            _obj.position.x = (Math.random() * 10) - 5;
-            _obj.position.y = Math.random() * 12 + 2;
+            let _pX = Math.floor((Math.random() * 10) - 5), _pY = Math.floor(Math.random() * 12 + 2), _pZ = Math.floor(Math.random() * (-12) - 4);
+            do {
+                _pX = await Math.floor((Math.random() * 10) - 5);
+            } while (xArr.includes(_pX));
+            xArr.push(_pX);
+            _obj.position.x = _pX;
+            do {
+                _pY = await Math.floor(Math.random() * 12 + 2);
+            } while (yArr.includes(_pY));
+            yArr.push(_pY);
+            _obj.position.y = _pY;
+            do {
+                _pZ = await Math.floor(Math.random() * (-12) - 6);
+            } while (zArr.includes(_pZ));
+            zArr.push(_pZ);
+            _obj.position.z = _pZ;
             let _loop = setInterval(() => {
                 if (_obj.scale.x <= scale) {
                     _obj.scale.x += speed;
@@ -732,7 +783,6 @@
                     }
                     _obj.traverse(node => {
                         if (node.isMesh) {
-                            console.log(node.material);
                             node.material.opacity += speed / scale;
                             node.material.needsUpdate = true;
                         }
@@ -740,7 +790,6 @@
                 } else {
                     _obj.traverse(node => {
                         if (node.isMesh) {
-                            console.log(node.material);
                             node.material.opacity += speed / scale;
                             node.material.needsUpdate = true;
                         }
@@ -754,17 +803,21 @@
                 }
                 _frameCount++;
                 if (_frameCount >= _animLength) {
+                    loadedShips++;
                     _obj.rotation.z = .0125;
                     _obj.scale.x = scale;
                     _obj.scale.y = scale;
                     _obj.scale.z = scale;
-                    animate();
+                    if (!animLoop) {
+                        animate();
+                        animLoop = true;
+                    }
                     clearInterval(_loop);
                 }
             }, interval);
-            loadedShips++;
         }
         function openCamera() {
+            let _triggered = false;
             window.navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } }, e => console.log(e)).then(stream => {
                 const camera_feed = document.getElementById('arjs-video');
                 camera_feed.srcObject = stream;
@@ -772,25 +825,44 @@
                 const _call = document.querySelector('.call-to-action');
                 _welcome.style.display = 'none';
                 _call.style.display = 'flex';
-                console.log(window);
+                const audio_feed = document.getElementById('bgm');
+                audio_feed.src = audio_feed.children.namedItem('lookup_audio').src;
+                audio_feed.play();
                 if (!window.navigator.userAgent.includes('iPhone') && !window.navigator.userAgent.includes('Android')) {
                     const _trigger = document.createElement('button');
                     _trigger.innerHTML = 'Manual Trigger';
                     _trigger.onclick = () => {
+                        const audio_feed = document.getElementById('bgm');
+                        audio_feed.src = audio_feed.children.namedItem('scene_audio').src;
+                        audio_feed.play();
                         _call.style.display = 'none';
                         document.querySelector('.action-bar-container').style.display = 'block';
                         bringShips();
-                        bringShips();
-                        bringShips();
+                        setTimeout(() => {
+                            bringShips();
+                            setTimeout(() => {
+                                bringShips();
+                            }, 2000);
+                        }, 2000);
                     }
                     _call.appendChild(_trigger);
                 }
                 let _listener = window.addEventListener('deviceorientation', async (ev) => {
                     _call.firstChild.innerHTML = ev.beta;
-                    if (ev.beta > 100) {
+                    if (ev.beta > 100 && !_triggered) {
+                        const audio_feed = document.getElementById('bgm');
+                        audio_feed.src = audio_feed.children.namedItem('scene_audio').src;
+                        audio_feed.play();
+                        _triggered = true;
                         _call.style.display = 'none';
                         document.querySelector('.action-bar-container').style.display = 'block';
                         bringShips();
+                        setTimeout(() => {
+                            bringShips();
+                            setTimeout(() => {
+                                bringShips();
+                            }, 2000);
+                        }, 2000);
                         window.removeEventListener('deviceorientation', _listener);
                     }
                 }, true);
@@ -826,7 +898,7 @@
                 _btnStart.style.height = '10%';
                 _btnStart.onclick = function () {
                     window.audioAccess = true;
-                    startScene();
+                    showPrompt();
                 };
                 document.querySelector('.t3-loader').children[0].appendChild(_btnStart);
             }
@@ -872,12 +944,9 @@
             vr-mode-ui="enabled: false" gltf-model="dracoDecoderPath: https://www.gstatic.com/draco/v1/decoders/;"
             gesture-detector>
             <a-assets timeout="15000">
-                <a-asset-item id="main_model" src="models/ufo.glb" crossorigin="anonymous"></a-asset-item>
+                <a-asset-item id="main_model" src="models/ufo-v2.glb" crossorigin="anonymous"></a-asset-item>
             </a-assets>
             <a-entity id="mainPlane" gesture-handler>
-                <a-gltf-model id="cr_model0" position="0 3 -8" scale="0 0 0" gltf-model="#main_model"></a-gltf-model>
-                <a-gltf-model id="cr_model1" position="0 3 -8" scale="0 0 0" gltf-model="#main_model"></a-gltf-model>
-                <a-gltf-model id="cr_model2" position="0 3 -8" scale="0 0 0" gltf-model="#main_model"></a-gltf-model>
             </a-entity>
             <a-camera id="camera" position="0 1.6 0"></a-camera>
         </a-scene>
@@ -948,12 +1017,18 @@
     <video autoplay="" muted="" playsinline="" id="arjs-video" width="100%" height="100%"
         style="position: absolute; top: 0px; left: 0px; z-index: -2; object-fit: cover;"></video>
     <audio id="bgm">
-        <source src="bgm.mp3" type="audio/mpeg">
+        <source id="legacy_audio" src="bgm.mp3" type="audio/mpeg">
+        <source id="scene_audio" src="ufo.mp3" type="audio/mpeg">
+        <source id="voices_audio" src="alien_voices.mp3" type="audio/mpeg">
+        <source id="lookup_audio" src="look_up.mp3" type="audio/mpeg">
     </audio>
     <button id="bgm_ctrl" style="display: none; position: absolute; top: 20%; right: 10%;"
         onclick="updateAudioState()">Mute</button>
     <button id="animTrigger" style="display: none; position: absolute; bottom: 30%; right: 10%;" onclick="shoot = true">
         Abduct
+    </button>
+    <button id="shipSpawner" style="display: none; position: absolute; bottom: 30%; right: 20%;" onclick="bringShips()">
+        Spawn UFO
     </button>
     </div>
     </div>
