@@ -628,7 +628,7 @@
                 start = Date.now();
             }
             if (looped.length < loadedShips) {
-                looped.push(false);
+                looped.push(true);
             }
             let myReq = requestAnimationFrame(animate);
             now = Date.now();
@@ -649,7 +649,7 @@
                     if (loadedShips >= 3)
                         if (!shoot) {
                             if (!endScene) {
-                                if (_model.position.y < 12 && !looped[_i]) {
+                                if (_model.position.y < 10 && !looped[_i]) {
                                     _model.position.y += 0.02;
                                 } else {
                                     looped[_i] = true;
@@ -937,7 +937,7 @@
             <a-assets timeout="15000">
                 <a-asset-item id="main_model" src="models/ufo-v2.glb" crossorigin="anonymous"></a-asset-item>
             </a-assets>
-            <a-entity id="mainPlane" gesture-handler>
+            <a-entity id="mainPlane" gesture-handler rotation="0 0 0" position="0 0 -10">
             </a-entity>
             <a-camera id="camera" position="0 1.6 0"></a-camera>
         </a-scene>
