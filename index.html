@@ -644,12 +644,12 @@
                     if (loadedShips >= 3)
                         if (!shoot) {
                             if (!endScene) {
-                                if (_model.position.y < 14 && !looped[_i]) {
+                                if (_model.position.y < 12 && !looped[_i]) {
                                     _model.position.y += 0.02;
                                 } else {
                                     looped[_i] = true;
                                     _model.position.y -= 0.02;
-                                    if (_model.position.y <= 4) {
+                                    if (_model.position.y <= 3) {
                                         looped[_i] = false;
                                     }
                                 }
@@ -805,6 +805,7 @@
             window.navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } }, e => console.log(e)).then(stream => {
                 const camera_feed = document.getElementById('arjs-video');
                 document.body.style.filter = 'sepia(70%)';
+                document.body.style.maxHeight = '100%';
                 camera_feed.srcObject = stream;
                 const _welcome = document.querySelector('.welcome-popup');
                 const _call = document.querySelector('.call-to-action');
