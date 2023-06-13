@@ -622,13 +622,14 @@
             }
         }
         var fps = 30, start, now, then = Date.now(), interval = 1000 / fps, delta;
-        var looped = [], shoot = false, shooting = false, shot = false, endScene = false;
+        var looped = [], wobbled = [], shoot = false, shooting = false, shot = false, endScene = false;
         async function animate() {
             if (start === undefined) {
                 start = Date.now();
             }
             if (looped.length < loadedShips) {
                 looped.push(true);
+                wobbled.push(Math.random() > 0.5 ? true : false);
             }
             let myReq = requestAnimationFrame(animate);
             now = Date.now();
@@ -656,6 +657,15 @@
                                     _model.position.y -= 0.02;
                                     if (_model.position.y <= 3) {
                                         looped[_i] = false;
+                                    }
+                                }
+                                if (_model.rotation.z < 0.075 && !wobbled[_i]) {
+                                    _model.rotation.z += 0.005;
+                                } else {
+                                    wobbled[_i] = true;
+                                    _model.rotation.z -= 0.005;
+                                    if (_model.rotation.z < -0.075) {
+                                        wobbled[_i] = false;
                                     }
                                 }
                             } else {
