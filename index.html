@@ -608,11 +608,11 @@
             const audio_feed = document.getElementById('bgm');
             const audio_btn = document.getElementById('bgm_ctrl');
             if (audio_btn.innerHTML === 'Mute') {
-                audio_feed.removeAttribute('autoplay');
+                audio_feed.muted = true;
                 audio_btn.innerHTML = 'Unmute';
             } else {
+                audio_feed.muted = false;
                 audio_feed.play();
-                audio_feed.setAttribute('autoplay', '');
                 audio_btn.innerHTML = 'Mute';
             }
         }
