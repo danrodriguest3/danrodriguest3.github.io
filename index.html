@@ -715,9 +715,6 @@
             }
         }
         function showPrompt() {
-            const audio_feed = document.getElementById('bgm');
-            audio_feed.src = audio_feed.children.namedItem('voices_audio').src;
-            audio_feed.play();
             const _paper = document.querySelector('.superspin');
             const _startBtn = document.getElementById('startbtn');
             window.scrollTo(0, 0);
@@ -805,62 +802,53 @@
                 }
             }, interval);
         }
-        function openCamera() {
+        function begin() {
             let _triggered = false;
-            window.navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } }, e => console.log(e)).then(stream => {
-                const camera_feed = document.getElementById('arjs-video');
-                document.body.style.filter = 'sepia(70%)';
-                document.body.style.maxHeight = '100%';
-                camera_feed.srcObject = stream;
-                const _welcome = document.querySelector('.welcome-popup');
-                const _call = document.querySelector('.call-to-action');
-                _welcome.style.display = 'none';
-                _call.style.display = 'flex';
-                const audio_feed = document.getElementById('bgm');
-                audio_feed.src = audio_feed.children.namedItem('lookup_audio').src;
-                audio_feed.play();
-                if (!window.navigator.userAgent.includes('iPhone') && !window.navigator.userAgent.includes('Android')) {
-                    const _trigger = document.createElement('button');
-                    _trigger.innerHTML = 'Manual Trigger';
-                    _trigger.onclick = () => {
-                        const audio_feed = document.getElementById('bgm');
-                        audio_feed.src = audio_feed.children.namedItem('scene_audio').src;
-                        audio_feed.play();
-                        _call.style.display = 'none';
-                        document.querySelector('.action-bar-container').style.display = 'block';
+            const _welcome = document.querySelector('.welcome-popup');
+            const _call = document.querySelector('.call-to-action');
+            _welcome.style.display = 'none';
+            _call.style.display = 'flex';
+            const audio_feed = document.getElementById('bgm');
+            audio_feed.src = audio_feed.children.namedItem('lookup_audio').src;
+            audio_feed.play();
+            if (!window.navigator.userAgent.includes('iPhone') && !window.navigator.userAgent.includes('Android')) {
+                const _trigger = document.createElement('button');
+                _trigger.innerHTML = 'Manual Trigger';
+                _trigger.onclick = () => {
+                    const audio_feed = document.getElementById('bgm');
+                    audio_feed.src = audio_feed.children.namedItem('scene_audio').src;
+                    audio_feed.play();
+                    _call.style.display = 'none';
+                    document.querySelector('.action-bar-container').style.display = 'block';
+                    bringShips();
+                    setTimeout(() => {
                         bringShips();
                         setTimeout(() => {
                             bringShips();
-                            setTimeout(() => {
-                                bringShips();
-                            }, 2000);
                         }, 2000);
-                    }
-                    _call.appendChild(_trigger);
+                    }, 2000);
                 }
-                let _listener = window.addEventListener('deviceorientation', async (ev) => {
-                    _call.firstChild.innerHTML = ev.beta;
-                    if (ev.beta > 100 && !_triggered) {
-                        const audio_feed = document.getElementById('bgm');
-                        audio_feed.src = audio_feed.children.namedItem('scene_audio').src;
-                        audio_feed.play();
-                        _triggered = true;
-                        _call.style.display = 'none';
-                        document.querySelector('.action-bar-container').style.display = 'block';
+                _call.appendChild(_trigger);
+            }
+            let _listener = window.addEventListener('deviceorientation', async (ev) => {
+                _call.firstChild.innerHTML = ev.beta;
+                if (ev.beta > 100 && !_triggered) {
+                    const audio_feed = document.getElementById('bgm');
+                    audio_feed.src = audio_feed.children.namedItem('scene_audio').src;
+                    audio_feed.play();
+                    _triggered = true;
+                    _call.style.display = 'none';
+                    document.querySelector('.action-bar-container').style.display = 'block';
+                    bringShips();
+                    setTimeout(() => {
                         bringShips();
                         setTimeout(() => {
                             bringShips();
-                            setTimeout(() => {
-                                bringShips();
-                            }, 2000);
                         }, 2000);
-                        window.removeEventListener('deviceorientation', _listener);
-                    }
-                }, true);
-            }).catch((e) => {
-                alert(e);
-                console.log(e);
-            });
+                    }, 2000);
+                    window.removeEventListener('deviceorientation', _listener);
+                }
+            }, true);
         }
         function advance() {
             const audio_feed = document.getElementById('bgm');
@@ -871,14 +859,26 @@
                 audio_btn.style.display = 'block';
             }
 
-            window.navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } }).then((e) => e.onactive = openCamera()).catch((e) => {
+            window.navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } }).then((e) => e.onactive = begin()).catch((e) => {
                 alert(e);
                 console.log(e);
             });
         }
-        async function startScene() {
+        async function handlePermissions() {
             if (window.audioAccess) {
-                showPrompt();
+                const audio_feed = document.getElementById('bgm');
+                audio_feed.src = audio_feed.children.namedItem('voices_audio').src;
+                audio_feed.play();
+                window.navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } }, e => console.log(e)).then(stream => {
+                    const camera_feed = document.getElementById('arjs-video');
+                    document.body.style.filter = 'sepia(70%)';
+                    document.body.style.maxHeight = '100%';
+                    camera_feed.srcObject = stream;
+                    showPrompt();
+                }).catch((e) => {
+                    alert(e);
+                    console.log(e);
+                });
             } else {
                 const _btnStart = document.createElement('button');
                 _btnStart.innerHTML = 'Start';
@@ -888,8 +888,19 @@
                 _btnStart.style.width = '50%';
                 _btnStart.style.height = '10%';
                 _btnStart.onclick = function () {
-                    window.audioAccess = true;
-                    showPrompt();
+                    const audio_feed = document.getElementById('bgm');
+                    audio_feed.src = audio_feed.children.namedItem('voices_audio').src;
+                    audio_feed.play();
+                    window.navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } }, e => console.log(e)).then(stream => {
+                        const camera_feed = document.getElementById('arjs-video');
+                        document.body.style.filter = 'sepia(70%)';
+                        document.body.style.maxHeight = '100%';
+                        camera_feed.srcObject = stream;
+                        showPrompt();
+                    }).catch((e) => {
+                        alert(e);
+                        console.log(e);
+                    });
                 };
                 document.querySelector('.t3-loader').children[0].appendChild(_btnStart);
             }
@@ -917,14 +928,14 @@
                 _asset.addEventListener('loaded', function (event) {
                     assetCount++;
                     if (assetCount === assArr.length || Array.from(document.querySelector('a-assets').children).every(_ch => _ch.hasLoaded)) {
-                        startScene();
+                        handlePermissions();
                     }
                 });
                 _asset.addEventListener('error', function (error) {
                     console.log(error);
                 });
                 if (Array.from(document.querySelector('a-assets').children).every(_ch => _ch.hasLoaded)) {
-                    startScene();
+                    handlePermissions();
                 }
             });
         });
