@@ -542,6 +542,7 @@
             window.location.href = url;
         }
         function takePhoto() {
+            const _hashtags = '#ufoMcDonalds';
             document.getElementById('review_modal').style.display = 'block';
             const myImgElem = document.getElementById('review-img');
             myImgElem.src = '';
@@ -571,6 +572,10 @@
                         await _ctx1.drawImage(_frame, 0, 0, _frame.width + 100, _frame.height, 0, 0, _frame.width * (_canvas1.width / 380) + 100 * (_canvas1.width / 380), _frame.height * (_canvas1.height / 527));
                     if (_logo)
                         await _ctx1.drawImage(_logo, 0, 0, _logo.width, _logo.height, _canvas1.width / 2 - _logo.width * (_canvas1.height / 527) / 2, 0, _logo.width * (_canvas1.height / 527), _logo.height * (_canvas1.height / 527));
+                    _ctx1.fillStyle = 'rgba(255, 255, 255, 0.75)';
+                    _ctx1.font = "30px Arial";
+                    _ctx1.textAlign = "center";
+                    _ctx1.fillText(_hashtags, _canvas1.width / 2, _canvas1.height * 0.8);
                     // Get data from new canvas
                     var _image = await _canvas1.toDataURL("image/png");
                     myImgElem.src = _image;
