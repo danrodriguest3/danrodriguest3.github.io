@@ -402,6 +402,12 @@
             width: 110px;
         }
 
+        .action-bar-button:disabled {
+            background-color: rgba(60, 60, 60, 0.4) !important;
+            color: rgb(150, 150, 150) !important;
+            opacity: 0.75;
+        }
+
         .action-bar-button svg {
             margin-bottom: 15px;
             height: 32px;
@@ -628,6 +634,8 @@
         var fps = 30, start, now, then = Date.now(), interval = 1000 / fps, delta;
         var looped = [], wobbled = [], shoot = false, shooting = false, shot = false, endScene = false;
         async function animate() {
+            const audio_ch_3 = document.getElementById('ch_3');
+            const abductionBtn = document.getElementById('animTrigger');
             if (start === undefined) {
                 start = Date.now();
             }
@@ -673,6 +681,7 @@
                                     }
                                 }
                             } else {
+                                !abductionBtn.hasAttribute('disabled') && (abductionBtn.setAttribute('disabled', ''));
                                 if (_model.scale.x > 0) {
                                     _model.position.y += 0.02;
                                     _model.scale.x -= 0.025;
@@ -716,12 +725,16 @@
                             }
                             if (!shooting) {
                                 shooting = true;
+                                audio_ch_3.src = audio_ch_3.children.namedItem('abduction_ray').src;
+                                audio_ch_3.play();
+                                abductionBtn.setAttribute('disabled', 'true');
                                 await setTimeout(async () => {
                                     const _cone = await document.getElementById('cone');
                                     if (_cone)
                                         await _mainPlane.removeChild(_cone);
                                     shoot = false;
                                     shooting = false;
+                                    abductionBtn.removeAttribute('disabled');
                                 }, 10000);
                             }
                         }
@@ -808,6 +821,8 @@
                     _obj.scale.y = scale;
                     _obj.scale.z = scale;
                     if (!animLoop) {
+                        const abductionBtn = document.getElementById('animTrigger');
+                        abductionBtn.removeAttribute('disabled');
                         animLoop = true;
                         animate();
                         clearInterval(_loop);
@@ -974,13 +989,21 @@
             <div class="detail-line"></div>
         </div>
         <div class="action-bar-buttons">
-            <button class="action-bar-button" onclick="resetPosition()">
-                <svg xmlns="http://www.w3.org/2000/svg" width="27.028" height="30.494" viewbox="0 0 27.028 30.494">
-                    <path id="icon_reset"
-                        d="M132.44,14h-9.373a8.843,8.843,0,0,0-8.827,8.827v7.7a1.284,1.284,0,1,0,2.568,0v-7.7a6.233,6.233,0,0,1,6.227-6.227h9.341a6.247,6.247,0,0,1,6.291,6.227v6.741A6.233,6.233,0,0,1,132.44,35.8H120.852l3.884-3.884a1.294,1.294,0,0,0-1.83-1.83l-6.1,6.1a1.279,1.279,0,0,0,0,1.83l6.1,6.1a1.285,1.285,0,0,0,.931.385,1.339,1.339,0,0,0,.931-.385,1.279,1.279,0,0,0,0-1.83L120.852,38.4H132.44a8.822,8.822,0,0,0,8.827-8.827V22.827A8.843,8.843,0,0,0,132.44,14Z"
-                        transform="translate(-114.24 -14)" fill="#f8f93a" />
+            <button class="action-bar-button" id="animTrigger" onclick="shoot = true" disabled>
+                <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" fill="#f8f93a"
+                    version="1.1" id="Capa_1" width="32" height="32" viewBox="0 0 32 32" xml:space="preserve">
+                    <g transform="scale(0.7)">
+                        <g>
+                            <path
+                                d="M15.78,34.176c0.075,0.695,0,1.418,0,1.418h15.296c0,0,0-0.705,0-1.627c3.754-0.588,10.979-6.721,10.979-6.721H4.834    C4.834,27.246,10.746,33.328,15.78,34.176z" />
+                            <path
+                                d="M28.848,12.227c-2.356,0-8.937,0-10.704,0c-1.771,0-4.315,3.172-4.315,3.172h19.231    C33.061,15.398,31.205,12.227,28.848,12.227z" />
+                            <path
+                                d="M37.083,16.9H10.496L0,25.539h47.82L37.083,16.9z M14.208,23.203c-1.63,0-2.952-0.812-2.952-1.812    c0-1.003,1.322-1.816,2.952-1.816c1.631,0,2.952,0.813,2.952,1.816C17.16,22.388,15.839,23.203,14.208,23.203z M23.911,23.203    c-1.631,0-2.952-0.812-2.952-1.812c0-1.003,1.321-1.816,2.952-1.816c1.631,0,2.95,0.813,2.95,1.816    C26.861,22.388,25.542,23.203,23.911,23.203z M33.753,23.035c-1.631,0-2.952-0.812-2.952-1.815c0-1.001,1.321-1.814,2.952-1.814    c1.63,0,2.952,0.813,2.952,1.814S35.383,23.035,33.753,23.035z" />
+                        </g>
+                    </g>
                 </svg>
-                Reset
+                Abduct
             </button>
             <button class="action-bar-button" onclick="takePhoto()">
                 <svg xmlns="http://www.w3.org/2000/svg" width="35" height="29" viewbox="0 0 35 29">
@@ -1042,13 +1065,12 @@
         <source id="scene_audio" src="ufo.mp3" type="audio/mpeg" preload="auto">
         <source id="lookup_audio" src="look_up.mp3" type="audio/mpeg" preload="auto">
         <source id="voices_audio" src="audio/new_alien_voice_this_will_be_used.mp3" type="audio/mpeg" preload="auto">
+    </audio>
+    <audio id="ch_3" preload="auto">
         <source id="abduction_ray" src="audio/abduction_ray.mp3" type="audio/mpeg" preload="auto">
     </audio>
     <button id="bgm_ctrl" style="display: none; position: absolute; top: 20%; right: 10%;"
         onclick="updateAudioState()">Mute</button>
-    <button id="animTrigger" style="position: absolute; bottom: 30%; right: 10%;" onclick="shoot = true">
-        Abduct
-    </button>
     <button id="shipSpawner" style="display: none; position: absolute; bottom: 30%; right: 20%;" onclick="bringShips()">
         Spawn UFO
     </button>
