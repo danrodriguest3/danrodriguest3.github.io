@@ -619,15 +619,17 @@
             const audio_bgm = document.getElementById('bgm');
             const audio_ch_2 = document.getElementById('ch_2');
             const audio_btn = document.getElementById('bgm_ctrl');
-            if (audio_btn.innerHTML === 'Mute') {
-                audio_sources.forEach(audio => audio.muted = true);
+            if (audio_btn.className === 'Mute') {
+                audio_btn.className = 'Unmute';
                 audio_btn.innerHTML = 'Unmute';
+                audio_sources.forEach(audio => audio.muted = true);
             } else {
+                audio_btn.className = 'Mute';
+                audio_btn.innerHTML = 'Mute';
                 audio_sources.forEach(audio => {
                     audio.muted = false;
                     audio.play();
                 });
-                audio_btn.innerHTML = 'Mute';
             }
         }
         var fps = 30, start, now, then = Date.now(), interval = 1000 / fps, delta;
@@ -1074,7 +1076,7 @@
     <audio id="ch_3" preload="auto">
         <source id="abduction_ray" src="audio/abduction_ray.mp3" type="audio/mpeg" preload="auto">
     </audio>
-    <button id="bgm_ctrl" style="display: none; position: absolute; top: 20%; right: 10%;"
+    <button id="bgm_ctrl" class="Mute" style="display: none; position: absolute; top: 10%; right: 5%;"
         onclick="updateAudioState()">Mute</button>
     <button id="shipSpawner" style="display: none; position: absolute; bottom: 30%; right: 20%;" onclick="bringShips()">
         Spawn UFO
