@@ -628,7 +628,6 @@
                 audio_btn.innerHTML = 'Mute';
                 audio_sources.forEach(audio => {
                     audio.muted = false;
-                    audio.play();
                 });
             }
         }
@@ -648,7 +647,7 @@
             now = Date.now();
             delta = now - then;
             if (now - start >= 23000 && !shot) {
-                shoot = true;
+                abductionBtn.click();
                 shot = true;
                 setTimeout(() => {
                     endScene = true;
@@ -888,7 +887,6 @@
             if (audio_bgm.children.length > 0) {
                 let index = Math.round(Math.random() * (audio_bgm.children.length)) - 1;
                 index < 0 && (index = 0);
-                console.log(index, audio_bgm.children.length, audio_bgm.children, audio_bgm.children[index]);
                 audio_bgm.volume = 0.5;
                 audio_bgm.src = audio_bgm.children[index].src;
                 audio_bgm.play();
