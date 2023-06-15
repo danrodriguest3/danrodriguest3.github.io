@@ -636,6 +636,7 @@
         async function animate() {
             const audio_ch_3 = document.getElementById('ch_3');
             const abductionBtn = document.getElementById('animTrigger');
+            const _mainPlane = document.getElementById('mainPlane');
             if (start === undefined) {
                 start = Date.now();
             }
@@ -696,8 +697,26 @@
                                     });
                                     if (_model.scale.x < 0) unloadedShips++;
                                 } else {
+                                    _mainPlane.removeChild(_ent);
                                     if (unloadedShips === loadedShips) {
-                                        cancelAnimationFrame(myReq);
+                                        setTimeout(() => {
+                                            start = undefined;
+                                            loadedShips = 0;
+                                            unloadedShips = 0;
+                                            biggest = 0;
+                                            xArr = [];
+                                            yArr = [];
+                                            zArr = [];
+                                            animLoop = false;
+                                            looped = [];
+                                            wobbled = [];
+                                            shoot = false;
+                                            shooting = false;
+                                            shot = false;
+                                            endScene = false;
+                                            cancelAnimationFrame(myReq);
+                                            advance();
+                                        }, 3000);
                                     }
                                 }
                             }
@@ -841,8 +860,9 @@
             const audio_ch_2 = document.getElementById('ch_2');
             audio_ch_2.src = audio_ch_2.children.namedItem('lookup_audio').src;
             audio_ch_2.play();
-            if (!window.navigator.userAgent.includes('iPhone') && !window.navigator.userAgent.includes('Android')) {
+            if (!window.navigator.userAgent.includes('iPhone') && !window.navigator.userAgent.includes('Android') && Array.from(_call.children).every(item => item.id !== 'trigger')) {
                 const _trigger = document.createElement('button');
+                _trigger.id = 'trigger';
                 _trigger.innerHTML = 'Manual Trigger';
                 _trigger.onclick = () => {
                     const audio_ch_2 = document.getElementById('ch_2');
