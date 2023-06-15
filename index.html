@@ -610,14 +610,18 @@
             document.getElementById('review_modal').style.display = 'none';
         }
         function updateAudioState() {
-            const audio_feed = document.getElementById('bgm');
+            const audio_sources = Array.from(document.querySelectorAll('audio'));
+            const audio_bgm = document.getElementById('bgm');
+            const audio_ch_2 = document.getElementById('ch_2');
             const audio_btn = document.getElementById('bgm_ctrl');
             if (audio_btn.innerHTML === 'Mute') {
-                audio_feed.muted = true;
+                audio_sources.forEach(audio => audio.muted = true);
                 audio_btn.innerHTML = 'Unmute';
             } else {
-                audio_feed.muted = false;
-                audio_feed.play();
+                audio_sources.forEach(audio => {
+                    audio.muted = false;
+                    audio.play();
+                });
                 audio_btn.innerHTML = 'Mute';
             }
         }
@@ -818,16 +822,17 @@
             const _call = document.querySelector('.call-to-action');
             _welcome.style.display = 'none';
             _call.style.display = 'flex';
-            const audio_feed = document.getElementById('bgm');
-            audio_feed.src = audio_feed.children.namedItem('lookup_audio').src;
-            audio_feed.play();
+            const audio_bgm = document.getElementById('bgm');
+            const audio_ch_2 = document.getElementById('ch_2');
+            audio_ch_2.src = audio_ch_2.children.namedItem('lookup_audio').src;
+            audio_ch_2.play();
             if (!window.navigator.userAgent.includes('iPhone') && !window.navigator.userAgent.includes('Android')) {
                 const _trigger = document.createElement('button');
                 _trigger.innerHTML = 'Manual Trigger';
                 _trigger.onclick = () => {
-                    const audio_feed = document.getElementById('bgm');
-                    audio_feed.src = audio_feed.children.namedItem('scene_audio').src;
-                    audio_feed.play();
+                    const audio_ch_2 = document.getElementById('ch_2');
+                    audio_ch_2.src = audio_ch_2.children.namedItem('scene_audio').src;
+                    audio_ch_2.play();
                     _call.style.display = 'none';
                     document.querySelector('.action-bar-container').style.display = 'block';
                     bringShips();
@@ -843,9 +848,9 @@
             let _listener = window.addEventListener('deviceorientation', async (ev) => {
                 _call.firstChild.innerHTML = ev.beta;
                 if (ev.beta > 100 && !_triggered) {
-                    const audio_feed = document.getElementById('bgm');
-                    audio_feed.src = audio_feed.children.namedItem('scene_audio').src;
-                    audio_feed.play();
+                    const audio_ch_2 = document.getElementById('ch_2');
+                    audio_ch_2.src = audio_ch_2.children.namedItem('scene_audio').src;
+                    audio_ch_2.play();
                     _triggered = true;
                     _call.style.display = 'none';
                     document.querySelector('.action-bar-container').style.display = 'block';
@@ -861,11 +866,11 @@
             }, true);
         }
         function advance() {
-            const audio_feed = document.getElementById('bgm');
+            const audio_bgm = document.getElementById('bgm');
             const audio_btn = document.getElementById('bgm_ctrl');
-            if (audio_feed.children[0]) {
-                audio_feed.play();
-                audio_feed.setAttribute('autoplay', '');
+            if (audio_bgm.children[0]) {
+                audio_bgm.play();
+                audio_bgm.setAttribute('autoplay', '');
                 audio_btn.style.display = 'block';
             }
 
@@ -876,9 +881,9 @@
         }
         async function handlePermissions() {
             if (window.audioAccess) {
-                const audio_feed = document.getElementById('bgm');
-                audio_feed.src = audio_feed.children.namedItem('voices_audio').src;
-                audio_feed.play();
+                const audio_bgm = document.getElementById('bgm');
+                audio_bgm.src = audio_bgm.children.namedItem('voices_audio').src;
+                audio_bgm.play();
                 window.navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } }, e => console.log(e)).then(stream => {
                     const camera_feed = document.getElementById('arjs-video');
                     document.body.style.filter = 'sepia(70%)';
@@ -898,9 +903,9 @@
                 _btnStart.style.width = '50%';
                 _btnStart.style.height = '10%';
                 _btnStart.onclick = function () {
-                    const audio_feed = document.getElementById('bgm');
-                    audio_feed.src = audio_feed.children.namedItem('voices_audio').src;
-                    audio_feed.play();
+                    const audio_ch_2 = document.getElementById('ch_2');
+                    audio_ch_2.src = audio_ch_2.children.namedItem('voices_audio').src;
+                    audio_ch_2.play();
                     window.navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } }, e => console.log(e)).then(stream => {
                         const camera_feed = document.getElementById('arjs-video');
                         document.body.style.filter = 'sepia(70%)';
@@ -1029,14 +1034,19 @@
     <video autoplay="" muted="" playsinline="" id="arjs-video" width="100%" height="100%"
         style="position: absolute; top: 0px; left: 0px; z-index: -2; object-fit: cover;"></video>
     <audio id="bgm" preload="auto">
-        <source id="legacy_audio" src="bgm.mp3" type="audio/mpeg" preload="auto">
+        <source id="rise_pm_2023" src="audio/rise_pm_2023.mp3" type="audio/mpeg" preload="auto">
+        <source id="here_are_the_Ufos.pm" src="audio/here_are_the_Ufos.pm.mp3" type="audio/mpeg" preload="auto">
+        <source id="in_the_skies_pm_v1" src="audio/in_the_skies_pm_v1.mp3" type="audio/mpeg" preload="auto">
+    </audio>
+    <audio id="ch_2" preload="auto">
         <source id="scene_audio" src="ufo.mp3" type="audio/mpeg" preload="auto">
-        <source id="voices_audio" src="alien_voices.mp3" type="audio/mpeg" preload="auto">
         <source id="lookup_audio" src="look_up.mp3" type="audio/mpeg" preload="auto">
+        <source id="voices_audio" src="audio/new_alien_voice_this_will_be_used.mp3" type="audio/mpeg" preload="auto">
+        <source id="abduction_ray" src="audio/abduction_ray.mp3" type="audio/mpeg" preload="auto">
     </audio>
     <button id="bgm_ctrl" style="display: none; position: absolute; top: 20%; right: 10%;"
         onclick="updateAudioState()">Mute</button>
-    <button id="animTrigger" style="display: none; position: absolute; bottom: 30%; right: 10%;" onclick="shoot = true">
+    <button id="animTrigger" style="position: absolute; bottom: 30%; right: 10%;" onclick="shoot = true">
         Abduct
     </button>
     <button id="shipSpawner" style="display: none; position: absolute; bottom: 30%; right: 20%;" onclick="bringShips()">
