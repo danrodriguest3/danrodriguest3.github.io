@@ -602,7 +602,7 @@
             _obj.setAttribute('rotation', '0 0 0');
             _obj.setAttribute('scale', '1 1 1');
             var _camera = document.createElement('a-entity');
-            await _sceneEl.appendChild(_camera);
+            await _sceneEl.replaceChild(_camera, _old_camera);
             _camera.setAttribute('id', 'main_camera');
             _camera.setAttribute('position', '0 1.6 4');
             _camera.setAttribute('rotation', '0 0 0');
@@ -610,7 +610,6 @@
             _camera.setAttribute('look-controls', 'mouseEnabled', 'false');
             _camera.setAttribute('camera', 'fov', '100');
             _camera.setAttribute('camera', 'active', true);
-            await _sceneEl.removeChild(_old_camera);
         }
         function closeReview() {
             document.getElementById('review_modal').style.display = 'none';
@@ -791,7 +790,7 @@
             yArr.push(_pY);
             _obj.position.y = _pY;
             do {
-                _pZ = await Math.floor(Math.random() * (-12) - 12);
+                _pZ = await Math.floor(Math.random() * (-10) - 12);
             } while (zArr.includes(_pZ));
             zArr.push(_pZ);
             _obj.position.z = _pZ;
@@ -863,6 +862,7 @@
             let _listener = window.addEventListener('deviceorientation', async (ev) => {
                 _call.firstChild.innerHTML = ev.beta;
                 if (ev.beta > 100 && !_triggered) {
+                    resetPosition();
                     const audio_ch_2 = document.getElementById('ch_2');
                     audio_ch_2.src = audio_ch_2.children.namedItem('scene_audio').src;
                     audio_ch_2.play();
