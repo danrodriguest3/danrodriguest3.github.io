@@ -915,6 +915,7 @@
                     audio_ch_2.src = audio_ch_2.children.namedItem('scene_audio').src;
                     audio_ch_2.play();
                     _triggered = true;
+                    start = undefined;
                     _call.style.display = 'none';
                     document.querySelector('.action-bar-container').style.display = 'block';
                     bringShips();
