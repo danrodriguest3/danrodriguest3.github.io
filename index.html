@@ -634,7 +634,6 @@
         var fps = 30, start, now, then = Date.now(), interval = 1000 / fps, delta;
         var looped = [], wobbled = [], shoot = false, shooting = false, shot = false, endScene = false;
         async function animate() {
-            const audio_ch_3 = document.getElementById('ch_3');
             const abductionBtn = document.getElementById('animTrigger');
             const _mainPlane = document.getElementById('mainPlane');
             if (start === undefined) {
@@ -655,15 +654,15 @@
                 }, 10000);
             }
             for (let _i = 0; _i < loadedShips; _i++) {
-                const _ent = await document.getElementById('cr_model' + _i);
+                let _ent = await document.getElementById('cr_model' + _i);
                 if (delta > interval && _ent) {
                     then = now - (delta % interval);
-                    const _model = await _ent.object3D;
+                    let _model = await _ent.object3D;
                     _model.rotation.y -= 0.1125;
                     if (loadedShips >= 3)
                         if (!shoot) {
                             if (!endScene) {
-                                if (_model.position.y < 12 && !looped[_i]) {
+                                if (_model.position.y < 15 && !looped[_i]) {
                                     _model.position.y += 0.02;
                                 } else {
                                     looped[_i] = true;
@@ -724,7 +723,7 @@
                             const _mainPlane = await document.getElementById('mainPlane');
                             const _height = _model.position.y;
                             if (Array.from(_mainPlane.children).every(_en => _en.id !== 'cone')) {
-                                const _cone = await document.createElement('a-entity');
+                                let _cone = await document.createElement('a-entity');
                                 _cone.id = 'cone';
                                 await _mainPlane.appendChild(_cone);
                                 await _cone.setAttribute('geometry', 'primitive: cone; radiusBottom: ' + _model.scale.x + '; radiusTop: ' + _model.scale.x / 2 + '; height: ' + _height + ';');
@@ -732,25 +731,53 @@
                                 _cone.object3D.position.x = _model.position.x;
                                 _cone.object3D.position.y = (_height / 2) + 0.5;
                                 _cone.object3D.position.z = _model.position.z;
+                                let _cow = await document.createElement('a-plane');
+                                _cow.id = 'cow';
+                                await _mainPlane.appendChild(_cow);
+                                await _cow.setAttribute('material', 'src: img/cow.png;');
+                                _cow.object3D.scale.x = _model.scale.x;
+                                _cow.object3D.scale.y = _model.scale.y;
+                                _cow.object3D.position.x = _model.position.x;
+                                _cow.object3D.position.y = 0;
+                                _cow.object3D.position.z = _model.position.z;
+                                _cow.object3D.children[0].material.alphaTest = 0.1;
                             } else {
-                                const _cone = await document.getElementById('cone');
-                                const _pOb = await _cone.object3D;
+                                let _cone = await document.getElementById('cone');
+                                let _pOb = await _cone.object3D;
                                 _pOb.rotation.y = _model.rotation.y;
-                                const _radiusBottom = await _cone.getAttribute('geometry').radiusBottom;
+                                let _radiusBottom = await _cone.getAttribute('geometry').radiusBottom;
                                 _pOb.children[0].material.opacity -= 1 / 1500;
                                 _pOb.children[0].material.needsUpdate = true;
                                 if (_radiusBottom > 0.001)
                                     await _cone.setAttribute('geometry', 'radiusBottom', _radiusBottom - (_model.scale.x / 600));
+                                let _cow = await document.getElementById('cow');
+                                let _cOb = await _cow.object3D;
+                                _cOb.position.y < _cone.getAttribute('geometry').height
+                                    ? ((_cOb.position.y += _cone.getAttribute('geometry').height / 600), (_cOb.scale.x -= _model.scale.x / 1200), (_cOb.scale.y -= _model.scale.y / 1200))
+                                    : ((_cOb.children[0].material.opacity = 0));
+                                if (_cOb.rotation.z < 0.15 && !wobbled[_i]) {
+                                    _cOb.rotation.z += 0.005;
+                                } else {
+                                    wobbled[_i] = true;
+                                    _cOb.rotation.z -= 0.005;
+                                    if (_cOb.rotation.z < -0.15) {
+                                        wobbled[_i] = false;
+                                    }
+                                }
                             }
                             if (!shooting) {
                                 shooting = true;
+                                let audio_ch_3 = document.getElementById('ch_3');
                                 audio_ch_3.src = audio_ch_3.children.namedItem('abduction_ray').src;
                                 audio_ch_3.play();
                                 abductionBtn.setAttribute('disabled', 'true');
                                 await setTimeout(async () => {
-                                    const _cone = await document.getElementById('cone');
+                                    let _cone = await document.getElementById('cone');
                                     if (_cone)
                                         await _mainPlane.removeChild(_cone);
+                                    let _cow = await document.getElementById('cow');
+                                    if (_cow)
+                                        await _mainPlane.removeChild(_cow);
                                     shoot = false;
                                     shooting = false;
                                     abductionBtn.removeAttribute('disabled');
