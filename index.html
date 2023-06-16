@@ -753,13 +753,13 @@
                                 let _cow = await document.getElementById('cow');
                                 let _cOb = await _cow.object3D;
                                 _cOb.position.y < _cone.getAttribute('geometry').height
-                                    ? ((_cOb.position.y += _cone.getAttribute('geometry').height / 600), (_cOb.scale.x -= _model.scale.x / 1200), (_cOb.scale.y -= _model.scale.y / 1200))
+                                    ? ((_cOb.position.y += _cone.getAttribute('geometry').height / 600), (_cOb.scale.x -= _model.scale.x / 900), (_cOb.scale.y -= _model.scale.y / 900))
                                     : ((_cOb.children[0].material.opacity = 0));
                                 if (_cOb.rotation.z < 0.15 && !wobbled[_i]) {
-                                    _cOb.rotation.z += 0.005;
+                                    _cOb.rotation.z += 0.01;
                                 } else {
                                     wobbled[_i] = true;
-                                    _cOb.rotation.z -= 0.005;
+                                    _cOb.rotation.z -= 0.01;
                                     if (_cOb.rotation.z < -0.15) {
                                         wobbled[_i] = false;
                                     }
