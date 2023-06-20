@@ -212,13 +212,21 @@
         src="https://cdn.rawgit.com/eligrey/FileSaver.js/5ed507ef8aa53d8ecfea96d96bc7214cd2476fd2/FileSaver.min.js"></script>
     <script src="https://html2canvas.hertzen.com/dist/html2canvas.js"></script>
     <style>
-        body {
-            height: 100vh;
-            width: 100vw;
-            margin: 0;
+        html {
             overflow: hidden !important;
             overscroll-behavior: none !important;
             background-color: #000000;
+        }
+
+        body {
+            height: 100vh;
+            min-height: 100vh;
+            max-height: 100vh;
+            width: 100vw;
+            min-width: 100vw;
+            max-width: 100vw;
+            overflow: hidden !important;
+            overscroll-behavior: none !important;
         }
 
         @-webkit-keyframes spin {
@@ -369,7 +377,7 @@
             padding: 10px;
             bottom: 0;
             left: 0;
-            width: 100%;
+            width: 100vw;
             background: url(img/bg-bottom.png);
             background-size: cover !important;
             background-position: center !important;
@@ -477,8 +485,8 @@
             position: absolute;
             top: 0px;
             left: 0px;
-            width: 100%;
-            height: 100%;
+            width: 100vw;
+            height: 100vh;
             background: transparent;
             z-index: 10;
             flex-direction: column;
@@ -538,8 +546,8 @@
             padding: 10pt;
             bottom: 0;
             left: 0;
-            width: 100%;
-            height: 10%;
+            width: 100vw;
+            height: 10vh;
             background: url(img/bg-bottom.png);
             background-size: cover !important;
             background-position: center !important;
@@ -565,10 +573,14 @@
 
         .t3-loader {
             position: absolute;
-            top: 1.5%;
+            top: 1.5vh;
             left: 0px;
-            width: 100%;
-            height: 98.5%;
+            height: 98.5vh;
+            min-height: 98.5vh;
+            max-height: 98.5vh;
+            width: 100vw;
+            min-width: 100vw;
+            max-width: 100vw;
             z-index: 10;
             display: flex;
             flex-direction: column;
@@ -661,11 +673,11 @@
             const audio_btn = document.getElementById('bgm_ctrl');
             if (audio_btn.className === 'Mute') {
                 audio_btn.className = 'Unmute';
-                audio_btn.innerHTML = 'Unmute';
+                audio_btn.children[0].children[0].setAttribute('d', 'M1129.433 113v1694.15H903.547l-451.774-451.773V564.773L903.547 113h225.886ZM338.83 564.773v790.604H169.415c-92.806 0-167.9-74.166-169.392-166.609L0 1185.962V734.188c0-92.805 74.166-167.9 166.608-169.392l2.807-.023H338.83ZM1789.951 635 1920 764.926 1724.988 959.94 1920 1154.95 1789.951 1285l-194.89-195.012L1400.05 1285 1270 1154.951l195.012-195.012L1270 764.926 1400.049 635l195.012 195.012L1789.951 635Z');
                 audio_sources.forEach(audio => audio.muted = true);
             } else {
                 audio_btn.className = 'Mute';
-                audio_btn.innerHTML = 'Mute';
+                audio_btn.children[0].children[0].setAttribute('d', 'M1129.432 113v1694.148H903.545l-451.772-451.773V564.773L903.545 113h225.887Zm542.545 248.057C1832.017 521.097 1920 733.882 1920 960.107c0 226.226-87.983 438.898-248.023 598.938l-79.851-79.85c138.694-138.582 214.93-323.018 214.93-519.087 0-196.183-76.236-380.506-214.93-519.2ZM338.83 564.773v790.602H169.415C75.672 1355.375 0 1279.703 0 1185.96V734.187c0-93.742 75.672-169.414 169.415-169.414H338.83Zm1093.922 36.085c95.776 97.018 148.407 224.644 148.407 359.16 0 134.628-52.631 262.253-148.407 359.272l-80.303-79.174c74.656-75.897 115.767-175.4 115.767-280.099 0-104.585-41.111-204.088-115.767-279.986Z');
                 audio_sources.forEach(audio => {
                     audio.muted = false;
                 });
@@ -754,6 +766,7 @@
                                             shot = false;
                                             endScene = false;
                                             document.getElementById('lookup_icon').setAttribute('style', 'display: none;');
+                                            document.querySelector('.action-bar-container').style.display = 'none';
                                             cancelAnimationFrame(myReq);
                                             advance();
                                         }, 3000);
@@ -867,7 +880,7 @@
             await _ent.setAttribute('gltf-model', '#main_model');
             await _ent.setAttribute('scale', '0 0 0');
             const _obj = _ent.object3D;
-            let _pX = Math.floor((Math.random() * 10) - 5), _pY = Math.floor(Math.random() * 12 + 2), _pZ = Math.floor(Math.random() * (-12) - 4);
+            let _pX = Math.floor((Math.random() * 10) - 5), _pY = Math.floor(Math.random() * 12 + 3), _pZ = Math.floor(Math.random() * (-10) - 4);
             do {
                 _pX = await Math.floor((Math.random() * 20) - 10);
             } while (xArr.includes(_pX));
@@ -931,9 +944,9 @@
             audio_ch_2.play();
             _call.children[1].innerHTML = '“Announcer: <br>This just in!';
             setTimeout(() => {
-                _call.children[1].innerHTML = 'This just in! <br>Aliens Spotted Nearby.';
+                _call.children[1].innerHTML = 'Aliens Spotted Nearby.';
                 setTimeout(() => {
-                    _call.children[1].innerHTML = 'Aliens spotted Nearby. <br>Look up to the skies now!”';
+                    _call.children[1].innerHTML = 'Look up to the skies now!”';
                     setTimeout(() => {
                         document.getElementById('lookup_icon').removeAttribute('style');
                         _call.children[1].innerHTML = 'point camera at sky!';
@@ -1008,7 +1021,6 @@
                 window.navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } }, e => console.log(e)).then(stream => {
                     const camera_feed = document.getElementById('arjs-video');
                     document.body.style.filter = 'sepia(70%)';
-                    document.body.style.maxHeight = '100%';
                     camera_feed.srcObject = stream;
                     showPrompt();
                 }).catch((e) => {
@@ -1029,7 +1041,6 @@
                     window.navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } }, e => console.log(e)).then(stream => {
                         const camera_feed = document.getElementById('arjs-video');
                         document.body.style.filter = 'sepia(70%)';
-                        document.body.style.maxHeight = '100%';
                         camera_feed.srcObject = stream;
                         showPrompt();
                     }).catch((e) => {
@@ -1046,7 +1057,6 @@
             const assets = await document.querySelectorAll('a-asset-item');
             const assArr = await Array.from(assets);
             await assArr.map(async (_asset, _i) => {
-                console.log(_asset.dataset);
                 await loadProg.push(0);
                 _asset.addEventListener('progress', function (event) {
                     loadProg.splice(_i, 1, event.detail.loadedBytes / event.detail.totalBytes);
@@ -1073,20 +1083,21 @@
                         last = _loadProg / loadProg.length * 100;
                     }
                     if (assetCount === assArr.length || Array.from(document.querySelector('a-assets').children).every(_ch => _ch.hasLoaded)) {
+                        window.scrollTo(0, 0);
                         handlePermissions();
                     }
                 });
                 _asset.addEventListener('error', function (error) {
                     console.log(error);
                 });
-                console.log(_asset.hasLoaded);
                 if (Array.from(document.querySelector('a-assets').children).every(_ch => _ch.hasLoaded)) {
+                    window.scrollTo(0, 0);
                     handlePermissions();
                 }
             });
         });
     </script>
-    <div id="xp-container" style="display: block">
+    <div id="xp-container" style="display: block; overflow: hidden; overscroll-behavior: none; scroll-behavior: none;">
         <a-scene id="scene" loading-screen="enabled: false;" arjs embedded
             renderer="logarithmicDepthBuffer: true; antialias: true; colorManagement: true; physicallyCorrectLights: true;"
             vr-mode-ui="enabled: false" gltf-model="dracoDecoderPath: https://www.gstatic.com/draco/v1/decoders/;"
@@ -1199,7 +1210,7 @@
         <img id="lookup_icon" src="img/lookup_icon.svg" style="display: none;" />
         <p style="margin: auto;">What's that noise coming from above?</p>
     </div>
-    <div id="loadedBar" style="position: absolute; top: 0px; height: 1.5%; background-color: white;">
+    <div id="loadedBar" style="position: absolute; top: 0px; left: 0px; height: 1.5%; background-color: white;">
     </div>
     <div class='t3-loader' id="loaderBG"></div>
     <div class='t3-loader' id="loaderFront">
@@ -1233,8 +1244,15 @@
     <audio id="ch_3" preload="auto">
         <source id="abduction_ray" src="audio/abduction_ray.mp3" type="audio/mpeg" preload="auto">
     </audio>
-    <button id="bgm_ctrl" class="Mute" style="display: none; position: absolute; top: 10%; right: 5%;"
-        onclick="updateAudioState()">Mute</button>
+    <button id="bgm_ctrl" class="Mute"
+        style="display: none; position: absolute; top: 5%; right: 5%; background-image: url('img/bg-audio-btn.png'); background-size: cover; width: 64pt; height: 64pt; background-color: transparent; border: none;"
+        onclick="updateAudioState()">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="#000000" width="48pt" height="48pt" viewBox="0 0 1920 1920">
+            <path
+                d="M1129.432 113v1694.148H903.545l-451.772-451.773V564.773L903.545 113h225.887Zm542.545 248.057C1832.017 521.097 1920 733.882 1920 960.107c0 226.226-87.983 438.898-248.023 598.938l-79.851-79.85c138.694-138.582 214.93-323.018 214.93-519.087 0-196.183-76.236-380.506-214.93-519.2ZM338.83 564.773v790.602H169.415C75.672 1355.375 0 1279.703 0 1185.96V734.187c0-93.742 75.672-169.414 169.415-169.414H338.83Zm1093.922 36.085c95.776 97.018 148.407 224.644 148.407 359.16 0 134.628-52.631 262.253-148.407 359.272l-80.303-79.174c74.656-75.897 115.767-175.4 115.767-280.099 0-104.585-41.111-204.088-115.767-279.986Z"
+                fill-rule="evenodd" />
+        </svg>
+    </button>
     <button id="shipSpawner" style="display: none; position: absolute; bottom: 30%; right: 20%;" onclick="bringShips()">
         Spawn UFO
     </button>
