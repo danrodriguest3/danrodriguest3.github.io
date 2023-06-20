@@ -33,7 +33,7 @@
         import Stats from './jsm/libs/stats.module.js';
         import { GUI } from './jsm/libs/lil-gui.module.min.js';
 
-        const t3Loader = document.querySelector('.t3-loader');
+        const t3Loader = document.querySelector('#loaderBG');
         let mouseX = 0, mouseY = 0, evenFrame = false;
         const CAArr = [], CBArr = [];
         const scene = await new THREE.Scene();
@@ -213,8 +213,11 @@
     <script src="https://html2canvas.hertzen.com/dist/html2canvas.js"></script>
     <style>
         body {
+            height: 100vh;
+            width: 100vw;
             margin: 0;
-            overflow: hidden;
+            overflow: hidden !important;
+            overscroll-behavior: none !important;
             background-color: #000000;
         }
 
@@ -367,7 +370,10 @@
             bottom: 0;
             left: 0;
             width: 100%;
-            background: #000000;
+            background: url(img/bg-bottom.png);
+            background-size: cover !important;
+            background-position: center !important;
+            background-repeat: no-repeat !important;
         }
 
         .detail-line {
@@ -533,11 +539,19 @@
 
         .t3-loader {
             position: absolute;
-            top: 0px;
+            top: 1.5%;
             left: 0px;
             width: 100%;
-            height: 100%;
+            height: 98.5%;
             z-index: 10;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        @font-face {
+            font-family: "Passion One";
+            src: url('fonts/PassionOne-Regular.ttf');
         }
     </style>
 </head>
@@ -791,7 +805,8 @@
             const _paper = document.querySelector('.superspin');
             const _startBtn = document.getElementById('startbtn');
             window.scrollTo(0, 0);
-            document.querySelector('.t3-loader').style.display = 'none';
+            Array.from(document.querySelectorAll('.t3-loader')).map(_en => _en.style.display = 'none');
+            document.querySelector('#loadedBar').style.display = 'none';
             document.querySelector('.welcome-popup').style.display = 'flex';
             setTimeout(() => {
                 _paper.classList.remove('superspin');
@@ -963,13 +978,12 @@
                     console.log(e);
                 });
             } else {
+                const _txtStart = document.createElement('p');
+                _txtStart.style = "font-family: 'Passion One'; font-style: normal; font-weight: 400; font-size: 42pt; line-height: 47pt; text-align: justify; text-transform: uppercase; color: #FCFCFC; margin-block-start: 0 !important; margin-block-end: 0 !important;";
+                _txtStart.innerHTML = 'Start';
                 const _btnStart = document.createElement('button');
-                _btnStart.innerHTML = 'Start';
-                _btnStart.style.position = 'fixed';
-                _btnStart.style.top = '50%';
-                _btnStart.style.left = '25%';
-                _btnStart.style.width = '50%';
-                _btnStart.style.height = '10%';
+                _btnStart.style = 'border: 2pt solid #FCFCFC; border-radius: 8pt; background: rgba(0, 0, 0, 0.75);';
+                _btnStart.appendChild(_txtStart);
                 _btnStart.onclick = function () {
                     const audio_ch_2 = document.getElementById('ch_2');
                     audio_ch_2.src = audio_ch_2.children.namedItem('voices_audio').src;
@@ -985,7 +999,7 @@
                         console.log(e);
                     });
                 };
-                document.querySelector('.t3-loader').children[0].appendChild(_btnStart);
+                document.querySelector('#buttonDiv').appendChild(_btnStart);
             }
         }
         document.addEventListener('DOMContentLoaded', async () => {
@@ -1010,6 +1024,16 @@
                 });
                 _asset.addEventListener('loaded', function (event) {
                     assetCount++;
+                    loadProg.splice(_i, 1, 1);
+                    let _loadProg = 0;
+                    loadProg.map((status, i) => {
+                        _loadProg += status;
+                    });
+                    if (_loadProg / loadProg.length * 100 > last) {
+                        document.getElementById('loadedPercentage').innerHTML = (_loadProg / loadProg.length * 100).toString().slice(0, _loadProg / loadProg.length < 1 ? 2 : 3) + '% Downloaded';
+                        document.getElementById('loadedBar').style.width = _loadProg / loadProg.length * 100 + '%';
+                        last = _loadProg / loadProg.length * 100;
+                    }
                     if (assetCount === assArr.length || Array.from(document.querySelector('a-assets').children).every(_ch => _ch.hasLoaded)) {
                         handlePermissions();
                     }
@@ -1017,6 +1041,7 @@
                 _asset.addEventListener('error', function (error) {
                     console.log(error);
                 });
+                console.log(_asset.hasLoaded);
                 if (Array.from(document.querySelector('a-assets').children).every(_ch => _ch.hasLoaded)) {
                     handlePermissions();
                 }
@@ -1094,18 +1119,24 @@
     <div class="call-to-action" style="display: none;">
         <p style="margin: auto;">What's that noise coming from above?</p>
     </div>
-    <div class='t3-loader'>
-        <div style="position: fixed; top: 0px; left: 0px; width: 100%; z-index: 11;">
-            <div id="loadedBar" style="position: fixed; top: 0px; margin: auto; height: 1.5%; background-color: white;">
-            </div>
-            <img src="/img/logo.png" style="position: fixed; top: 2.25%; margin-inline: 40%; width: 20%">
-            <p id="loadedPercentage" style="margin-inline: auto; margin-top: 22.75%; color: white; text-align: center;">
-                0%
-                Downloaded</p>
-            <p style="margin-inline: 5%; color: yellow; text-align: center;">Now downloading your experience.</br>Drag
-                your
-                finger around on the screen while you wait.</p>
-        </div>
+    <div id="loadedBar" style="position: absolute; top: 0px; height: 1.5%; background-color: white;">
+    </div>
+    <div class='t3-loader' id="loaderBG"></div>
+    <div class='t3-loader' id="loaderFront">
+        <p id="loadedPercentage"
+            style="flex: 2; color: white; font-family: 'Passion One'; font-style: normal; font-weight: 400; font-size: 25pt; line-height: 27pt; text-align: justify; text-transform: uppercase; flex-basis: fit-content;">
+            0%
+            Downloaded</p>
+        <p
+            style="flex: 2; color: white; font-family: 'Passion One'; font-style: normal; font-weight: 400; font-size: 42pt; line-height: 47pt; text-align: center; text-transform: uppercase; flex-basis: fit-content;">
+            THE UNIVERSE IS A VAST PLACE</p>
+        <p
+            style="flex: 1; color: white; font-family: 'Passion One'; font-style: normal; font-weight: 400; font-size: 18pt; line-height: 20pt; text-align: center; flex-basis: fit-content;">
+            Now downloading your
+            experience.</br>Drag
+            your
+            finger around on the screen while you wait.</p>
+        <div id="buttonDiv" style="flex:2; flex-basis: fit-content;"></div>
     </div>
     <video autoplay="" muted="" playsinline="" id="arjs-video" width="100%" height="100%"
         style="position: absolute; top: 0px; left: 0px; z-index: -2; object-fit: cover;"></video>
@@ -1127,7 +1158,4 @@
     <button id="shipSpawner" style="display: none; position: absolute; bottom: 30%; right: 20%;" onclick="bringShips()">
         Spawn UFO
     </button>
-    </div>
-    </div>
-    <video autoplay="" muted="" playsinline="" id="arjs-video" width="100%" height="100%"
-        style="position: absolute; top: 0px; left: 0px; z-index: -2; object-fit: cover;"></video>
+</body>
