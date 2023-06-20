@@ -421,7 +421,9 @@
             opacity: 0.75;
         }
 
-        .action-bar-button svg {}
+        .action-bar-button svg {
+            margin-bottom: 6pt;
+        }
 
         .review-modal {
             position: fixed;
@@ -502,10 +504,14 @@
 
             opacity: 0;
 
+            animation-duration: 6s;
+            animation-name: superspin;
+            animation-timing-function: cubic-bezier(0.075, 0.82, 0.165, 1);
+
             /* Configure the animation for Firefox */
             -moz-animation-duration: 6s;
             -moz-animation-name: superspin;
-            -moz-animation-timing-function: linear;
+            -moz-animation-timing-function: cubic-bezier(0.075, 0.82, 0.165, 1);
 
             /* Configure it for Chrome and Safari */
             -webkit-animation-duration: 6s;
@@ -520,10 +526,14 @@
             top: 25%;
             object-fit: contain;
 
+            animation-duration: 6s;
+            animation-name: lastspin;
+            animation-timing-function: cubic-bezier(0.075, 0.82, 0.165, 1);
+
             /* Configure the animation for Firefox */
             -moz-animation-duration: 6s;
             -moz-animation-name: lastspin;
-            -moz-animation-timing-function: linear;
+            -moz-animation-timing-function: cubic-bezier(0.075, 0.82, 0.165, 1);
 
             /* Configure it for Chrome and Safari */
             -webkit-animation-duration: 6s;
@@ -532,9 +542,12 @@
         }
 
         .slidedown {
+            animation-duration: 6s;
+            animation-name: slidedown;
+            animation-timing-function: cubic-bezier(0.075, 0.82, 0.165, 1);
             -moz-animation-duration: 6s;
             -moz-animation-name: slidedown;
-            -moz-animation-timing-function: linear;
+            -moz-animation-timing-function: cubic-bezier(0.075, 0.82, 0.165, 1);
             -webkit-animation-duration: 6s;
             -webkit-animation-name: slidedown;
             -webkit-animation-timing-function: cubic-bezier(0.075, 0.82, 0.165, 1);
@@ -651,7 +664,7 @@
             const _old_camera = document.querySelector('[camera]');
             const _sceneEl = document.querySelector('a-scene');
             const _obj = await document.getElementById('mainPlane');
-            _obj.setAttribute('rotation', '0 0 0');
+            _obj.setAttribute('rotation', '25 0 0');
             _obj.setAttribute('scale', '1 1 1');
             var _camera = document.createElement('a-entity');
             await _sceneEl.replaceChild(_camera, _old_camera);
@@ -719,7 +732,7 @@
                                 } else {
                                     looped[_i] = true;
                                     _model.position.y -= 0.02;
-                                    if (_model.position.y <= 3) {
+                                    if (_model.position.y <= 4) {
                                         looped[_i] = false;
                                     }
                                 }
@@ -869,7 +882,7 @@
         let loadedShips = 0, unloadedShips = 0, biggest = 0, xArr = [], yArr = [], zArr = [], animLoop = false;
         async function bringShips() {
             let _finished = false, _animLength = 60, _frameCount = 0;
-            let scale = Math.random() * 4 + 0.5, speed = scale / _animLength;
+            let scale = Math.random() * 4 + 1, speed = scale / _animLength;
             if (!scale < biggest) {
                 biggest = scale;
             }
@@ -880,19 +893,19 @@
             await _ent.setAttribute('gltf-model', '#main_model');
             await _ent.setAttribute('scale', '0 0 0');
             const _obj = _ent.object3D;
-            let _pX = Math.floor((Math.random() * 10) - 5), _pY = Math.floor(Math.random() * 12 + 3), _pZ = Math.floor(Math.random() * (-10) - 4);
+            let _pX = Math.floor((Math.random() * 10) - 5), _pY = Math.floor(Math.random() * 10 + 4), _pZ = Math.floor(Math.random() * (-10) - 4);
             do {
-                _pX = await Math.floor((Math.random() * 20) - 10);
+                _pX = await Math.floor((Math.random() * 10) - 5);
             } while (xArr.includes(_pX));
             xArr.push(_pX);
             _obj.position.x = _pX;
             do {
-                _pY = await Math.floor(Math.random() * 12 + 3);
+                _pY = await Math.floor(Math.random() * 10 + 4);
             } while (yArr.includes(_pY));
             yArr.push(_pY);
             _obj.position.y = _pY;
             do {
-                _pZ = await Math.floor(Math.random() * (-8) - 10);
+                _pZ = Math.floor(Math.random() * (-10) - 4);
             } while (zArr.includes(_pZ));
             zArr.push(_pZ);
             _obj.position.z = _pZ;
@@ -1049,6 +1062,7 @@
                     });
                 };
                 document.querySelector('#buttonDiv').appendChild(_btnStart);
+                window.scrollTo(-100, 0);
             }
         }
         document.addEventListener('DOMContentLoaded', async () => {
@@ -1245,9 +1259,9 @@
         <source id="abduction_ray" src="audio/abduction_ray.mp3" type="audio/mpeg" preload="auto">
     </audio>
     <button id="bgm_ctrl" class="Mute"
-        style="display: none; position: absolute; top: 5%; right: 5%; background-image: url('img/bg-audio-btn.png'); background-size: cover; width: 64pt; height: 64pt; background-color: transparent; border: none;"
+        style="display: none; position: absolute; top: 5%; right: 5%; background-image: url('img/bg-audio-btn.png'); background-size: cover; width: 48pt; height: 48pt; background-color: transparent; border: none;"
         onclick="updateAudioState()">
-        <svg xmlns="http://www.w3.org/2000/svg" fill="#000000" width="48pt" height="48pt" viewBox="0 0 1920 1920">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="#000000" width="32pt" height="32pt" viewBox="0 0 1920 1920">
             <path
                 d="M1129.432 113v1694.148H903.545l-451.772-451.773V564.773L903.545 113h225.887Zm542.545 248.057C1832.017 521.097 1920 733.882 1920 960.107c0 226.226-87.983 438.898-248.023 598.938l-79.851-79.85c138.694-138.582 214.93-323.018 214.93-519.087 0-196.183-76.236-380.506-214.93-519.2ZM338.83 564.773v790.602H169.415C75.672 1355.375 0 1279.703 0 1185.96V734.187c0-93.742 75.672-169.414 169.415-169.414H338.83Zm1093.922 36.085c95.776 97.018 148.407 224.644 148.407 359.16 0 134.628-52.631 262.253-148.407 359.272l-80.303-79.174c74.656-75.897 115.767-175.4 115.767-280.099 0-104.585-41.111-204.088-115.767-279.986Z"
                 fill-rule="evenodd" />
