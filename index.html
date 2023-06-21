@@ -226,6 +226,7 @@
             width: 100vw;
             min-width: 100vw;
             max-width: 100vw;
+            margin: 0px !important;
             overflow: hidden !important;
             overscroll-behavior: none !important;
         }
@@ -862,7 +863,7 @@
             const _startBtn = document.getElementById('startbtn');
             window.scrollTo(0, 0);
             Array.from(document.querySelectorAll('.t3-loader')).map(_en => _en.style.display = 'none');
-            document.querySelector('#loadedBar').style.display = 'none';
+            document.querySelector('#loadedBar').style.height = 0;
             document.querySelector('.welcome-popup').style.display = 'flex';
             setTimeout(() => {
                 _paper.classList.remove('superspin');
@@ -884,7 +885,7 @@
         }
         async function bringShips() {
             let _finished = false, _animLength = 60, _frameCount = 0;
-            let scale = Math.random() * 4 + 1, speed = scale / _animLength;
+            let scale = Math.random() * 3 + 1, speed = scale / _animLength;
             if (!scale < biggest) {
                 biggest = scale;
             }
