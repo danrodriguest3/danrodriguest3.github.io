@@ -609,6 +609,10 @@
 
 <body>
     <script defer>
+        var fps = 30, start, now, then = Date.now(), interval = 1000 / fps, delta;
+        var looped = [], wobbled = [], shoot = false, shooting = false, shot = false, endScene = false;
+        let loadedShips = 0, unloadedShips = 0, biggest = 0, xArr = [], yArr = [], zArr = [], animLoop = false;
+        let audio_count = 0;
         function openQrScanner(url) {
             window.location.href = url;
         }
@@ -696,8 +700,6 @@
                 });
             }
         }
-        var fps = 30, start, now, then = Date.now(), interval = 1000 / fps, delta;
-        var looped = [], wobbled = [], shoot = false, shooting = false, shot = false, endScene = false;
         async function animate() {
             const abductionBtn = document.getElementById('animTrigger');
             const _mainPlane = document.getElementById('mainPlane');
@@ -835,7 +837,7 @@
                             if (!shooting) {
                                 shooting = true;
                                 let audio_ch_3 = document.getElementById('ch_3');
-                                audio_ch_3.src = audio_ch_3.children.namedItem('abduction_ray').src;
+                                audio_ch_3.src = document.getElementById('abduction_ray').src;
                                 audio_ch_3.play();
                                 abductionBtn.setAttribute('disabled', 'true');
                                 await setTimeout(async () => {
@@ -879,7 +881,6 @@
                 }, 50);
             }, 5000);
         }
-        let loadedShips = 0, unloadedShips = 0, biggest = 0, xArr = [], yArr = [], zArr = [], animLoop = false;
         async function bringShips() {
             let _finished = false, _animLength = 60, _frameCount = 0;
             let scale = Math.random() * 4 + 1, speed = scale / _animLength;
@@ -953,7 +954,7 @@
             _call.style.display = 'flex';
             const audio_bgm = document.getElementById('bgm');
             const audio_ch_2 = document.getElementById('ch_2');
-            audio_ch_2.src = audio_ch_2.children.namedItem('lookup_audio').src;
+            audio_ch_2.src = document.getElementById('lookup_audio').src;
             audio_ch_2.play();
             _call.children[1].innerHTML = '“Announcer: <br>This just in!';
             setTimeout(() => {
@@ -972,7 +973,7 @@
                 _trigger.innerHTML = 'Manual Trigger';
                 _trigger.onclick = () => {
                     const audio_ch_2 = document.getElementById('ch_2');
-                    audio_ch_2.src = audio_ch_2.children.namedItem('scene_audio').src;
+                    audio_ch_2.src = document.getElementById('scene_audio').src;
                     audio_ch_2.play();
                     _call.style.display = 'none';
                     document.querySelector('.action-bar-container').style.display = 'block';
@@ -991,7 +992,7 @@
                 if (ev.beta > 100 && !_triggered) {
                     resetPosition();
                     const audio_ch_2 = document.getElementById('ch_2');
-                    audio_ch_2.src = audio_ch_2.children.namedItem('scene_audio').src;
+                    audio_ch_2.src = document.getElementById('scene_audio').src;
                     audio_ch_2.play();
                     _triggered = true;
                     start = undefined;
@@ -1011,15 +1012,9 @@
         function advance() {
             const audio_bgm = document.getElementById('bgm');
             const audio_btn = document.getElementById('bgm_ctrl');
-            if (audio_bgm.children.length > 0) {
-                let index = Math.round(Math.random() * (audio_bgm.children.length)) - 1;
-                index < 0 && (index = 0);
-                audio_bgm.volume = 0.5;
-                audio_bgm.src = audio_bgm.children[index].src;
-                audio_bgm.play();
-                audio_bgm.setAttribute('autoplay', '');
-                audio_btn.style.display = 'block';
-            }
+            audio_bgm.volume = 0.5;
+            audio_bgm.src = document.getElementById('in_the_skies_pm_v1').src;
+            audio_bgm.play();
 
             window.navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } }).then((e) => e.onactive = begin()).catch((e) => {
                 alert(e);
@@ -1027,9 +1022,15 @@
             });
         }
         async function handlePermissions() {
-            if (window.audioAccess) {
+            const _txtStart = document.createElement('p');
+            _txtStart.style = "font-family: 'Passion One'; font-style: normal; font-weight: 400; font-size: 42pt; line-height: 47pt; text-align: justify; text-transform: uppercase; color: #FCFCFC; margin-block-start: 0 !important; margin-block-end: 0 !important;";
+            _txtStart.innerHTML = 'Start';
+            const _btnStart = document.createElement('button');
+            _btnStart.style = 'border: 2pt solid #FCFCFC; border-radius: 8pt; background: rgba(0, 0, 0, 0.75);';
+            _btnStart.appendChild(_txtStart);
+            _btnStart.onclick = function () {
                 const audio_ch_2 = document.getElementById('ch_2');
-                audio_ch_2.src = audio_ch_2.children.namedItem('voices_audio').src;
+                audio_ch_2.src = document.getElementById('voices_audio').src;
                 audio_ch_2.play();
                 window.navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } }, e => console.log(e)).then(stream => {
                     const camera_feed = document.getElementById('arjs-video');
@@ -1040,32 +1041,17 @@
                     alert(e);
                     console.log(e);
                 });
-            } else {
-                const _txtStart = document.createElement('p');
-                _txtStart.style = "font-family: 'Passion One'; font-style: normal; font-weight: 400; font-size: 42pt; line-height: 47pt; text-align: justify; text-transform: uppercase; color: #FCFCFC; margin-block-start: 0 !important; margin-block-end: 0 !important;";
-                _txtStart.innerHTML = 'Start';
-                const _btnStart = document.createElement('button');
-                _btnStart.style = 'border: 2pt solid #FCFCFC; border-radius: 8pt; background: rgba(0, 0, 0, 0.75);';
-                _btnStart.appendChild(_txtStart);
-                _btnStart.onclick = function () {
-                    const audio_ch_2 = document.getElementById('ch_2');
-                    audio_ch_2.src = audio_ch_2.children.namedItem('voices_audio').src;
-                    audio_ch_2.play();
-                    window.navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } }, e => console.log(e)).then(stream => {
-                        const camera_feed = document.getElementById('arjs-video');
-                        document.body.style.filter = 'sepia(70%)';
-                        camera_feed.srcObject = stream;
-                        showPrompt();
-                    }).catch((e) => {
-                        alert(e);
-                        console.log(e);
-                    });
-                };
-                document.querySelector('#buttonDiv').appendChild(_btnStart);
-                window.scrollTo(-100, 0);
-            }
+            };
+            document.querySelector('#buttonDiv').appendChild(_btnStart);
+            window.scrollTo(-100, 0);
         }
         document.addEventListener('DOMContentLoaded', async () => {
+            const audio_amount = Array.from(document.querySelectorAll('audio')).length;
+            Array.from(document.querySelectorAll('audio')).forEach(async audio_element => {
+                audio_element.onloadeddata = await (async ev => {
+                    audio_count++;
+                });
+            });
             let assetCount = 0, last = 0;
             const loadProg = [];
             const assets = await document.querySelectorAll('a-asset-item');
@@ -1074,41 +1060,35 @@
                 await loadProg.push(0);
                 _asset.addEventListener('progress', function (event) {
                     loadProg.splice(_i, 1, event.detail.loadedBytes / event.detail.totalBytes);
-                    let _loadProg = 0;
-                    loadProg.map((status, i) => {
-                        _loadProg += status;
-                    });
-                    if (_loadProg / loadProg.length * 100 > last) {
-                        document.getElementById('loadedPercentage').innerHTML = (_loadProg / loadProg.length < 1 ? _loadProg / loadProg.length * 100 : 100.0).toString().slice(0, _loadProg / loadProg.length < 1 ? 2 : 3) + '% Downloaded';
-                        document.getElementById('loadedBar').style.width = _loadProg / loadProg.length * 100 + '%';
-                        last = _loadProg / loadProg.length * 100;
-                    }
                 });
                 _asset.addEventListener('loaded', function (event) {
                     assetCount++;
                     loadProg.splice(_i, 1, 1);
-                    let _loadProg = 0;
-                    loadProg.map((status, i) => {
-                        _loadProg += status;
-                    });
-                    if (_loadProg / loadProg.length * 100 > last) {
-                        document.getElementById('loadedPercentage').innerHTML = (_loadProg / loadProg.length < 1 ? _loadProg / loadProg.length * 100 : 100.0).toString().slice(0, _loadProg / loadProg.length < 1 ? 2 : 3) + '% Downloaded';
-                        document.getElementById('loadedBar').style.width = _loadProg / loadProg.length * 100 + '%';
-                        last = _loadProg / loadProg.length * 100;
-                    }
-                    if (assetCount === assArr.length || Array.from(document.querySelector('a-assets').children).every(_ch => _ch.hasLoaded)) {
-                        window.scrollTo(0, 0);
-                        handlePermissions();
-                    }
                 });
                 _asset.addEventListener('error', function (error) {
                     console.log(error);
                 });
-                if (Array.from(document.querySelector('a-assets').children).every(_ch => _ch.hasLoaded)) {
-                    window.scrollTo(0, 0);
-                    handlePermissions();
-                }
             });
+            let checker = setInterval(async () => {
+                let _loadProg = 0;
+                await loadProg.map((status, i) => {
+                    _loadProg += status;
+                });
+                if (_loadProg / loadProg.length * 100 > last) {
+                    document.getElementById('loadedPercentage').innerHTML = (_loadProg / loadProg.length < 1
+                        ? ((_loadProg / loadProg.length + audio_count / audio_amount) * 50)
+                        : (audio_count / audio_amount) * 50 + 50.0).toString().slice(0, _loadProg / loadProg.length < 1 ? 2 : 3) + '% Downloaded';
+                    document.getElementById('loadedBar').style.width = _loadProg / loadProg.length * 100 + 'vw';
+                    last = (_loadProg / loadProg.length + audio_count / audio_amount) * 50;
+                }
+                if (assetCount === assArr.length || Array.from(document.querySelector('a-assets').children).every(_ch => _ch.hasLoaded) && audio_count === audio_amount) {
+                    document.getElementById('loadedPercentage').innerHTML = '100% Downloaded';
+                    document.getElementById('loadedBar').style.width = '100vw';
+                    window.scrollTo(-100, 0);
+                    handlePermissions();
+                    clearInterval(checker);
+                }
+            }, 500);
         });
     </script>
     <div id="xp-container" style="display: block; overflow: hidden; overscroll-behavior: none; scroll-behavior: none;">
@@ -1246,18 +1226,18 @@
     <video autoplay="" muted="" playsinline="" id="arjs-video" width="100%" height="100%"
         style="position: absolute; top: 0px; left: 0px; z-index: -2; object-fit: cover;"></video>
     <audio id="bgm" preload="auto">
-        <source id="rise_pm_2023" src="audio/rise_pm_2023.mp3" type="audio/mpeg" preload="auto">
-        <source id="here_are_the_Ufos.pm" src="audio/here_are_the_Ufos.pm.mp3" type="audio/mpeg" preload="auto">
-        <source id="in_the_skies_pm_v1" src="audio/in_the_skies_pm_v1.mp3" type="audio/mpeg" preload="auto">
     </audio>
+    <audio id="rise_pm_2023" src="audio/rise_pm_2023.mp3" type="audio/mpeg" preload="auto"></audio>
+    <audio id="here_are_the_Ufos.pm" src="audio/here_are_the_Ufos.pm.mp3" type="audio/mpeg" preload="auto"></audio>
+    <audio id="in_the_skies_pm_v1" src="audio/in_the_skies_pm_v1.mp3" type="audio/mpeg" preload="auto"></audio>
     <audio id="ch_2" preload="auto">
-        <source id="scene_audio" src="ufo.mp3" type="audio/mpeg" preload="auto">
-        <source id="lookup_audio" src="look_up.mp3" type="audio/mpeg" preload="auto">
-        <source id="voices_audio" src="audio/new_alien_voice_this_will_be_used.mp3" type="audio/mpeg" preload="auto">
     </audio>
+    <audio id="scene_audio" src="ufo.mp3" type="audio/mpeg"></audio>
+    <audio id="lookup_audio" src="look_up.mp3" type="audio/mpeg"></audio>
+    <audio id="voices_audio" src="audio/new_alien_voice_this_will_be_used.mp3" type="audio/mpeg"></audio>
     <audio id="ch_3" preload="auto">
-        <source id="abduction_ray" src="audio/abduction_ray.mp3" type="audio/mpeg" preload="auto">
     </audio>
+    <audio id="abduction_ray" src="audio/abduction_ray.mp3" type="audio/mpeg"></audio>
     <button id="bgm_ctrl" class="Mute"
         style="display: none; position: absolute; top: 5%; right: 5%; background-image: url('img/bg-audio-btn.png'); background-size: cover; width: 48pt; height: 48pt; background-color: transparent; border: none;"
         onclick="updateAudioState()">
