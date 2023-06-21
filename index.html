@@ -376,7 +376,7 @@
         .action-bar-container {
             position: fixed;
             display: none;
-            padding: 10px;
+            padding-block: 10px;
             bottom: 0;
             left: 0;
             width: 100vw;
@@ -615,11 +615,11 @@
         var looped = [], wobbled = [], shoot = false, shooting = false, shot = false, endScene = false;
         let loadedShips = 0, unloadedShips = 0, biggest = 0, xArr = [], yArr = [], zArr = [], animLoop = false;
         let audio_count = 0;
+        let hashtags = '#ufoMcDonalds', title = `UFO MCDONALD'S`, address = 'ROSWELL, NM';
         function openQrScanner(url) {
             window.location.href = url;
         }
         function takePhoto() {
-            const _hashtags = '#ufoMcDonalds';
             document.getElementById('review_modal').style.display = 'block';
             const myImgElem = document.getElementById('review-img');
             myImgElem.src = '';
@@ -634,6 +634,7 @@
                 _canvas1.height = canvas.height;
                 _canvas1.width = canvas.width;
                 var _ctx1 = _canvas1.getContext('2d');
+                _ctx1.filter = 'sepia(70%)';
                 // Draw video background
                 var img = new Image;
                 img.onload = await async function () {
@@ -649,10 +650,16 @@
                         await _ctx1.drawImage(_frame, 0, 0, _frame.width + 100, _frame.height, 0, 0, _frame.width * (_canvas1.width / 380) + 100 * (_canvas1.width / 380), _frame.height * (_canvas1.height / 527));
                     if (_logo)
                         await _ctx1.drawImage(_logo, 0, 0, _logo.width, _logo.height, _canvas1.width / 2 - _logo.width * (_canvas1.height / 527) / 2, 0, _logo.width * (_canvas1.height / 527), _logo.height * (_canvas1.height / 527));
+                    _ctx1.filter = '';
+                    _ctx1.fillStyle = '#3E321B';
+                    await _ctx1.fillRect(0, _canvas1.height - (96 * window.devicePixelRatio), _canvas1.width, 96 * window.devicePixelRatio);
                     _ctx1.fillStyle = 'rgba(255, 255, 255, 0.75)';
-                    _ctx1.font = "30px Arial";
-                    _ctx1.textAlign = "center";
-                    _ctx1.fillText(_hashtags, _canvas1.width / 2, _canvas1.height * 0.8);
+                    _ctx1.font = "30px Passion One";
+                    _ctx1.textAlign = "left";
+                    await _ctx1.fillText(title, _canvas1.width * 0.0125, _canvas1.height * 0.965);
+                    await _ctx1.fillText(address, _canvas1.width * 0.0125, _canvas1.height * 0.9875);
+                    _ctx1.textAlign = "right";
+                    await _ctx1.fillText(hashtags, _canvas1.width * 0.9875, _canvas1.height * 0.9875);
                     // Get data from new canvas
                     var _image = await _canvas1.toDataURL("image/png");
                     myImgElem.src = _image;
@@ -1036,7 +1043,8 @@
                 audio_ch_2.play();
                 window.navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } }, e => console.log(e)).then(stream => {
                     const camera_feed = document.getElementById('arjs-video');
-                    document.body.style.filter = 'sepia(70%)';
+                    document.getElementById('arjs-video').style.filter = 'sepia(70%)';
+                    document.getElementById('xp-container').style.filter = 'sepia(70%)';
                     camera_feed.srcObject = stream;
                     showPrompt();
                 }).catch((e) => {
@@ -1108,7 +1116,8 @@
     </div>
     <div class="action-bar-container">
         <div class="action-bar-buttons">
-            <button class="action-bar-button" id="animTrigger" onclick="shoot = true" disabled>
+            <button class="action-bar-button" id="animTrigger"
+                onclick="(shoot = true, document.getElementById('abduction_ray').play())" disabled>
                 <svg xmlns="http://www.w3.org/2000/svg" width="44" height="44" viewBox="0 0 44 44" fill="none">
                     <circle opacity="0.3" cx="22" cy="22" r="16.5" fill="#3E321B" />
                     <path fill-rule="evenodd" clip-rule="evenodd"
@@ -1187,11 +1196,13 @@
                     </defs>
                 </svg>
             </button>
-            <p>Press and hold photo to save or share!</p>
+            <p style="
+                width: 60%;
+            ">Press and hold photo to save or share!</p>
         </div>
         <div style="width: 100%;">
             <div class="review-modal-loader" id="loader"></div>
-            <img id="review-img" style="width: 100%; pointer-events: auto;" />
+            <img id="review-img" style="width: 80%; pointer-events: auto; margin-left: 10%;" />
             <div style="width: 90%; margin: auto; pointer-events: none;">
                 <p style="text-align: center;">Tap and hold on the image to save to your photos or share</p>
             </div>
