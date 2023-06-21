@@ -1079,7 +1079,7 @@
                         _loadProg += status;
                     });
                     if (_loadProg / loadProg.length * 100 > last) {
-                        document.getElementById('loadedPercentage').innerHTML = (_loadProg / loadProg.length * 100).toString().slice(0, _loadProg / loadProg.length < 1 ? 2 : 3) + '% Downloaded';
+                        document.getElementById('loadedPercentage').innerHTML = (_loadProg / loadProg.length < 1 ? _loadProg / loadProg.length * 100 : 100.0).toString().slice(0, _loadProg / loadProg.length < 1 ? 2 : 3) + '% Downloaded';
                         document.getElementById('loadedBar').style.width = _loadProg / loadProg.length * 100 + '%';
                         last = _loadProg / loadProg.length * 100;
                     }
