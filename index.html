@@ -1020,7 +1020,6 @@
         }
         function advance() {
             const audio_bgm = document.getElementById('bgm');
-            const audio_btn = document.getElementById('bgm_ctrl');
             audio_bgm.volume = 0.5;
             audio_bgm.src = document.getElementById('in_the_skies_pm_v1').src;
             audio_bgm.play();
@@ -1038,6 +1037,9 @@
             _btnStart.style = 'border: 2pt solid #FCFCFC; border-radius: 8pt; background: rgba(0, 0, 0, 0.75);';
             _btnStart.appendChild(_txtStart);
             _btnStart.onclick = function () {
+                const audio_btn = document.getElementById('bgm_ctrl');
+                audio_btn.style.display = 'block';
+                audio_btn.style.zIndex = 10;
                 const audio_ch_2 = document.getElementById('ch_2');
                 audio_ch_2.src = document.getElementById('voices_audio').src;
                 audio_ch_2.play();
