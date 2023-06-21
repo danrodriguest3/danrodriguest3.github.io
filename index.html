@@ -1,5 +1,6 @@
 <head>
     <meta name="referrer" content="origin-when-cross-origin" />
+    <meta name="viewport" content="width=device-width, user-scalable=no">
     <script src="js/aframe.min.js"></script>
     <script src="js/shaders/CopyShader.js"></script>
     <script src="js/shaders/BlendShader.js"></script>
@@ -79,7 +80,7 @@
         bloomPass.renderToScreen = true;
         const geometryA = new THREE.BufferGeometry(), geometryB = new THREE.BufferGeometry(), geometryCA = new THREE.BufferGeometry(), geometryCB = new THREE.BufferGeometry();
         const verticesA = [], verticesB = [], verticesCA = [], verticesCB = [];
-        const sprite = new THREE.TextureLoader().load('/disc.png');
+        const sprite = new THREE.TextureLoader().load('disc.png');
 
         for (let i = 0; i < Math.ceil(1000 * (Math.random() + 0.1)); i++) {
             const x = t3Loader.clientWidth * 4 * Math.random() - t3Loader.clientWidth;
