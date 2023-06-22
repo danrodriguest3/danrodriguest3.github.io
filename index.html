@@ -1,3 +1,5 @@
+<!DOCTYPE html>
+
 <head>
     <meta name="referrer" content="origin-when-cross-origin" />
     <meta name="viewport" content="width=device-width, user-scalable=no">
@@ -957,11 +959,11 @@
             const audio_ch_2 = document.getElementById('ch_2');
             audio_ch_2.src = document.getElementById('lookup_audio').src;
             audio_ch_2.play();
-            _call.children[1].innerHTML = '“Announcer: <br>This just in!';
+            _call.children[1].innerHTML = '"Announcer: <br>This just in!';
             setTimeout(() => {
                 _call.children[1].innerHTML = 'Aliens Spotted Nearby.';
                 setTimeout(() => {
-                    _call.children[1].innerHTML = 'Look up to the skies now!”';
+                    _call.children[1].innerHTML = 'Look up to the skies now!"';
                     setTimeout(() => {
                         document.getElementById('lookup_icon').removeAttribute('style');
                         _call.children[1].innerHTML = 'point camera at sky!';
