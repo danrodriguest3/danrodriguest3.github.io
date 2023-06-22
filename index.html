@@ -1,7 +1,7 @@
 <head>
     <meta name="referrer" content="origin-when-cross-origin" />
     <meta name="viewport" content="width=device-width, user-scalable=no">
-    <script src="js/aframe.min.js"></script>
+    <script src="js/aframe-master.min.js"></script>
     <script src="js/shaders/CopyShader.js"></script>
     <script src="js/shaders/BlendShader.js"></script>
     <script src="js/postprocessing/Pass.js"></script>
@@ -1011,6 +1011,8 @@
             }, true);
         }
         function advance() {
+            const audio_btn = document.getElementById('bgm_ctrl');
+            audio_btn.style.zIndex = 1;
             const audio_bgm = document.getElementById('bgm');
             audio_bgm.volume = 0.5;
             audio_bgm.src = document.getElementById('in_the_skies_pm_v1').src;
@@ -1026,16 +1028,16 @@
             _txtStart.style = "font-family: 'Passion One'; font-style: normal; font-weight: 400; font-size: 42pt; line-height: 47pt; text-align: justify; text-transform: uppercase; color: #FCFCFC; margin-block-start: 0 !important; margin-block-end: 0 !important;";
             _txtStart.innerHTML = 'Start';
             const _btnStart = document.createElement('button');
-            _btnStart.style = 'border: 2pt solid #FCFCFC; border-radius: 8pt; background: rgba(0, 0, 0, 0.75);';
+            _btnStart.style = 'border: 2pt solid #FCFCFC; border-radius: 8pt; background: rgba(0, 0, 0, 0.75); margin-bottom: 20pt;';
             _btnStart.appendChild(_txtStart);
             _btnStart.onclick = function () {
                 const audio_btn = document.getElementById('bgm_ctrl');
-                audio_btn.style.display = 'block';
-                audio_btn.style.zIndex = 10;
                 const audio_ch_2 = document.getElementById('ch_2');
                 audio_ch_2.src = document.getElementById('voices_audio').src;
                 audio_ch_2.play();
                 window.navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } }, e => console.log(e)).then(stream => {
+                    audio_btn.style.display = 'block';
+                    audio_btn.style.zIndex = 10;
                     const camera_feed = document.getElementById('arjs-video');
                     document.getElementById('arjs-video').style.filter = 'sepia(70%)';
                     document.getElementById('xp-container').style.filter = 'sepia(70%)';
