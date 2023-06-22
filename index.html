@@ -1,5 +1,3 @@
-<!DOCTYPE html>
-
 <head>
     <meta name="referrer" content="origin-when-cross-origin" />
     <meta name="viewport" content="width=device-width, user-scalable=no">
@@ -344,26 +342,22 @@
             }
         }
 
-        @-webkit-keyframes slidedown {
+        @-webkit-keyframes fade {
             0% {
-                padding-top: 0%;
                 opacity: 0;
             }
 
             100% {
-                padding-top: 50%;
                 opacity: 1;
             }
         }
 
-        @keyframes slidedown {
+        @keyframes fade {
             0% {
-                padding-top: 0%;
                 opacity: 0;
             }
 
             100% {
-                padding-top: 50%;
                 opacity: 1;
             }
         }
@@ -415,7 +409,7 @@
         }
 
         .action-bar-button:disabled {
-            opacity: 0.75;
+            opacity: 0.5;
         }
 
         .action-bar-button svg {
@@ -516,6 +510,19 @@
             -webkit-animation-timing-function: cubic-bezier(0.075, 0.82, 0.165, 1);
         }
 
+        .fade {
+            z-index: 10;
+            animation-duration: 3s;
+            animation-name: fade;
+            animation-timing-function: cubic-bezier(0.075, 0.82, 0.165, 1);
+            -moz-animation-duration: 3s;
+            -moz-animation-name: fade;
+            -moz-animation-timing-function: cubic-bezier(0.075, 0.82, 0.165, 1);
+            -webkit-animation-duration: 3s;
+            -webkit-animation-name: fade;
+            -webkit-animation-timing-function: cubic-bezier(0.075, 0.82, 0.165, 1);
+        }
+
         .lastspin {
             position: fixed;
             display: block !important;
@@ -607,7 +614,7 @@
 <body>
     <script defer>
         var fps = 30, start, now, then = Date.now(), interval = 1000 / fps, delta;
-        var looped = [], wobbled = [], shoot = false, shooting = false, shot = false, endScene = false;
+        var looped = [], wobbled = [], shoot = false, shooting = false, shot = false, endScene = false, runNextScene = false;
         let loadedShips = 0, unloadedShips = 0, biggest = 0, xArr = [], yArr = [], zArr = [], animLoop = false;
         let audio_count = 0;
         let hashtags = '#ufoMcDonalds', title = `UFO MCDONALD'S`, address = 'ROSWELL, NM';
@@ -704,159 +711,228 @@
                 });
             }
         }
+        async function endingSequence() {
+
+            const _mainPlane = document.getElementById('mainPlane');
+            const _ufos = Array.from(_mainPlane.children);
+            let myReq = requestAnimationFrame(endingSequence);
+            _ufos.map(_ufo => {
+                let _obj = _ufo.object3D;
+                _obj.rotation.y -= 0.1125;
+            });
+            if (_ufos.length < 3) {
+                await bringShips();
+            }
+            if (!endScene) {
+                document.querySelector('.welcome-popup').style.display = 'flex';
+                document.getElementById('bgm_ctrl').style.display = 'none';
+                const _fade = document.createElement('div');
+                _fade.style = 'position: absolute; top: 0; left: 0; width: 100vw; height: 100vh; background-color: #3e321a; opacity: 0;';
+                _fade.id = 'fade';
+                document.body.append(_fade);
+                const _paper = await document.getElementById('newspaper');
+                _paper.className !== 'lastspin' && await _paper.setAttribute('class', 'lastspin');
+                endScene = true;
+                setTimeout(() => {
+                    _paper.style = '-webkit-transform: scale(1) rotate(1090deg); transform: scale(1) rotate(1090deg); top: 25%; width: 80%; left: 10%;';
+                    _fade.setAttribute('class', 'fade');
+                    setTimeout(() => {
+                        _paper.style.opacity = 0;
+                        _fade.style.opacity = 1;
+                        document.getElementById('contact-area').style.display = 'flex';
+                    }, 3000);
+                }, 5000);
+            }
+        }
         async function animate() {
             const abductionBtn = document.getElementById('animTrigger');
             const _mainPlane = document.getElementById('mainPlane');
-            if (start === undefined) {
-                start = Date.now();
-            }
-            if (looped.length < loadedShips) {
-                looped.push(true);
-                wobbled.push(Math.random() > 0.5 ? true : false);
-            }
             let myReq = requestAnimationFrame(animate);
-            now = Date.now();
-            delta = now - then;
-            if (now - start >= 23000 && !shot) {
-                abductionBtn.click();
-                shot = true;
-                setTimeout(() => {
-                    endScene = true;
-                }, 10000);
-            }
-            for (let _i = 0; _i < loadedShips; _i++) {
-                let _ent = await document.getElementById('cr_model' + _i);
-                if (delta > interval && _ent) {
-                    then = now - (delta % interval);
-                    let _model = await _ent.object3D;
-                    _model.rotation.y -= 0.1125;
-                    if (loadedShips >= 3)
-                        if (!shoot) {
-                            if (!endScene) {
-                                if (_model.position.y < 15 && !looped[_i]) {
-                                    _model.position.y += 0.02;
-                                } else {
-                                    looped[_i] = true;
-                                    _model.position.y -= 0.02;
-                                    if (_model.position.y <= 4) {
-                                        looped[_i] = false;
-                                    }
-                                }
-                                if (_model.rotation.z < 0.075 && !wobbled[_i]) {
-                                    _model.rotation.z += 0.005;
-                                } else {
-                                    wobbled[_i] = true;
-                                    _model.rotation.z -= 0.005;
-                                    if (_model.rotation.z < -0.075) {
-                                        wobbled[_i] = false;
-                                    }
-                                }
-                            } else {
-                                !abductionBtn.hasAttribute('disabled') && (abductionBtn.setAttribute('disabled', ''));
-                                if (_model.scale.x > 0) {
-                                    _model.position.y += 0.02;
-                                    _model.scale.x -= 0.025;
-                                    _model.scale.y -= 0.025;
-                                    _model.scale.z -= 0.025;
-                                    _model.traverse(node => {
-                                        if (node.isMesh) {
-                                            node.material.opacity -= 0.005;
-                                            node.material.transparent = true;
-                                            node.material.needsUpdate = true;
+            if (!runNextScene) {
+                if (start === undefined) {
+                    start = Date.now();
+                }
+                if (looped.length < loadedShips) {
+                    looped.push(true);
+                    wobbled.push(Math.random() > 0.5 ? true : false);
+                }
+                now = Date.now();
+                delta = now - then;
+                if (now - start >= 23000 && !shot) {
+                    abductionBtn.click();
+                    shot = true;
+                    setTimeout(() => {
+                        endScene = true;
+                    }, 10000);
+                }
+                for (let _i = 0; _i < loadedShips; _i++) {
+                    let _ent = await document.getElementById('cr_model' + _i);
+                    if (delta > interval && _ent) {
+                        then = now - (delta % interval);
+                        let _model = await _ent.object3D;
+                        _model.rotation.y -= 0.1125;
+                        if (loadedShips >= 3)
+                            if (!shoot) {
+                                if (!endScene) {
+                                    if (_model.position.y < 15 && !looped[_i]) {
+                                        _model.position.y += 0.02;
+                                    } else {
+                                        looped[_i] = true;
+                                        _model.position.y -= 0.02;
+                                        if (_model.position.y <= 4) {
+                                            looped[_i] = false;
                                         }
-                                    });
-                                    if (_model.scale.x < 0) unloadedShips++;
+                                    }
+                                    if (_model.rotation.z < 0.075 && !wobbled[_i]) {
+                                        _model.rotation.z += 0.005;
+                                    } else {
+                                        wobbled[_i] = true;
+                                        _model.rotation.z -= 0.005;
+                                        if (_model.rotation.z < -0.075) {
+                                            wobbled[_i] = false;
+                                        }
+                                    }
                                 } else {
-                                    _mainPlane.removeChild(_ent);
-                                    if (unloadedShips === loadedShips) {
-                                        setTimeout(() => {
-                                            start = undefined;
-                                            loadedShips = 0;
-                                            unloadedShips = 0;
-                                            biggest = 0;
-                                            xArr = [];
-                                            yArr = [];
-                                            zArr = [];
-                                            animLoop = false;
-                                            looped = [];
-                                            wobbled = [];
-                                            shoot = false;
-                                            shooting = false;
-                                            shot = false;
-                                            endScene = false;
-                                            document.getElementById('lookup_icon').setAttribute('style', 'display: none;');
-                                            document.querySelector('.action-bar-container').style.display = 'none';
-                                            cancelAnimationFrame(myReq);
-                                            advance();
-                                        }, 3000);
+                                    !abductionBtn.hasAttribute('disabled') && (abductionBtn.setAttribute('disabled', ''));
+                                    if (_model.scale.x > 0) {
+                                        _model.position.y += 0.02;
+                                        _model.scale.x -= 0.025;
+                                        _model.scale.y -= 0.025;
+                                        _model.scale.z -= 0.025;
+                                        _model.traverse(node => {
+                                            if (node.isMesh) {
+                                                node.material.opacity -= 0.005;
+                                                node.material.transparent = true;
+                                                node.material.needsUpdate = true;
+                                            }
+                                        });
+                                        if (_model.scale.x < 0) unloadedShips++;
+                                    } else {
+                                        _mainPlane.removeChild(_ent);
+                                        document.getElementById('next_btn').hasAttribute('disabled') && (document.getElementById('next_btn').removeAttribute('disabled'));
+                                        if (unloadedShips === loadedShips) {
+                                            setTimeout(() => {
+                                                if (!runNextScene) {
+                                                    start = undefined;
+                                                    loadedShips = 0;
+                                                    unloadedShips = 0;
+                                                    biggest = 0;
+                                                    xArr = [];
+                                                    yArr = [];
+                                                    zArr = [];
+                                                    animLoop = false;
+                                                    looped = [];
+                                                    wobbled = [];
+                                                    shoot = false;
+                                                    shooting = false;
+                                                    shot = false;
+                                                    endScene = false;
+                                                    runNextScene = false;
+                                                    document.getElementById('lookup_icon').setAttribute('style', 'display: none;');
+                                                    document.querySelector('.action-bar-container').style.display = 'none';
+                                                    cancelAnimationFrame(myReq);
+                                                    //advance();
+                                                    document.getElementById('next_btn').click();
+                                                }
+                                            }, 3000);
+                                        }
                                     }
                                 }
-                            }
-                        } else {
-                            const _mainPlane = await document.getElementById('mainPlane');
-                            const _height = _model.position.y;
-                            if (Array.from(_mainPlane.children).every(_en => _en.id !== 'cone')) {
-                                let _cone = await document.createElement('a-entity');
-                                _cone.id = 'cone';
-                                await _mainPlane.appendChild(_cone);
-                                await _cone.setAttribute('geometry', 'primitive: cone; radiusBottom: ' + _model.scale.x + '; radiusTop: ' + _model.scale.x / 2 + '; height: ' + _height + ';');
-                                await _cone.setAttribute('material', 'side: double; opacity: 0.5;');
-                                _cone.object3D.position.x = _model.position.x;
-                                _cone.object3D.position.y = (_height / 2) + 0.5;
-                                _cone.object3D.position.z = _model.position.z;
-                                let _cow = await document.createElement('a-plane');
-                                _cow.id = 'cow';
-                                await _mainPlane.appendChild(_cow);
-                                await _cow.setAttribute('material', 'src: img/cow.png;');
-                                _cow.object3D.scale.x = _model.scale.x;
-                                _cow.object3D.scale.y = _model.scale.y;
-                                _cow.object3D.position.x = _model.position.x;
-                                _cow.object3D.position.y = 0;
-                                _cow.object3D.position.z = _model.position.z;
-                                _cow.object3D.children[0].material.alphaTest = 0.1;
                             } else {
-                                let _cone = await document.getElementById('cone');
-                                let _pOb = await _cone.object3D;
-                                _pOb.rotation.y = _model.rotation.y;
-                                let _radiusBottom = await _cone.getAttribute('geometry').radiusBottom;
-                                _pOb.children[0].material.opacity -= 1 / 1500;
-                                _pOb.children[0].material.needsUpdate = true;
-                                if (_radiusBottom > 0.001)
-                                    await _cone.setAttribute('geometry', 'radiusBottom', _radiusBottom - (_model.scale.x / 600));
-                                let _cow = await document.getElementById('cow');
-                                let _cOb = await _cow.object3D;
-                                _cOb.position.y < _cone.getAttribute('geometry').height
-                                    ? ((_cOb.position.y += _cone.getAttribute('geometry').height / 600), (_cOb.scale.x -= _model.scale.x / 900), (_cOb.scale.y -= _model.scale.y / 900))
-                                    : ((_cOb.children[0].material.opacity = 0));
-                                if (_cOb.rotation.z < 0.15 && !wobbled[_i]) {
-                                    _cOb.rotation.z += 0.01;
+                                const _mainPlane = await document.getElementById('mainPlane');
+                                const _height = _model.position.y;
+                                if (Array.from(_mainPlane.children).every(_en => _en.id !== 'cone')) {
+                                    let _cone = await document.createElement('a-entity');
+                                    _cone.id = 'cone';
+                                    await _mainPlane.appendChild(_cone);
+                                    await _cone.setAttribute('geometry', 'primitive: cone; radiusBottom: ' + _model.scale.x + '; radiusTop: ' + _model.scale.x / 2 + '; height: ' + _height + ';');
+                                    await _cone.setAttribute('material', 'side: double; opacity: 0.5;');
+                                    _cone.object3D.position.x = _model.position.x;
+                                    _cone.object3D.position.y = (_height / 2) + 0.5;
+                                    _cone.object3D.position.z = _model.position.z;
+                                    let _cow = await document.createElement('a-plane');
+                                    _cow.id = 'cow';
+                                    await _mainPlane.appendChild(_cow);
+                                    await _cow.setAttribute('material', 'src: img/cow.png;');
+                                    _cow.object3D.scale.x = _model.scale.x;
+                                    _cow.object3D.scale.y = _model.scale.y;
+                                    _cow.object3D.position.x = _model.position.x;
+                                    _cow.object3D.position.y = 0;
+                                    _cow.object3D.position.z = _model.position.z;
+                                    _cow.object3D.children[0].material.alphaTest = 0.1;
                                 } else {
-                                    wobbled[_i] = true;
-                                    _cOb.rotation.z -= 0.01;
-                                    if (_cOb.rotation.z < -0.15) {
-                                        wobbled[_i] = false;
+                                    let _cone = await document.getElementById('cone');
+                                    let _pOb = await _cone.object3D;
+                                    _pOb.rotation.y = _model.rotation.y;
+                                    let _radiusBottom = await _cone.getAttribute('geometry').radiusBottom;
+                                    _pOb.children[0].material.opacity -= 1 / 1500;
+                                    _pOb.children[0].material.needsUpdate = true;
+                                    if (_radiusBottom > 0.001)
+                                        await _cone.setAttribute('geometry', 'radiusBottom', _radiusBottom - (_model.scale.x / 600));
+                                    let _cow = await document.getElementById('cow');
+                                    let _cOb = await _cow.object3D;
+                                    _cOb.position.y < _cone.getAttribute('geometry').height
+                                        ? ((_cOb.position.y += _cone.getAttribute('geometry').height / 600), (_cOb.scale.x -= _model.scale.x / 900), (_cOb.scale.y -= _model.scale.y / 900))
+                                        : ((_cOb.children[0].material.opacity = 0));
+                                    if (_cOb.rotation.z < 0.15 && !wobbled[_i]) {
+                                        _cOb.rotation.z += 0.01;
+                                    } else {
+                                        wobbled[_i] = true;
+                                        _cOb.rotation.z -= 0.01;
+                                        if (_cOb.rotation.z < -0.15) {
+                                            wobbled[_i] = false;
+                                        }
                                     }
                                 }
+                                if (!shooting) {
+                                    shooting = true;
+                                    let audio_ch_3 = document.getElementById('ch_3');
+                                    audio_ch_3.src = document.getElementById('abduction_ray').src;
+                                    audio_ch_3.play();
+                                    abductionBtn.setAttribute('disabled', 'true');
+                                    await setTimeout(async () => {
+                                        let _cone = await document.getElementById('cone');
+                                        if (_cone)
+                                            await _mainPlane.removeChild(_cone);
+                                        let _cow = await document.getElementById('cow');
+                                        if (_cow)
+                                            await _mainPlane.removeChild(_cow);
+                                        shoot = false;
+                                        shooting = false;
+                                        abductionBtn.removeAttribute('disabled');
+                                    }, 10000);
+                                }
                             }
-                            if (!shooting) {
-                                shooting = true;
-                                let audio_ch_3 = document.getElementById('ch_3');
-                                audio_ch_3.src = document.getElementById('abduction_ray').src;
-                                audio_ch_3.play();
-                                abductionBtn.setAttribute('disabled', 'true');
-                                await setTimeout(async () => {
-                                    let _cone = await document.getElementById('cone');
-                                    if (_cone)
-                                        await _mainPlane.removeChild(_cone);
-                                    let _cow = await document.getElementById('cow');
-                                    if (_cow)
-                                        await _mainPlane.removeChild(_cow);
-                                    shoot = false;
-                                    shooting = false;
-                                    abductionBtn.removeAttribute('disabled');
-                                }, 10000);
-                            }
+                    }
+                }
+            } else {
+                const _mainPlane = document.getElementById('mainPlane');
+                if (Array.from(_mainPlane.children).length > 0) {
+                    const _length = _mainPlane.length - 1;
+                    Array.from(_mainPlane.children).map(async (_child, _i) => {
+                        _mainPlane.removeChild(_child);
+                        if (_i === _length) {
+                            await document.querySelector('.welcome-popup').removeChild(await document.querySelector('.welcome-popup').children.namedItem('startbtn'));
+                            document.querySelector('.action-bar-container').style.display !== 'none' && (document.querySelector('.action-bar-container').style.display = 'none');
+                            await document.querySelector('.welcome-popup').firstChild.removeAttribute('class');
+                            endScene = false;
+                            runNextScene = false;
+                            document.getElementById('lookup_icon').setAttribute('style', 'display: none;');
+                            document.querySelector('.action-bar-container').style.display = 'none';
+                            endingSequence();
+                            cancelAnimationFrame(myReq);
                         }
+                    });
+                } else {
+                    document.querySelector('.welcome-popup').removeChild(document.querySelector('.welcome-popup').children.namedItem('startbtn'));
+                    document.querySelector('.action-bar-container').style.display !== 'none' && (document.querySelector('.action-bar-container').style.display = 'none');
+                    document.querySelector('.welcome-popup').firstChild.className = '';
+                    endScene = false;
+                    runNextScene = false;
+                    document.getElementById('lookup_icon').setAttribute('style', 'display: none;');
+                    document.querySelector('.action-bar-container').style.display = 'none';
+                    endingSequence();
+                    cancelAnimationFrame(myReq);
                 }
             }
         }
@@ -1054,6 +1130,7 @@
             window.scrollTo(-100, 0);
         }
         document.addEventListener('DOMContentLoaded', async () => {
+            document.getElementById('next_btn').setAttribute('disabled', '');
             const audio_amount = Array.from(document.querySelectorAll('audio')).length;
             Array.from(document.querySelectorAll('audio')).forEach(async audio_element => {
                 audio_element.onloadeddata = await (async ev => {
@@ -1141,7 +1218,7 @@
                 </svg>
                 Take Photo
             </button>
-            <button class="action-bar-button" id="" onclick="" disabled>
+            <button class="action-bar-button" id="next_btn" onclick="runNextScene = true" disabled>
                 <svg xmlns="http://www.w3.org/2000/svg" width="44" height="44" viewBox="0 0 44 44" fill="none">
                     <circle opacity="0.3" cx="21.75" cy="22" r="16.5" fill="#3E321B" />
                     <path
@@ -1209,7 +1286,7 @@
     <div class="welcome-popup" style="display: none;"><button id="startbtn"
             style="margin: auto; background: transparent; border: transparent; opacity: 0;" onclick="advance()"><img
                 src="start.png" /></button>
-        <img class="superspin" src="paper2.png" style="display: none;" />
+        <img id="newspaper" class="superspin" src="paper2.png" style="display: none;" />
     </div>
     <div class="call-to-action" style="display: none;">
         <img id="lookup_icon" src="img/lookup_icon.svg" style="display: none;" />
@@ -1261,4 +1338,23 @@
     <button id="shipSpawner" style="display: none; position: absolute; bottom: 30%; right: 20%;" onclick="bringShips()">
         Spawn UFO
     </button>
+    <div id="contact-area"
+        style="position: absolute; top: 0; left: 10vw; width: 80vw; height: 80vh; display: none; z-index: 11; flex-direction: column; justify-content: center; align-items: center;">
+        <div style="flex: 2; display: flex; justify-content: center; align-items: center;">
+            <p style="border-block: solid #FFF 2pt; height: fit-content; flex: 1;">To Be Continued...</p>
+        </div>
+        <div style="flex: 2;">
+            <p>Follow us through the cosmos as we explore more intergalactic encounters at the UFO
+                McDonald's.<br><br>Find
+                us on social media at @ufomcdonalds to find out how the saga continues.</p>
+        </div>
+        <div style="flex: 1; display: flex; flex-direction: column;justify-content: center; align-items: center;">
+            <button
+                style="flex: 1; background-image: url(img/bg-button.png); background-color: transparent; background-repeat: no-repeat; background-size: cover; border: none !important; font-family: 'Passion One'; font-style: normal; font-weight: 400; font-size: 22.8468px; line-height: 25px; text-align: justify; text-transform: uppercase; color: #3E321B;">Visit
+                Website</button>
+            <button
+                style="flex: 1; background-image: url(img/bg-button.png); background-color: transparent; background-repeat: no-repeat; background-size: cover; border: none !important; font-family: 'Passion One'; font-style: normal; font-weight: 400; font-size: 22.8468px; line-height: 25px; text-align: justify; text-transform: uppercase; color: #3E321B;"
+                onclick="">Restart</button>
+        </div>
+    </div>
 </body>
