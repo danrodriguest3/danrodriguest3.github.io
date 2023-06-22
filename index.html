@@ -43,7 +43,7 @@
         camera.updateProjectionMatrix();
         camera.position.z = 1000;
         scene.add(camera);
-
+        scene.position.y = -2;
         const renderer = await new THREE.WebGLRenderer();
         renderer.setPixelRatio(window.devicePixelRatio);
         renderer.setSize(t3Loader.clientWidth, t3Loader.clientHeight);
@@ -135,18 +135,13 @@
         });
 
         async function onPointerMove(event) {
-            if (window.navigator.userAgent.includes('iPhone')) {
-                mouseX = event.offsetX - t3Loader.clientWidth;
-                mouseY = event.offsetY - t3Loader.clientHeight;
-            } else {
-                mouseX = event.offsetX - t3Loader.clientWidth / 2;
-                mouseY = event.offsetY - t3Loader.clientHeight / 2;
-            }
+            mouseX = event.offsetX - t3Loader.clientWidth / 2;
+            mouseY = event.offsetY - t3Loader.clientHeight / 2;
 
-            particlesCA.position.y = (- mouseY - scene.position.y) * 1.1;
-            particlesCB.position.y = (- mouseY - scene.position.y) * 1.1;
-            particlesCA.position.x = (mouseX + scene.position.x);
-            particlesCB.position.x = (mouseX + scene.position.x);
+            particlesCA.position.y = (- mouseY);
+            particlesCB.position.y = (- mouseY);
+            particlesCA.position.x = (mouseX);
+            particlesCB.position.x = (mouseX);
             particlesA.material.opacity < 0.65 && (particlesA.material.opacity += 0.05);
             particlesB.material.opacity < 0.65 && (particlesB.material.opacity += 0.05);
             particlesCA.material.opacity < 1 && (particlesCA.material.opacity += 0.025);
@@ -316,7 +311,6 @@
             }
 
             100% {
-                top: 2.5%;
                 width: 80%;
                 left: 10%;
                 -webkit-transform: scale(1) rotate(1090deg);
@@ -342,7 +336,6 @@
             }
 
             100% {
-                top: 2.5%;
                 width: 80%;
                 left: 10%;
                 transform: scale(1) rotate(1090deg);
@@ -652,14 +645,14 @@
                         await _ctx1.drawImage(_logo, 0, 0, _logo.width, _logo.height, _canvas1.width / 2 - _logo.width * (_canvas1.height / 527) / 2, 0, _logo.width * (_canvas1.height / 527), _logo.height * (_canvas1.height / 527));
                     _ctx1.filter = '';
                     _ctx1.fillStyle = '#3E321B';
-                    await _ctx1.fillRect(0, _canvas1.height - (96 * window.devicePixelRatio), _canvas1.width, 96 * window.devicePixelRatio);
+                    await _ctx1.fillRect(0, _canvas1.height - (36 * window.devicePixelRatio), _canvas1.width, 36 * window.devicePixelRatio);
                     _ctx1.fillStyle = 'rgba(255, 255, 255, 0.75)';
-                    _ctx1.font = "30px Passion One";
+                    _ctx1.font = "20px Passion One";
                     _ctx1.textAlign = "left";
-                    await _ctx1.fillText(title, _canvas1.width * 0.0125, _canvas1.height * 0.965);
-                    await _ctx1.fillText(address, _canvas1.width * 0.0125, _canvas1.height * 0.9875);
+                    await _ctx1.fillText(title, _canvas1.width * 0.015, _canvas1.height * 0.9675);
+                    await _ctx1.fillText(address, _canvas1.width * 0.015, _canvas1.height * 0.99);
                     _ctx1.textAlign = "right";
-                    await _ctx1.fillText(hashtags, _canvas1.width * 0.9875, _canvas1.height * 0.9875);
+                    await _ctx1.fillText(hashtags, _canvas1.width * 0.99, _canvas1.height * 0.99);
                     // Get data from new canvas
                     var _image = await _canvas1.toDataURL("image/png");
                     myImgElem.src = _image;
@@ -880,10 +873,9 @@
                         _paper.classList.remove('superspin');
                         setTimeout(() => {
                             _paper.classList.add('lastspin');
-                            _startBtn.classList.add('slidedown');
+                            _startBtn.style = 'position: absolute; bottom: 10vh; left: 12.5vw; width: 75vw; opacity: 1; margin: 0 !important; background: transparent; border: transparent;';
                             setTimeout(() => {
-                                _startBtn.style = 'padding-top: 50%; opacity: 1; margin: auto; background: transparent; border: transparent;';
-                                _paper.style = '-webkit-transform: scale(1) rotate(1090deg); transform: scale(1) rotate(1090deg); top: 2.5%; width: 80%; left: 10%;'
+                                _paper.style = '-webkit-transform: scale(1) rotate(1090deg); transform: scale(1) rotate(1090deg); top: 25%; width: 80%; left: 10%;'
                             }, 5000);
                         }, 50);
                     }, 5000);
