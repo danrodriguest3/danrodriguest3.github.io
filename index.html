@@ -608,6 +608,11 @@
             font-family: "Passion One";
             src: url('fonts/PassionOne-Regular.ttf');
         }
+
+        @font-face {
+            font-family: "Marck Script";
+            src: url('fonts/MarckScript-Regular.ttf');
+        }
     </style>
 </head>
 
@@ -739,6 +744,7 @@
                     setTimeout(() => {
                         _paper.style.opacity = 0;
                         _fade.style.opacity = 1;
+                        _fade.style.background = 'radial-gradient(#c3bba7, #756b5a)';
                         document.getElementById('contact-area').style.display = 'flex';
                     }, 3000);
                 }, 5000);
@@ -911,17 +917,6 @@
                     const _length = _mainPlane.length - 1;
                     Array.from(_mainPlane.children).map(async (_child, _i) => {
                         _mainPlane.removeChild(_child);
-                        if (_i === _length) {
-                            await document.querySelector('.welcome-popup').removeChild(await document.querySelector('.welcome-popup').children.namedItem('startbtn'));
-                            document.querySelector('.action-bar-container').style.display !== 'none' && (document.querySelector('.action-bar-container').style.display = 'none');
-                            await document.querySelector('.welcome-popup').firstChild.removeAttribute('class');
-                            endScene = false;
-                            runNextScene = false;
-                            document.getElementById('lookup_icon').setAttribute('style', 'display: none;');
-                            document.querySelector('.action-bar-container').style.display = 'none';
-                            endingSequence();
-                            cancelAnimationFrame(myReq);
-                        }
                     });
                 } else {
                     document.querySelector('.welcome-popup').removeChild(document.querySelector('.welcome-popup').children.namedItem('startbtn'));
@@ -1341,7 +1336,9 @@
     <div id="contact-area"
         style="position: absolute; top: 0; left: 10vw; width: 80vw; height: 80vh; display: none; z-index: 11; flex-direction: column; justify-content: center; align-items: center;">
         <div style="flex: 2; display: flex; justify-content: center; align-items: center;">
-            <p style="border-block: solid #FFF 2pt; height: fit-content; flex: 1;">To Be Continued...</p>
+            <p
+                style="border-block: solid #FFF 2pt; height: fit-content; flex: 1; font-family: 'Marck Script'; font-size: 32pt; color: white; padding-block: 8pt;">
+                To Be Continued...</p>
         </div>
         <div style="flex: 2;">
             <p>Follow us through the cosmos as we explore more intergalactic encounters at the UFO
