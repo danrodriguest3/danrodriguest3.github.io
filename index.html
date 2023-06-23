@@ -470,6 +470,7 @@
             width: 80px;
             height: 80px;
             -webkit-animation: spin 2s linear infinite;
+            pointer-events: none;
             /* Safari */
             animation: spin 2s linear infinite;
         }
@@ -604,6 +605,10 @@
             align-items: center;
         }
 
+        #loaderFront p {
+            pointer-events: none;
+        }
+
         @font-face {
             font-family: "Passion One";
             src: url('fonts/PassionOne-Regular.ttf');
@@ -618,6 +623,11 @@
 
 <body>
     <script defer>
+        const globalColors = [
+            { r: Math.random() * 255, g: Math.random() * 255, b: Math.random() * 255 },
+            { r: 170, g: 255, b: 1 },
+            { r: 255, g: 255, b: 126 }
+        ];
         var fps = 30, start, now, then = Date.now(), interval = 1000 / fps, delta;
         var looped = [], wobbled = [], shoot = false, shooting = false, shot = false, endScene = false, runNextScene = false;
         let loadedShips = 0, unloadedShips = 0, biggest = 0, xArr = [], yArr = [], zArr = [], animLoop = false;
@@ -717,7 +727,7 @@
             }
         }
         async function endingSequence() {
-
+            /**
             const _mainPlane = document.getElementById('mainPlane');
             const _ufos = Array.from(_mainPlane.children);
             let myReq = requestAnimationFrame(endingSequence);
@@ -728,6 +738,7 @@
             if (_ufos.length < 3) {
                 await bringShips();
             }
+            **/
             if (!endScene) {
                 document.querySelector('.welcome-popup').style.display = 'flex';
                 document.getElementById('bgm_ctrl').style.display = 'none';
@@ -852,20 +863,28 @@
                                     _cone.id = 'cone';
                                     await _mainPlane.appendChild(_cone);
                                     await _cone.setAttribute('geometry', 'primitive: cone; radiusBottom: ' + _model.scale.x + '; radiusTop: ' + _model.scale.x / 2 + '; height: ' + _height + ';');
-                                    await _cone.setAttribute('material', 'side: double; opacity: 0.5;');
                                     _cone.object3D.position.x = _model.position.x;
                                     _cone.object3D.position.y = (_height / 2) + 0.5;
                                     _cone.object3D.position.z = _model.position.z;
+                                    _cone.object3D.children[0].material.opacity = 0.35;
+                                    _cone.object3D.children[0].material.transparent = true;
+                                    _cone.object3D.children[0].material.emissive.r = 5;
+                                    _cone.object3D.children[0].material.emissive.g = 5;
+                                    _cone.object3D.children[0].material.emissive.b = 5;
+                                    _cone.object3D.children[0].material.emissiveIntensity = 0.5;
+                                    _cone.object3D.children[0].material.needsUpdate = true;
                                     let _cow = await document.createElement('a-plane');
                                     _cow.id = 'cow';
                                     await _mainPlane.appendChild(_cow);
                                     await _cow.setAttribute('material', 'src: img/cow.png;');
+                                    await _cow.setAttribute('shadow', 'receive: false; cast: false;');
                                     _cow.object3D.scale.x = _model.scale.x;
                                     _cow.object3D.scale.y = _model.scale.y;
                                     _cow.object3D.position.x = _model.position.x;
                                     _cow.object3D.position.y = 0;
                                     _cow.object3D.position.z = _model.position.z;
                                     _cow.object3D.children[0].material.alphaTest = 0.1;
+                                    _cow.object3D.children[0].material.needsUpdate = true;
                                 } else {
                                     let _cone = await document.getElementById('cone');
                                     let _pOb = await _cone.object3D;
@@ -963,62 +982,89 @@
             }
             const _ent = await document.createElement('a-gltf-model');
             _ent.id = 'cr_model' + loadedShips;
-            loadedShips++;
+            _ent.addEventListener('loaded', async () => {
+                const _obj = await _ent.object3D;
+                let _pX = Math.floor((Math.random() * 10) - 5), _pY = Math.floor(Math.random() * 10 + 4), _pZ = Math.floor(Math.random() * (-10) - 4);
+                do {
+                    _pX = await Math.floor((Math.random() * 10) - 5);
+                } while (xArr.includes(_pX));
+                xArr.push(_pX);
+                _obj.position.x = _pX;
+                do {
+                    _pY = await Math.floor(Math.random() * 10 + 4);
+                } while (yArr.includes(_pY));
+                yArr.push(_pY);
+                _obj.position.y = _pY;
+                do {
+                    _pZ = Math.floor(Math.random() * (-10) - 4);
+                } while (zArr.includes(_pZ));
+                zArr.push(_pZ);
+                _obj.position.z = _pZ;
+                loadedShips++;
+                let colored = false;
+                let _loop = setInterval(() => {
+                    if (!colored && loadedShips <= 3) {
+                        colored = true;
+                        _obj.traverse(node => {
+                            if (node.isMesh) {
+                                if (node.material.name !== 'material_base') {
+                                    node.material.color.r = 255 - globalColors[parseInt(_ent.id[_ent.id.length - 1])].r;
+                                    node.material.color.g = 255 - globalColors[parseInt(_ent.id[_ent.id.length - 1])].g;
+                                    node.material.color.b = 255 - globalColors[parseInt(_ent.id[_ent.id.length - 1])].b;
+                                    node.material.emissive.r = 255 - globalColors[parseInt(_ent.id[_ent.id.length - 1])].r;
+                                    node.material.emissive.g = 255 - globalColors[parseInt(_ent.id[_ent.id.length - 1])].g;
+                                    node.material.emissive.b = 255 - globalColors[parseInt(_ent.id[_ent.id.length - 1])].b;
+                                    node.material.emissiveIntensity = 0.0075;
+                                    node.material.needsUpdate = true;
+                                } else {
+                                    node.material.color.r = globalColors[parseInt(_ent.id[_ent.id.length - 1])].r;
+                                    node.material.color.g = globalColors[parseInt(_ent.id[_ent.id.length - 1])].g;
+                                    node.material.color.b = globalColors[parseInt(_ent.id[_ent.id.length - 1])].b;
+                                    node.material.metalness = 0.5;
+                                    node.material.emissiveIntensity = 0;
+                                    node.material.needsUpdate = true;
+                                }
+                            }
+                        });
+                    }
+                    if (_obj.scale.x <= scale) {
+                        _obj.scale.x += speed;
+                        _obj.scale.y += speed;
+                        _obj.scale.z += speed;
+                        _obj.rotation.y += 4;
+                        if (!_obj.rotation.z > 0) {
+                            _obj.rotation.z = .0125;
+                        } else {
+                            _obj.rotation.z = -.0125;
+                        }
+                    } else {
+                        if (!_finished) {
+                            _obj.rotation.y += 3;
+                            _finished = !_finished;
+                        } else {
+                            _obj.rotation.y += 2;
+                        }
+                    }
+                    _frameCount++;
+                    if (_frameCount >= _animLength) {
+                        _obj.rotation.z = .0125;
+                        _obj.scale.x = scale;
+                        _obj.scale.y = scale;
+                        _obj.scale.z = scale;
+                        if (!animLoop) {
+                            const abductionBtn = document.getElementById('animTrigger');
+                            abductionBtn.removeAttribute('disabled');
+                            animLoop = true;
+                            animate();
+                            clearInterval(_loop);
+                        } else
+                            clearInterval(_loop);
+                    }
+                }, interval);
+            });
             await document.getElementById('mainPlane').appendChild(_ent);
             await _ent.setAttribute('gltf-model', '#main_model');
             await _ent.setAttribute('scale', '0 0 0');
-            const _obj = _ent.object3D;
-            let _pX = Math.floor((Math.random() * 10) - 5), _pY = Math.floor(Math.random() * 10 + 4), _pZ = Math.floor(Math.random() * (-10) - 4);
-            do {
-                _pX = await Math.floor((Math.random() * 10) - 5);
-            } while (xArr.includes(_pX));
-            xArr.push(_pX);
-            _obj.position.x = _pX;
-            do {
-                _pY = await Math.floor(Math.random() * 10 + 4);
-            } while (yArr.includes(_pY));
-            yArr.push(_pY);
-            _obj.position.y = _pY;
-            do {
-                _pZ = Math.floor(Math.random() * (-10) - 4);
-            } while (zArr.includes(_pZ));
-            zArr.push(_pZ);
-            _obj.position.z = _pZ;
-            let _loop = setInterval(() => {
-                if (_obj.scale.x <= scale) {
-                    _obj.scale.x += speed;
-                    _obj.scale.y += speed;
-                    _obj.scale.z += speed;
-                    _obj.rotation.y += 4;
-                    if (!_obj.rotation.z > 0) {
-                        _obj.rotation.z = .0125;
-                    } else {
-                        _obj.rotation.z = -.0125;
-                    }
-                } else {
-                    if (!_finished) {
-                        _obj.rotation.y += 3;
-                        _finished = !_finished;
-                    } else {
-                        _obj.rotation.y += 2;
-                    }
-                }
-                _frameCount++;
-                if (_frameCount >= _animLength) {
-                    _obj.rotation.z = .0125;
-                    _obj.scale.x = scale;
-                    _obj.scale.y = scale;
-                    _obj.scale.z = scale;
-                    if (!animLoop) {
-                        const abductionBtn = document.getElementById('animTrigger');
-                        abductionBtn.removeAttribute('disabled');
-                        animLoop = true;
-                        animate();
-                        clearInterval(_loop);
-                    } else
-                        clearInterval(_loop);
-                }
-            }, interval);
         }
         function begin() {
             let _triggered = false;
@@ -1181,6 +1227,8 @@
             </a-assets>
             <a-entity id="mainPlane" gesture-handler rotation="0 0 0" position="0 0 0">
             </a-entity>
+            <a-entity light="intensity: 0.01; castShadow: false;" position="0 -1 1"></a-entity>
+            <a-entity light="intensity: 0.0075; castShadow: false;" position="0 1 -1"></a-entity>
             <a-camera id="camera" position="0 1.6 0"></a-camera>
         </a-scene>
     </div>
@@ -1267,14 +1315,15 @@
                 </svg>
             </button>
             <p style="
-                width: 60%;
+                width: 60%; pointer-events: none;
             ">Press and hold photo to save or share!</p>
         </div>
         <div style="width: 100%;">
             <div class="review-modal-loader" id="loader"></div>
             <img id="review-img" style="width: 80%; pointer-events: auto; margin-left: 10%;" />
             <div style="width: 90%; margin: auto; pointer-events: none;">
-                <p style="text-align: center;">Tap and hold on the image to save to your photos or share</p>
+                <p style="text-align: center; pointer-events: none;">Tap and hold on the image to save to your photos or
+                    share</p>
             </div>
         </div>
     </div>
