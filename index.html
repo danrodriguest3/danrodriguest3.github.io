@@ -35,20 +35,22 @@
         document.addEventListener('DOMContentLoaded', () => {
             const camera_feed = document.getElementById('video');
             document.addEventListener('renderstart', () => {
+                let _mainEnt = document.getElementById('3d-object');
                 window.navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } }).then(stream => {
                     camera_feed.srcObject = stream;
+                    camera_feed.onloadeddata = async (e) => {
+                        if (_mainEnt.hasLoaded) {
+                            await _mainEnt.setAttribute('animation-mixer', 'loop: once;');
+                            loadEnt(_mainEnt);
+                        } else {
+                            await _mainEnt.addEventListener('model-loaded', async () => {
+                                await _mainEnt.setAttribute('animation-mixer', '');
+                                loadEnt(_mainEnt);
+                            });
+                        }
+                    };
                     camera_feed.load();
                 });
-                let _mainEnt = document.getElementById('3d-object');
-                if (_mainEnt.hasLoaded) {
-                    _mainEnt.setAttribute('animation-mixer', '');
-                    loadEnt(_mainEnt);
-                } else {
-                    _mainEnt.addEventListener('model-loaded', () => {
-                        _mainEnt.setAttribute('animation-mixer', '');
-                        loadEnt(_mainEnt);
-                    });
-                }
             });
         });
     </script>
@@ -68,7 +70,8 @@
             </a-entity>
         </a-entity>
     </a-scene>
-    <video autoplay id="video" style="position: fixed; z-index: -1; top: 0; width: 100%; height: 100%;"> </video>
+    <video autoplay="" muted="" playsinline="" id="video" width="100%" height="100%"
+        style="position: absolute; top: 0px; left: 0px; z-index: -2; object-fit: cover;"> </video>
 </body>
 
 </html>
